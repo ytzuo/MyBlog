@@ -2,19 +2,42 @@
 import { Image } from 'astro:assets';
 
 interface Props {
-	icon: string | ImageMetadata;
+	icon: string | ImageMetadata | ImageMetadata[];
 	alt?: string;
 	size?: number;
+	/** Duration of the animation loop in seconds (only for image arrays) */
+	duration?: number;
 }
 
-const { icon, alt = "", size = 32 } = Astro.props;
+const { icon, alt = "", size = 32, duration = 1 } = Astro.props;
 
-const isImage = typeof icon === 'object' && icon !== null;
+const isImage = typeof icon === 'object' && icon !== null && !Array.isArray(icon);
+const isAnimated = Array.isArray(icon);
+
+// Helper to cast icon to array for mapping
+const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 ---
 
 <div class="smart-icon" style={`--icon-size: ${size}px;`}>
 	{
-		isImage ? (
+		isAnimated ? (
+			<smart-icon-anim class="animated-icon-wrapper" data-duration={duration}>
+				{iconArray.map((img, index) => (
+					<div 
+						class="frame" 
+						style={`--frame-index: ${index}; --frame-count: ${iconArray.length};`}
+					>
+						<Image 
+							src={img} 
+							alt={`${alt} frame ${index + 1}`}
+							width={size * 2} 
+							height={size * 2}
+							class="icon-img"
+						/>
+					</div>
+				))}
+			</smart-icon-anim>
+		) : isImage ? (
 			<Image 
 				src={icon as ImageMetadata} 
 				alt={alt} 
@@ -37,6 +60,7 @@ const isImage = typeof icon === 'object' && icon !== null;
 		justify-content: center;
 		font-size: var(--icon-size);
 		line-height: 1;
+		position: relative;
 	}
 
 	.icon-img {
@@ -50,4 +74,70 @@ const isImage = typeof icon === 'object' && icon !== null;
 		display: block;
 		line-height: 1;
 	}
+
+	/* Animation Styles */
+	.animated-icon-wrapper {
+		width: 100%;
+		height: 100%;
+		position: relative;
+	}
+
+	.frame {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 0s; /* Instant switch */
+	}
 </style>
+
+<script>
+	class SmartIconAnim extends HTMLElement {
+		intervalId: number | undefined;
+
+		constructor() {
+			super();
+		}
+
+		connectedCallback() {
+			const duration = parseFloat(this.dataset.duration || '1');
+			const frames = this.querySelectorAll('.frame');
+			const count = frames.length;
+			
+			if (count === 0) return;
+
+			const intervalTime = (duration * 1000) / count;
+			let current = 0;
+
+			// Show first
+			const firstFrame = frames[0] as HTMLElement;
+			if (firstFrame) firstFrame.style.opacity = '1';
+
+			this.intervalId = window.setInterval(() => {
+				// Hide current
+				const currentFrame = frames[current] as HTMLElement;
+				if (currentFrame) currentFrame.style.opacity = '0';
+				
+				// Next
+				current = (current + 1) % count;
+				
+				// Show next
+				const nextFrame = frames[current] as HTMLElement;
+				if (nextFrame) nextFrame.style.opacity = '1';
+			}, intervalTime);
+		}
+
+		disconnectedCallback() {
+			if (this.intervalId) {
+				clearInterval(this.intervalId);
+				this.intervalId = undefined;
+			}
+		}
+	}
+
+	if (!customElements.get('smart-icon-anim')) {
+		customElements.define('smart-icon-anim', SmartIconAnim);
+	}
+</script>

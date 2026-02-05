@@ -1,0 +1,176 @@
+---
+import SmartIcon from './SmartIcon.astro';
+import lost1 from '../assets/lost/lost1.png';
+import lost2 from '../assets/lost/lost2.png';
+import lost3 from '../assets/lost/lost3.png';
+import lost4 from '../assets/lost/lost4.png';
+import lost5 from '../assets/lost/lost5.png';
+
+// Placeholder for ghost frames. 
+// When you have images, replace this array with [ghost1, ghost2, ...]
+// For now, we use a default emoji to demonstrate functionality if images are missing, 
+// or you can pass an empty array but that won't show anything.
+const ghostFrames: ImageMetadata[] = [lost1, lost2, lost3, lost4, lost5]; 
+
+// Default fallback if no images provided (just so you can see it working)
+const fallbackIcon = "👻";
+
+interface Props {
+	count?: number;
+}
+
+const { count = 5 } = Astro.props;
+---
+
+<div id="ghost-container">
+	<!-- Ghosts will be injected here by client-side script for randomness -->
+</div>
+
+<!-- Template for a single ghost to be cloned -->
+<template id="ghost-template">
+	<div class="ghost-wrapper">
+		<div class="ghost-inner">
+			{
+				ghostFrames.length > 0 ? (
+					<SmartIcon icon={ghostFrames} duration={0.8} size={48} />
+				) : (
+					<SmartIcon icon={fallbackIcon} size={48} />
+				)
+			}
+		</div>
+	</div>
+</template>
+
+<script>
+	const container = document.getElementById('ghost-container');
+	const template = document.getElementById('ghost-template') as HTMLTemplateElement;
+
+	if (container && template) {
+		const ghostCount = 5; // Or read from props if we passed it via data-attribute
+		const mainContentWidth = 1200; // Matches global.css main width
+		
+		for (let i = 0; i < ghostCount; i++) {
+			const clone = template.content.cloneNode(true) as DocumentFragment;
+			const wrapper = clone.querySelector('.ghost-wrapper') as HTMLElement;
+			
+			if (wrapper) {
+				// Random Position Logic
+				// We want to avoid the center column (mainContentWidth)
+				const windowWidth = window.innerWidth;
+				const sideWidth = (windowWidth - mainContentWidth) / 2;
+				
+				// If screen is too narrow, maybe don't show ghosts or let them float over content?
+				// For now, let's just place them anywhere if screen is small, 
+				// or strictly on sides if screen is wide.
+				
+				let randomX;
+				if (windowWidth > mainContentWidth + 100) {
+					// We have enough space on sides
+					const isLeft = Math.random() > 0.5;
+					if (isLeft) {
+						// Left side: 0 to sideWidth
+						randomX = Math.random() * (sideWidth - 60); // -60 for ghost width
+					} else {
+						// Right side: windowWidth - sideWidth to windowWidth
+						randomX = (windowWidth - sideWidth) + Math.random() * (sideWidth - 60);
+					}
+				} else {
+					// Screen too narrow, just random width (might cover content)
+					randomX = Math.random() * (windowWidth - 60);
+				}
+
+				const randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
+				
+				// Set initial position
+				wrapper.style.left = `${randomX}px`;
+				wrapper.style.top = `${randomY}px`;
+				
+				// Add floating animation delay for variety
+				wrapper.style.animationDelay = `-${Math.random() * 5}s`;
+
+				// Click Event: Fly Away
+				wrapper.addEventListener('click', () => {
+					if (wrapper.classList.contains('flying')) return;
+					
+					wrapper.classList.add('flying');
+					
+					// Play sound effect (optional, commented out)
+					// const audio = new Audio('/sounds/ghost-boo.mp3');
+					// audio.play();
+
+					// Remove after animation
+					setTimeout(() => {
+						wrapper.remove();
+					}, 1000); // Match CSS transition duration
+				});
+
+				container.appendChild(wrapper);
+			}
+		}
+	}
+</script>
+
+<style>
+	#ghost-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none; /* Let clicks pass through empty space */
+		overflow: hidden;
+		z-index: 50; /* Above normal content but below modals/headers if needed */
+	}
+
+	:global(.ghost-wrapper) {
+		position: absolute;
+		pointer-events: auto; /* Re-enable clicks for ghosts */
+		cursor: pointer;
+		transition: transform 1s cubic-bezier(0.55, 0.055, 0.675, 0.19), opacity 1s ease;
+		animation: float 3s ease-in-out infinite;
+		/* Start opacity 0 and fade in to avoid popping */
+		opacity: 0; 
+		animation-fill-mode: forwards; /* Keep final state */
+	}
+
+	/* Separate fade-in animation to handle initial load */
+	:global(.ghost-wrapper) {
+		animation: 
+			float 3s ease-in-out infinite,
+			appear 1s ease-out forwards;
+	}
+
+	@keyframes float {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-15px); }
+	}
+
+	@keyframes appear {
+		from { opacity: 0; }
+		to { opacity: 0.7; } /* Ghosts are slightly transparent */
+	}
+
+	/* Fly Away State */
+	:global(.ghost-wrapper.flying) {
+		pointer-events: none;
+		/* 
+		   Do NOT stop animation with 'animation: none'. 
+		   Instead, override the animated properties with !important.
+		   This allows the transition to start from the current animated value 
+		   instead of snapping to the base value.
+		*/
+		opacity: 0 !important;
+		transform: translateY(-100px) scale(0.9) !important;
+		transition: transform 1s ease-out, opacity 1s ease-out;
+	}
+
+	.ghost-inner {
+		/* Inner container for the icon */
+		filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+		transition: transform 0.2s;
+	}
+
+	:global(.ghost-wrapper:hover) .ghost-inner {
+		transform: scale(1.1);
+	}
+</style>
