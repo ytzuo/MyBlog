@@ -10,18 +10,36 @@ const { tag } = Astro.props;
 
 <style>
 	.tag {
-		background: white;
-		padding: 0.3rem 0.8rem;
-		border-radius: 20px;
+		background: #eeeeee;
+		padding: 0.4rem 1rem;
+		border-radius: 8px; /* Soft edges */
 		font-size: 0.9rem;
-		border: 1px solid #ddd;
+		border: none;
 		color: var(--black);
 		text-decoration: none;
-		transition: all 0.2s ease;
+		transition: all 0.1s ease;
 		display: inline-block;
+		cursor: pointer;
+		/* Soft rubber button style */
+		box-shadow: 
+			0 4px 0 #d0d0d0, /* 3D Side */
+			0 5px 10px rgba(0,0,0,0.1); /* Drop shadow */
+		transform: translateY(0);
 	}
 	.tag:hover {
-		border-color: var(--accent);
-		color: var(--accent);
+		background: #e8e8e8;
+		transform: translateY(1px);
+		box-shadow: 
+			0 3px 0 #d0d0d0, 
+			0 4px 8px rgba(0,0,0,0.1);
+		color: var(--black);
+		border-color: transparent;
+	}
+	.tag:active {
+		/* Pressed state: Inner shadow inversion */
+		transform: translateY(4px);
+		box-shadow: 
+			0 0 0 #d0d0d0, 
+			inset 0 2px 4px rgba(0,0,0,0.2); /* Inner shadow simulating indentation */
 	}
 </style>

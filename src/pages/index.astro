@@ -24,7 +24,7 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				width: 1200px;
 				max-width: calc(100% - 2em);
 				margin: auto;
 				padding: 3em 1em;
@@ -63,10 +63,30 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				gap: 2rem;
 			}
 			.widget {
-				background: #f8f9fa;
+				background: #ffffff;
 				padding: 1.5rem;
 				border-radius: 12px;
-				border: 1px solid #eee;
+				/* Frosted ceramic/paper style: Enhanced shadows for better separation */
+				box-shadow: 
+					0 4px 6px -1px rgba(0, 0, 0, 0.1),
+					0 2px 4px -1px rgba(0, 0, 0, 0.06),
+					0 0 0 1px rgba(0,0,0,0.02); /* Subtle border definition */
+				position: relative;
+				overflow: hidden;
+			}
+			/* Apply noise texture overlay */
+			.widget::before {
+				content: "";
+				position: absolute;
+				top: 0; left: 0; width: 100%; height: 100%;
+				background-image: var(--noise-texture);
+				opacity: 0.4;
+				pointer-events: none;
+				z-index: 1;
+			}
+			.widget > * {
+				position: relative;
+				z-index: 2;
 			}
 			.widget h3 {
 				margin-top: 0;
@@ -101,8 +121,38 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				display: flex;
 				gap: 1.5rem;
 				margin-bottom: 2rem;
-				border-bottom: 1px solid #eee;
-				padding-bottom: 2rem;
+				padding: 2rem;
+				background: #ffffff;
+				border-radius: 12px;
+				/* Frosted ceramic/paper style: Enhanced shadows for better separation */
+				box-shadow: 
+					0 4px 6px -1px rgba(0, 0, 0, 0.1),
+					0 2px 4px -1px rgba(0, 0, 0, 0.06),
+					0 0 0 1px rgba(0,0,0,0.02); /* Subtle border definition */
+				position: relative;
+				overflow: hidden;
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+			}
+			/* Apply noise texture overlay */
+			.post-item::before {
+				content: "";
+				position: absolute;
+				top: 0; left: 0; width: 100%; height: 100%;
+				background-image: var(--noise-texture);
+				opacity: 0.4;
+				pointer-events: none;
+				z-index: 1;
+			}
+			.post-item > * {
+				position: relative;
+				z-index: 2;
+			}
+			.post-item:hover {
+				transform: translateY(-2px);
+				box-shadow: 
+					0 10px 15px -3px rgba(0, 0, 0, 0.1),
+					0 4px 6px -2px rgba(0, 0, 0, 0.05),
+					0 0 0 1px rgba(0,0,0,0.02);
 			}
 			.post-item:last-child {
 				border-bottom: none;
@@ -194,7 +244,6 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 
 				<!-- Right Content: Latest Posts -->
 				<div class="latest-posts">
-					<h2>最新文章</h2>
 					<ul class="post-list">
 						{latestPosts.map((post) => (
 							<li class="post-item">

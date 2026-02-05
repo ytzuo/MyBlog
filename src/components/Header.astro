@@ -18,8 +18,16 @@ import HeaderLink from './HeaderLink.astro';
 <style>
 	header {
 		margin: 0;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		background: #f0f0f0; /* Light metallic grey */
+		/* Floating metal bar: Top thin highlight + bottom shadow */
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.9), /* Top highlight */
+			0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+			0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Bottom shadow */
+		border-bottom: 1px solid #d1d1d1;
+		position: sticky;
+		top: 0;
+		z-index: 100;
 	}
 	h2 {
 		margin: 0;
@@ -31,7 +39,7 @@ import HeaderLink from './HeaderLink.astro';
 		text-decoration: none;
 	}
 	nav {
-		width: 960px;
+		width: 1200px;
 		max-width: calc(100% - 2em);
 		margin: auto;
 		display: flex;
