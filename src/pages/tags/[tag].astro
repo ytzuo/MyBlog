@@ -1,0 +1,115 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+import { getCollection } from 'astro:content';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { Image } from 'astro:assets';
+
+export async function getStaticPaths() {
+	const allPosts = await getCollection('blog');
+	const uniqueTags = [...new Set(allPosts.map((post) => post.data.tags || []).flat())];
+
+	return uniqueTags.map((tag) => {
+		const filteredPosts = allPosts.filter((post) => post.data.tags?.includes(tag));
+		return {
+			params: { tag },
+			props: { posts: filteredPosts },
+		};
+	});
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+const title = `Tag: ${tag}`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				width: 960px;
+				max-width: calc(100% - 2em);
+				margin: auto;
+				padding: 3em 1em;
+			}
+			.content-title {
+				margin-bottom: 2rem;
+			}
+			ul {
+				list-style-type: none;
+				padding: unset;
+			}
+			ul li {
+				display: flex;
+				margin-bottom: 2rem;
+				border-bottom: 1px solid #eee;
+				padding-bottom: 2rem;
+			}
+			ul li:last-child {
+				border-bottom: none;
+			}
+			ul li :global(time) {
+				flex: 0 0 130px;
+				font-style: italic;
+				color: #595959;
+			}
+			ul li a:visited {
+				color: #8e32dc;
+			}
+			.title {
+				font-size: 1.5rem;
+				margin: 0;
+			}
+			.post-image {
+				width: 200px;
+				height: 120px;
+				object-fit: cover;
+				border-radius: 8px;
+				margin-right: 1.5rem;
+			}
+			.post-content {
+				flex: 1;
+			}
+			.post-meta {
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+				margin-bottom: 0.5rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h2 class="content-title">文章标签: {tag}</h2>
+			<section>
+				<ul>
+					{
+						posts.map((post) => (
+							<li>
+								{post.data.heroImage && (
+									<a href={`/blog/${post.id}/`}>
+										<Image width={200} height={120} src={post.data.heroImage} alt="" class="post-image" />
+									</a>
+								)}
+								<div class="post-content">
+									<h3 class="title">
+										<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+									</h3>
+									<div class="post-meta">
+										<FormattedDate date={post.data.pubDate} />
+									</div>
+									<p>{post.data.description}</p>
+								</div>
+							</li>
+						))
+					}
+				</ul>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
