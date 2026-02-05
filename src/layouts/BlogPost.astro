@@ -27,19 +27,19 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				border-radius: 12px;
+				border-radius: 10px;
 				box-shadow: var(--box-shadow);
 			}
 			.prose {
 				width: 1200px;
 				max-width: calc(100% - 2em);
 				margin: auto;
-				padding: 1em;
+				padding: 0em;
 				color: rgb(var(--gray-dark));
 			}
 			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
+				margin-bottom: 0.5em;
+				padding: 0.1em 0;
 				text-align: center;
 				line-height: 1;
 			}
@@ -47,7 +47,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 				margin: 0 0 0.5em 0;
 			}
 			.date {
-				margin-bottom: 0.5em;
+				margin-bottom: 0.1em;
 				color: rgb(var(--gray));
 			}
 			.last-updated-on {
@@ -64,8 +64,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 
 	<body>
 		<Header />
-		<main>
-			<article>
+			<main>
 				<div class="hero-image">
 					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 				</div>
@@ -93,8 +92,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 					</div>
 					<slot />
 				</div>
-			</article>
-		</main>
+			</main>
 		<Footer />
 	</body>
 </html>

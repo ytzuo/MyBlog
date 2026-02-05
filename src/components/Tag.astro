@@ -10,7 +10,7 @@ const { tag } = Astro.props;
 
 <style>
 	.tag {
-		background: #eeeeee;
+		background: #f5f5f5;
 		padding: 0.4rem 1rem;
 		border-radius: 8px; /* Soft edges */
 		font-size: 0.9rem;
@@ -22,16 +22,16 @@ const { tag } = Astro.props;
 		cursor: pointer;
 		/* Soft rubber button style */
 		box-shadow: 
-			0 4px 0 #d0d0d0, /* 3D Side */
-			0 5px 10px rgba(0,0,0,0.1); /* Drop shadow */
+			0 4px 0 #e0e0e0, /* 3D Side */
+			0 5px 10px rgba(0,0,0,0.05); /* Drop shadow */
 		transform: translateY(0);
 	}
 	.tag:hover {
-		background: #e8e8e8;
+		background: #efefef;
 		transform: translateY(1px);
 		box-shadow: 
-			0 3px 0 #d0d0d0, 
-			0 4px 8px rgba(0,0,0,0.1);
+			0 3px 0 #e0e0e0, 
+			0 4px 8px rgba(0,0,0,0.05);
 		color: var(--black);
 		border-color: transparent;
 	}
@@ -39,7 +39,7 @@ const { tag } = Astro.props;
 		/* Pressed state: Inner shadow inversion */
 		transform: translateY(4px);
 		box-shadow: 
-			0 0 0 #d0d0d0, 
-			inset 0 2px 4px rgba(0,0,0,0.2); /* Inner shadow simulating indentation */
+			0 0 0 #e0e0e0, 
+			inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow simulating indentation */
 	}
 </style>

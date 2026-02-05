@@ -1,0 +1,53 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+	icon: string | ImageMetadata;
+	alt?: string;
+	size?: number;
+}
+
+const { icon, alt = "", size = 32 } = Astro.props;
+
+const isImage = typeof icon === 'object' && icon !== null;
+---
+
+<div class="smart-icon" style={`--icon-size: ${size}px;`}>
+	{
+		isImage ? (
+			<Image 
+				src={icon as ImageMetadata} 
+				alt={alt} 
+				width={size * 2} 
+				height={size * 2} 
+				class="icon-img"
+			/>
+		) : (
+			<span class="icon-text">{icon}</span>
+		)
+	}
+</div>
+
+<style>
+	.smart-icon {
+		width: var(--icon-size);
+		height: var(--icon-size);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: var(--icon-size);
+		line-height: 1;
+	}
+
+	.icon-img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		display: block;
+	}
+
+	.icon-text {
+		display: block;
+		line-height: 1;
+	}
+</style>
