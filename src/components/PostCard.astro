@@ -1,0 +1,118 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import FormattedDate from './FormattedDate.astro';
+import Tag from './Tag.astro';
+import Card from './Card.astro';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+---
+
+<Card class="post-card" hoverEffect={true}>
+	{
+		post.data.heroImage && (
+			<a href={`/blog/${post.id}/`} class="image-link">
+				<Image width={200} height={120} src={post.data.heroImage} alt="" />
+			</a>
+		)
+	}
+	<div class="post-content">
+		<h3 class="post-title">
+			<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+		</h3>
+		<div class="post-meta">
+			<FormattedDate date={new Date(post.data.pubDate)} />
+		</div>
+		{
+			post.data.description && (
+				<p class="post-description">{post.data.description}</p>
+			)
+		}
+		{
+			post.data.tags && post.data.tags.length > 0 && (
+				<div class="tag-container">
+					{post.data.tags.map((tag) => (
+						<Tag tag={tag} />
+					))}
+				</div>
+			)
+		}
+	</div>
+</Card>
+
+<style>
+	:global(.post-card) {
+		display: flex;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+		padding: 2rem;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.image-link {
+		flex-shrink: 0;
+	}
+
+	:global(.post-card) img {
+		width: 200px;
+		height: 120px;
+		object-fit: cover;
+		border-radius: 8px;
+		display: block;
+	}
+
+	.post-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.post-title {
+		margin: 0 0 0.5rem 0;
+		font-size: 1.4rem;
+		line-height: 1.2;
+	}
+
+	.post-title a {
+		color: rgb(var(--black));
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.post-title a:hover {
+		color: var(--accent);
+	}
+
+	.post-meta {
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+		margin-bottom: 0.8rem;
+	}
+
+	.post-description {
+		margin: 0 0 1rem 0;
+		color: rgb(var(--gray-dark));
+	}
+
+	.tag-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	@media (max-width: 720px) {
+		:global(.post-card) {
+			flex-direction: column;
+		}
+		:global(.post-card) img {
+			width: 100%;
+			height: auto;
+		}
+	}
+</style>

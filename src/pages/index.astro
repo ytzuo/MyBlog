@@ -4,10 +4,11 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
-import FormattedDate from '../components/FormattedDate.astro';
 import { Image } from 'astro:assets';
 import aboutImage from '../assets/blog-placeholder-about.jpg';
 import Tag from '../components/Tag.astro';
+import Card from '../components/Card.astro';
+import PostCard from '../components/PostCard.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
@@ -43,6 +44,22 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				height: 150px;
 				object-fit: cover;
 				box-shadow: var(--box-shadow);
+
+				/* 添加过渡和变换原点 */
+    			transition: transform 0.3s ease;
+    			transform-origin: center bottom; /* 从底部中心摇摆，更像不倒翁 */
+			}
+			/* 悬浮时的摇晃动画 */
+			.intro-image img:hover {
+    			animation: shake 0.5s ease-in-out;
+			}		
+			/* 关键帧定义：左右摇晃 */
+			@keyframes shake {
+    			0%, 100% { transform: rotate(0deg); }
+    			20% { transform: rotate(-10deg); }
+    			40% { transform: rotate(10deg); }
+    			60% { transform: rotate(-6deg); }
+    			80% { transform: rotate(6deg); }
 			}
 			.intro-text h1 {
 				font-size: 2.5em;
@@ -62,33 +79,8 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				flex-direction: column;
 				gap: 2rem;
 			}
-			.widget {
-				background: #ffffff;
-				padding: 1.5rem;
-				border-radius: 12px;
-				/* Frosted ceramic/paper style: Enhanced shadows for better separation */
-				box-shadow: 
-					0 4px 6px -1px rgba(0, 0, 0, 0.1),
-					0 2px 4px -1px rgba(0, 0, 0, 0.06),
-					0 0 0 1px rgba(0,0,0,0.02); /* Subtle border definition */
-				position: relative;
-				overflow: hidden;
-			}
-			/* Apply noise texture overlay */
-			.widget::before {
-				content: "";
-				position: absolute;
-				top: 0; left: 0; width: 100%; height: 100%;
-				background-image: var(--noise-texture);
-				opacity: 0.4;
-				pointer-events: none;
-				z-index: 1;
-			}
-			.widget > * {
-				position: relative;
-				z-index: 2;
-			}
-			.widget h3 {
+			/* .widget padding is handled by Card component default */
+			:global(.widget) h3 {
 				margin-top: 0;
 				margin-bottom: 1rem;
 				font-size: 1.2rem;
@@ -113,74 +105,8 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				margin-bottom: 1.5rem;
 			}
 			.post-list {
-				list-style: none;
-				padding: 0;
-				margin: 0;
-			}
-			.post-item {
 				display: flex;
-				gap: 1.5rem;
-				margin-bottom: 2rem;
-				padding: 2rem;
-				background: #ffffff;
-				border-radius: 12px;
-				/* Frosted ceramic/paper style: Enhanced shadows for better separation */
-				box-shadow: 
-					0 4px 6px -1px rgba(0, 0, 0, 0.1),
-					0 2px 4px -1px rgba(0, 0, 0, 0.06),
-					0 0 0 1px rgba(0,0,0,0.02); /* Subtle border definition */
-				position: relative;
-				overflow: hidden;
-				transition: transform 0.2s ease, box-shadow 0.2s ease;
-			}
-			/* Apply noise texture overlay */
-			.post-item::before {
-				content: "";
-				position: absolute;
-				top: 0; left: 0; width: 100%; height: 100%;
-				background-image: var(--noise-texture);
-				opacity: 0.4;
-				pointer-events: none;
-				z-index: 1;
-			}
-			.post-item > * {
-				position: relative;
-				z-index: 2;
-			}
-			.post-item:hover {
-				transform: translateY(-2px);
-				box-shadow: 
-					0 10px 15px -3px rgba(0, 0, 0, 0.1),
-					0 4px 6px -2px rgba(0, 0, 0, 0.05),
-					0 0 0 1px rgba(0,0,0,0.02);
-			}
-			.post-item:last-child {
-				border-bottom: none;
-			}
-			.post-item img {
-				width: 200px;
-				height: 120px;
-				object-fit: cover;
-				border-radius: 8px;
-			}
-			.post-content {
-				flex: 1;
-			}
-			.post-title {
-				margin: 0 0 0.5rem 0;
-				font-size: 1.4rem;
-			}
-			.post-title a {
-				color: rgb(var(--black));
-				text-decoration: none;
-			}
-			.post-title a:hover {
-				color: var(--accent);
-			}
-			.post-meta {
-				color: rgb(var(--gray));
-				font-size: 0.9rem;
-				margin-bottom: 0.5rem;
+				flex-direction: column;
 			}
 
 			@media (max-width: 720px) {
@@ -190,13 +116,6 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				}
 				.bottom-section {
 					grid-template-columns: 1fr;
-				}
-				.post-item {
-					flex-direction: column;
-				}
-				.post-item img {
-					width: 100%;
-					height: auto;
 				}
 			}
 		</style>
@@ -220,15 +139,15 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 			<section class="bottom-section">
 				<!-- Left Sidebar -->
 				<aside class="sidebar">
-					<div class="widget">
+					<Card class="widget">
 						<h3>统计信息</h3>
 						<div class="stat-item">
 							<span>文章总数</span>
 							<strong>{postCount}</strong>
 						</div>
-					</div>
+					</Card>
 					
-					<div class="widget">
+					<Card class="widget">
 						<h3>标签</h3>
 						<div class="tag-cloud">
 							{tags.length > 0 ? (
@@ -239,31 +158,16 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 								<p style="color: #666; font-size: 0.9em; font-style: italic;">暂无标签</p>
 							)}
 						</div>
-					</div>
+					</Card>
 				</aside>
 
 				<!-- Right Content: Latest Posts -->
 				<div class="latest-posts">
-					<ul class="post-list">
+					<div class="post-list">
 						{latestPosts.map((post) => (
-							<li class="post-item">
-								{post.data.heroImage && (
-									<a href={`/blog/${post.id}/`}>
-										<Image width={200} height={120} src={post.data.heroImage} alt="" />
-									</a>
-								)}
-								<div class="post-content">
-									<h3 class="post-title">
-										<a href={`/blog/${post.id}/`}>{post.data.title}</a>
-									</h3>
-									<div class="post-meta">
-										<FormattedDate date={post.data.pubDate} />
-									</div>
-									<p>{post.data.description}</p>
-								</div>
-							</li>
+							<PostCard post={post} />
 						))}
-					</ul>
+					</div>
 				</div>
 			</section>
 		</main>

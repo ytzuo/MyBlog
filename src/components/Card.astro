@@ -1,0 +1,57 @@
+---
+interface Props {
+	class?: string;
+	hoverEffect?: boolean;
+}
+
+const { class: className, hoverEffect = false, ...props } = Astro.props;
+---
+
+<div class:list={['card', className, { 'hover-effect': hoverEffect }]} {...props}>
+	<slot />
+</div>
+
+<style>
+	:global(.card) {
+		background: #ffffff;
+		border-radius: 12px;
+		padding: 1.5rem;
+		/* Frosted ceramic/paper style: Enhanced shadows for better separation */
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06),
+			0 0 0 1px rgba(0, 0, 0, 0.02); /* Subtle border definition */
+		position: relative;
+		overflow: hidden;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	/* Apply noise texture overlay */
+	:global(.card)::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-image: var(--noise-texture);
+		opacity: 0.4;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.card > :global(*) {
+		position: relative;
+		z-index: 2;
+	}
+
+	.hover-effect:hover {
+		transform: translateY(-2px);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05),
+			0 0 0 1px rgba(0, 0, 0, 0.02);
+	}
+</style>
