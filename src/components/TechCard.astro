@@ -22,20 +22,25 @@ const { name, icon } = Astro.props;
 
 	cards.forEach(card => {
 		card.addEventListener('mouseenter', () => {
+			// 鼠标进入时，仅保留阴影的过渡效果，移除 transform 的过渡以便于实时跟随鼠标
 			card.style.transition = 'box-shadow 0.5s ease';
 		});
 
 		card.addEventListener('mousemove', (e) => {
 			const rect = card.getBoundingClientRect();
+			// 计算鼠标在卡片内的相对位置
 			const x = e.clientX - rect.left;
 			const centerX = rect.width / 2;
+			// 计算相对于中心点的百分比位置 (-1 到 1)
 			const pct = (x - centerX) / centerX;
+			// 根据位置计算旋转角度 (最大 30 度)
 			const rotateY = pct * 30;
 			
 			card.style.transform = `perspective(1000px) rotateY(${rotateY}deg)`;
 		});
 
 		card.addEventListener('mouseleave', () => {
+			// 鼠标离开时，恢复平滑过渡并重置旋转角度
 			card.style.transition = 'transform 0.5s ease, box-shadow 0.2s ease';
 			card.style.transform = 'perspective(1000px) rotateY(0deg)';
 		});

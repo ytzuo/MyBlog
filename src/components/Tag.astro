@@ -12,7 +12,7 @@ const { tag } = Astro.props;
 	.tag {
 		background: #f5f5f5;
 		padding: 0.4rem 1rem;
-		border-radius: 8px; /* Soft edges */
+		border-radius: 8px; /* 柔和边缘 */
 		font-size: 0.9rem;
 		border: none;
 		color: var(--black);
@@ -20,10 +20,10 @@ const { tag } = Astro.props;
 		transition: all 0.1s ease;
 		display: inline-block;
 		cursor: pointer;
-		/* Soft rubber button style */
+		/* 软橡胶按钮风格 */
 		box-shadow: 
-			0 4px 0 #e0e0e0, /* 3D Side */
-			0 5px 10px rgba(0,0,0,0.05); /* Drop shadow */
+			0 4px 0 #e0e0e0, /* 3D 侧面 */
+			0 5px 10px rgba(0,0,0,0.05); /* 投影 */
 		transform: translateY(0);
 	}
 	.tag:hover {
@@ -36,10 +36,10 @@ const { tag } = Astro.props;
 		border-color: transparent;
 	}
 	.tag:active {
-		/* Pressed state: Inner shadow inversion */
+		/* 按下状态：内阴影反转 */
 		transform: translateY(4px);
 		box-shadow: 
 			0 0 0 #e0e0e0, 
-			inset 0 2px 4px rgba(0,0,0,0.1); /* Inner shadow simulating indentation */
+			inset 0 2px 4px rgba(0,0,0,0.1); /* 模拟凹陷的内阴影 */
 	}
 </style>

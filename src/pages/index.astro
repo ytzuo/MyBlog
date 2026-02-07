@@ -80,7 +80,8 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 				flex-direction: column;
 				gap: 2rem;
 			}
-			/* .widget padding is handled by Card component default */
+			
+			/* .widget 的内边距由 Card 组件默认处理 */
 			:global(.widget) h3 {
 				margin-top: 0;
 				margin-bottom: 1rem;

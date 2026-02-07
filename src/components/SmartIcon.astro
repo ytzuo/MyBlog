@@ -5,7 +5,7 @@ interface Props {
 	icon: string | ImageMetadata | ImageMetadata[];
 	alt?: string;
 	size?: number;
-	/** Duration of the animation loop in seconds (only for image arrays) */
+	/** 动画循环的时长（秒），仅对图片数组（帧动画）有效 */
 	duration?: number;
 }
 
@@ -14,7 +14,7 @@ const { icon, alt = "", size = 32, duration = 1 } = Astro.props;
 const isImage = typeof icon === 'object' && icon !== null && !Array.isArray(icon);
 const isAnimated = Array.isArray(icon);
 
-// Helper to cast icon to array for mapping
+// 辅助函数：将 icon 转换为数组以便进行 map 操作
 const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 ---
 
@@ -75,7 +75,7 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 		line-height: 1;
 	}
 
-	/* Animation Styles */
+	/* 动画样式 */
 	.animated-icon-wrapper {
 		width: 100%;
 		height: 100%;
@@ -89,7 +89,7 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 		width: 100%;
 		height: 100%;
 		opacity: 0;
-		transition: opacity 0s; /* Instant switch */
+		transition: opacity 0s; /* 瞬间切换，无过渡 */
 	}
 </style>
 
@@ -108,22 +108,22 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 			
 			if (count === 0) return;
 
-			const intervalTime = (duration * 1000) / count;
+			const intervalTime = (duration * 800) / count;
 			let current = 0;
 
-			// Show first
+			// 显示第一帧
 			const firstFrame = frames[0] as HTMLElement;
 			if (firstFrame) firstFrame.style.opacity = '1';
 
 			this.intervalId = window.setInterval(() => {
-				// Hide current
+				// 隐藏当前帧
 				const currentFrame = frames[current] as HTMLElement;
 				if (currentFrame) currentFrame.style.opacity = '0';
 				
-				// Next
+				// 计算下一帧
 				current = (current + 1) % count;
 				
-				// Show next
+				// 显示下一帧
 				const nextFrame = frames[current] as HTMLElement;
 				if (nextFrame) nextFrame.style.opacity = '1';
 			}, intervalTime);

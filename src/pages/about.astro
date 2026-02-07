@@ -17,6 +17,8 @@ import Layout from '../layouts/BlogPost.astro';
 import TechCard from '../components/TechCard.astro';
 import GhostSprites from '../components/GhostSprites.astro';
 
+// 定义兴趣列表数据
+// 包含分类和具体的项目（名称和图标）
 const interests = [
 	{
 		category: "前端技术",
@@ -78,10 +80,12 @@ const interests = [
 	<h3 style="margin-top: 2rem; margin-bottom: 1.5rem;">本站可能包含：</h3>
 
 	<div class="interests-grid">
+		<!-- 遍历兴趣分类 -->
 		{interests.map((section) => (
 			<div class="interest-section">
 				<h4 class="category-title">{section.category}</h4>
 				<div class="card-grid">
+					<!-- 遍历分类下的每个项目并渲染 TechCard -->
 					{section.items.map((item) => (
 						<TechCard name={item.name} icon={item.icon} />
 					))}

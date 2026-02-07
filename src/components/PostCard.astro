@@ -21,17 +21,21 @@ const { post } = Astro.props;
 		)
 	}
 	<div class="post-content">
+		<!-- 文章标题 -->
 		<h3 class="post-title">
 			<a href={`/blog/${post.id}/`}>{post.data.title}</a>
 		</h3>
+		<!-- 文章元数据：日期 -->
 		<div class="post-meta">
 			<FormattedDate date={new Date(post.data.pubDate)} />
 		</div>
+		<!-- 文章描述 -->
 		{
 			post.data.description && (
 				<p class="post-description">{post.data.description}</p>
 			)
 		}
+		<!-- 标签列表 -->
 		{
 			post.data.tags && post.data.tags.length > 0 && (
 				<div class="tag-container">

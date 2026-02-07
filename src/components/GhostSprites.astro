@@ -6,13 +6,10 @@ import lost3 from '../assets/lost/lost3.png';
 import lost4 from '../assets/lost/lost4.png';
 import lost5 from '../assets/lost/lost5.png';
 
-// Placeholder for ghost frames. 
-// When you have images, replace this array with [ghost1, ghost2, ...]
-// For now, we use a default emoji to demonstrate functionality if images are missing, 
-// or you can pass an empty array but that won't show anything.
+// 幽灵帧数组
 const ghostFrames: ImageMetadata[] = [lost1, lost2, lost3, lost4, lost5]; 
 
-// Default fallback if no images provided (just so you can see it working)
+// 如果没有提供图片的默认回退
 const fallbackIcon = "👻";
 
 interface Props {
@@ -23,20 +20,22 @@ const { count = 5 } = Astro.props;
 ---
 
 <div id="ghost-container">
-	<!-- Ghosts will be injected here by client-side script for randomness -->
+	<!-- 幽灵将由客户端脚本注入以实现随机性 -->
 </div>
 
-<!-- Template for a single ghost to be cloned -->
+<!-- 单个幽灵的模板，用于克隆 -->
 <template id="ghost-template">
 	<div class="ghost-wrapper">
-		<div class="ghost-inner">
-			{
-				ghostFrames.length > 0 ? (
-					<SmartIcon icon={ghostFrames} duration={0.8} size={48} />
-				) : (
-					<SmartIcon icon={fallbackIcon} size={48} />
-				)
-			}
+		<div class="ghost-float">
+			<div class="ghost-inner">
+				{
+					ghostFrames.length > 0 ? (
+						<SmartIcon icon={ghostFrames} duration={0.8} size={48} />
+					) : (
+						<SmartIcon icon={fallbackIcon} size={48} />
+					)
+				}
+			</div>
 		</div>
 	</div>
 </template>
@@ -46,62 +45,60 @@ const { count = 5 } = Astro.props;
 	const template = document.getElementById('ghost-template') as HTMLTemplateElement;
 
 	if (container && template) {
-		const ghostCount = 5; // Or read from props if we passed it via data-attribute
-		const mainContentWidth = 1200; // Matches global.css main width
+		const ghostCount = 5; // 或者如果我们通过数据属性传递它，则从 props 读取
+		const mainContentWidth = 1200; // 匹配 global.css 的主要宽度
 		
 		for (let i = 0; i < ghostCount; i++) {
 			const clone = template.content.cloneNode(true) as DocumentFragment;
 			const wrapper = clone.querySelector('.ghost-wrapper') as HTMLElement;
 			
 			if (wrapper) {
-				// Random Position Logic
-				// We want to avoid the center column (mainContentWidth)
+				// 随机位置逻辑
+				// 我们希望避开中心列（mainContentWidth）
 				const windowWidth = window.innerWidth;
 				const sideWidth = (windowWidth - mainContentWidth) / 2;
 				
-				// If screen is too narrow, maybe don't show ghosts or let them float over content?
-				// For now, let's just place them anywhere if screen is small, 
-				// or strictly on sides if screen is wide.
-				
 				let randomX;
 				if (windowWidth > mainContentWidth + 100) {
-					// We have enough space on sides
+					// 两侧有足够的空间
 					const isLeft = Math.random() > 0.5;
 					if (isLeft) {
-						// Left side: 0 to sideWidth
-						randomX = Math.random() * (sideWidth - 60); // -60 for ghost width
+						// 左侧：0 到 sideWidth
+						randomX = Math.random() * (sideWidth - 60); // -60 是幽灵的宽度
 					} else {
-						// Right side: windowWidth - sideWidth to windowWidth
+						// 右侧：windowWidth - sideWidth 到 windowWidth
 						randomX = (windowWidth - sideWidth) + Math.random() * (sideWidth - 60);
 					}
 				} else {
-					// Screen too narrow, just random width (might cover content)
+					// 屏幕太窄，随机宽度（可能会覆盖内容）
 					randomX = Math.random() * (windowWidth - 60);
 				}
 
 				const randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
 				
-				// Set initial position
+				// 设置初始位置
 				wrapper.style.left = `${randomX}px`;
 				wrapper.style.top = `${randomY}px`;
 				
-				// Add floating animation delay for variety
+				// 添加漂浮动画延迟以增加多样性
 				wrapper.style.animationDelay = `-${Math.random() * 5}s`;
 
-				// Click Event: Fly Away
+				// 点击事件：飞走
 				wrapper.addEventListener('click', () => {
-					if (wrapper.classList.contains('flying')) return;
+					if (wrapper.classList.contains('flying')) {
+						return;
+					}
 					
 					wrapper.classList.add('flying');
 					
-					// Play sound effect (optional, commented out)
+					// 播放音效
 					// const audio = new Audio('/sounds/ghost-boo.mp3');
 					// audio.play();
 
-					// Remove after animation
+					// 动画结束后移除
 					setTimeout(() => {
 						wrapper.remove();
-					}, 1000); // Match CSS transition duration
+					}, 800); // 匹配 CSS 过渡持续时间
 				});
 
 				container.appendChild(wrapper);
@@ -117,27 +114,28 @@ const { count = 5 } = Astro.props;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		pointer-events: none; /* Let clicks pass through empty space */
+		pointer-events: none; /* 让点击穿过空白区域 */
 		overflow: hidden;
-		z-index: 50; /* Above normal content but below modals/headers if needed */
+		z-index: 50; /* 在普通内容之上，但在模态框/标题之下（如果需要） */
 	}
 
 	:global(.ghost-wrapper) {
 		position: absolute;
-		pointer-events: auto; /* Re-enable clicks for ghosts */
+		pointer-events: auto; /* 为幽灵重新启用点击 */
 		cursor: pointer;
-		transition: transform 1s cubic-bezier(0.55, 0.055, 0.675, 0.19), opacity 1s ease;
-		animation: float 3s ease-in-out infinite;
-		/* Start opacity 0 and fade in to avoid popping */
+		transition: transform 1s ease-out, opacity 1s ease-out;
+		/* 初始不透明度为 0 并淡入以避免突然出现 */
 		opacity: 0; 
-		animation-fill-mode: forwards; /* Keep final state */
+		animation-fill-mode: forwards; /* 保持最终状态 */
 	}
 
-	/* Separate fade-in animation to handle initial load */
+	/* 单独的淡入动画以处理初始加载 */
 	:global(.ghost-wrapper) {
-		animation: 
-			float 3s ease-in-out infinite,
-			appear 1s ease-out forwards;
+		animation: appear 1s ease-out forwards;
+	}
+
+	.ghost-float {
+		animation: float 3s ease-in-out infinite;
 	}
 
 	@keyframes float {
@@ -147,25 +145,18 @@ const { count = 5 } = Astro.props;
 
 	@keyframes appear {
 		from { opacity: 0; }
-		to { opacity: 0.7; } /* Ghosts are slightly transparent */
+		to { opacity: 0.7; } /* 幽灵稍微透明 */
 	}
 
-	/* Fly Away State */
+	/* 飞走状态 */
 	:global(.ghost-wrapper.flying) {
 		pointer-events: none;
-		/* 
-		   Do NOT stop animation with 'animation: none'. 
-		   Instead, override the animated properties with !important.
-		   This allows the transition to start from the current animated value 
-		   instead of snapping to the base value.
-		*/
-		opacity: 0 !important;
-		transform: translateY(-100px) scale(0.9) !important;
-		transition: transform 1s ease-out, opacity 1s ease-out;
+		opacity: 0; /* 这里的 opacity 变化会触发 transition */
+		transform: translateY(-100px) scale(0.9); /* transform 变化也会触发 transition */
 	}
 
 	.ghost-inner {
-		/* Inner container for the icon */
+		/* 图标的内部容器 */
 		filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 		transition: transform 0.2s;
 	}

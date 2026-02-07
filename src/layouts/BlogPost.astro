@@ -65,6 +65,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 	<body>
 		<Header />
 			<main>
+				<!-- 顶部大图 -->
 				<div class="hero-image">
 					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 				</div>
@@ -81,6 +82,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 							}
 						</div>
 						<h1>{title}</h1>
+						<!-- 标签展示 -->
 						{tags && tags.length > 0 && (
 							<div class="tags">
 								{tags.map((tag) => (
@@ -90,6 +92,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 						)}
 						<hr />
 					</div>
+					<!-- 文章内容插槽 -->
 					<slot />
 				</div>
 			</main>

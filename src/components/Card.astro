@@ -16,11 +16,11 @@ const { class: className, hoverEffect = false, ...props } = Astro.props;
 		background: #ffffff;
 		border-radius: 12px;
 		padding: 1.5rem;
-		/* Frosted ceramic/paper style: Enhanced shadows for better separation */
+		/* 磨砂陶瓷/纸张风格：增强阴影以获得更好的分离感 */
 		box-shadow:
 			0 4px 6px -1px rgba(0, 0, 0, 0.1),
 			0 2px 4px -1px rgba(0, 0, 0, 0.06),
-			0 0 0 1px rgba(0, 0, 0, 0.02); /* Subtle border definition */
+			0 0 0 1px rgba(0, 0, 0, 0.02); /* 微妙的边框定义 */
 		position: relative;
 		overflow: hidden;
 		transition:
@@ -28,7 +28,7 @@ const { class: className, hoverEffect = false, ...props } = Astro.props;
 			box-shadow 0.2s ease;
 	}
 
-	/* Apply noise texture overlay */
+	/* 应用噪点纹理叠加 */
 	:global(.card)::before {
 		content: "";
 		position: absolute;

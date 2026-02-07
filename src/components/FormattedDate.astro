@@ -5,6 +5,7 @@ interface Props {
 
 const { date } = Astro.props;
 const d = new Date(date);
+// 检查日期是否有效
 const isValidDate = !isNaN(d.valueOf());
 ---
 
