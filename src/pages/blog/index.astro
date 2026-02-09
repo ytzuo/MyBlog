@@ -157,33 +157,40 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 			</div>
 
 			<script>
-				const toggleBtn = document.getElementById('tag-toggle-btn');
-				const tagsWrapper = document.getElementById('tags-wrapper');
-				const btnIcon = toggleBtn?.querySelector('.btn-icon');
+				const initTagFilter = () => {
+					const toggleBtn = document.getElementById('tag-toggle-btn');
+					const tagsWrapper = document.getElementById('tags-wrapper');
+					const btnIcon = toggleBtn?.querySelector('.btn-icon') as HTMLElement;
 
-				if (toggleBtn && tagsWrapper && btnIcon) {
-					toggleBtn.addEventListener('click', () => {
-						const isHidden = tagsWrapper.style.maxHeight === '0px' || !tagsWrapper.style.maxHeight;
+					if (toggleBtn && tagsWrapper && btnIcon) {
+						toggleBtn.addEventListener('click', () => {
+							const isHidden = tagsWrapper.style.maxHeight === '0px' || !tagsWrapper.style.maxHeight;
+							
+							if (isHidden) {
+								// 展开
+								tagsWrapper.style.maxHeight = tagsWrapper.scrollHeight + 'px';
+								tagsWrapper.style.opacity = '1';
+								tagsWrapper.style.marginTop = '1rem';
+								btnIcon.style.transform = 'rotate(180deg)';
+							} else {
+								// 收起
+								tagsWrapper.style.maxHeight = '0px';
+								tagsWrapper.style.opacity = '0';
+								tagsWrapper.style.marginTop = '0';
+								btnIcon.style.transform = 'rotate(0deg)';
+							}
+						});
 						
-						if (isHidden) {
-							// 展开
-							tagsWrapper.style.maxHeight = tagsWrapper.scrollHeight + 'px';
-							tagsWrapper.style.opacity = '1';
-							tagsWrapper.style.marginTop = '1rem';
-						} else {
-							// 收起
-							tagsWrapper.style.maxHeight = '0px';
-							tagsWrapper.style.opacity = '0';
-							tagsWrapper.style.marginTop = '0';
-						}
-					});
-					
-					// 初始化为收起状态
-					tagsWrapper.style.maxHeight = '0px';
-					tagsWrapper.style.opacity = '0';
-					tagsWrapper.style.marginTop = '0';
-					tagsWrapper.style.overflow = 'hidden';
-				}
+						// 初始化为收起状态
+						tagsWrapper.style.maxHeight = '0px';
+						tagsWrapper.style.opacity = '0';
+						tagsWrapper.style.marginTop = '0';
+						tagsWrapper.style.overflow = 'hidden';
+						btnIcon.style.transform = 'rotate(0deg)';
+					}
+				};
+
+				document.addEventListener('astro:page-load', initTagFilter);
 			</script>
 
 			<section>
