@@ -45,7 +45,8 @@ const { count = 5 } = Astro.props;
 	const template = document.getElementById('ghost-template') as HTMLTemplateElement;
 
 	if (container && template) {
-		const ghostCount = 5; // 或者如果我们通过数据属性传递它，则从 props 读取
+		//const ghostCount = 5; // 或者如果我们通过数据属性传递它，则从 props 读取
+		const ghostCount = Math.floor(Math.random() * 5 + 1);
 		const mainContentWidth = 1200; // 匹配 global.css 的主要宽度
 		
 		for (let i = 0; i < ghostCount; i++) {
@@ -74,7 +75,11 @@ const { count = 5 } = Astro.props;
 					randomX = Math.random() * (windowWidth - 60);
 				}
 
-				const randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
+				// let randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
+				const maxY = container.clientHeight - 60 - 20; // 20px 底部留白
+    			const minY = 20; // 顶部留白
+    
+    			const randomY = Math.random() * (maxY - minY) + minY;
 				
 				// 设置初始位置
 				wrapper.style.left = `${randomX}px`;
