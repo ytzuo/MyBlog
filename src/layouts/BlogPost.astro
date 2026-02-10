@@ -12,7 +12,7 @@ type Props = CollectionEntry<'blog'>['data'] & {
 	showReadingProgress?: boolean;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, tags, showReadingProgress = true } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1, tags, showReadingProgress = true } = Astro.props;
 ---
 
 <html lang="en">
@@ -62,6 +62,138 @@ const { title, description, pubDate, updatedDate, heroImage, tags, showReadingPr
 				gap: 0.5em;
 				margin-top: 1em;
 			}
+			/* 正文段落自动首行缩进 */
+			.prose :global(p) {
+				text-indent: 2em;
+				margin-bottom: 1em;
+				line-height: 1.8;
+			}
+			/* 引用块内不缩进 */
+			.prose :global(blockquote p) {
+				text-indent: 0;
+			}
+			/* 列表内不缩进 */
+			.prose :global(li p) {
+				text-indent: 0;
+			}
+
+			/* --- 代码块样式优化 --- */
+			:global(.code-container) {
+				position: relative;
+				margin: 1.5rem 0;
+			}
+			
+			.prose :global(pre) {
+				padding: 1rem;
+				border-radius: 8px;
+				margin: 0; /* Margin handled by container */
+				border: 1px solid var(--gray-light, #e5e7eb);
+				overflow-x: auto;
+			}
+			
+			.prose :global(code) {
+				font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+				font-size: 0.85em; /* 减小字体大小 */
+				line-height: 1.5;
+			}
+
+			/* 内联代码样式 */
+			.prose :global(p code), .prose :global(li code) {
+				background-color: rgba(var(--accent), 0.12);
+				color: rgb(var(--accent));
+				padding: 0.2em 0.4em;
+				border-radius: 4px;
+				font-size: 0.9em;
+			}
+
+			/* 复制按钮样式 */
+			:global(.copy-code-btn) {
+				position: absolute;
+				top: 0.5rem;
+				right: 0.5rem;
+				background-color: rgba(255, 255, 255, 0.1); /* 浅色半透明背景，适配深色代码块 */
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				border-radius: 4px;
+				color: #e0e0e0; /* 浅色文字 */
+				font-size: 0.75rem;
+				padding: 0.25rem 0.5rem;
+				cursor: pointer;
+				opacity: 0;
+				transition: opacity 0.2s, background-color 0.2s;
+				z-index: 10;
+			}
+			
+			/* 深色模式下的适配（保留以防万一，但默认已改为深色适配） */
+			@media (prefers-color-scheme: dark) {
+				:global(.copy-code-btn) {
+					background-color: rgba(255, 255, 255, 0.1);
+					border-color: rgba(255, 255, 255, 0.2);
+					color: #fff;
+				}
+			}
+			
+			/* 浅色模式下的代码块（假设 Astro 默认代码块背景较深，或者需要适配） */
+			/* 这里我们让按钮在 hover 时显示 */
+			:global(.code-container:hover .copy-code-btn) {
+				opacity: 1;
+			}
+
+			:global(.copy-code-btn:hover) {
+				background-color: rgba(255, 255, 255, 0.2);
+			}
+
+			:global(.copy-code-btn.copied) {
+				background-color: var(--accent);
+				border-color: var(--accent);
+				color: #fff;
+			}
+
+			/* --- 电子表格样式 --- */
+			.prose :global(table) {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 2rem 0;
+				font-size: 1.1rem; /* 再次加大字体 */
+				box-shadow: 0 0 0 1px #e0e0e0; /* 外边框 */
+				border-radius: 4px;
+				overflow: hidden;
+				background-color: #fff; /* 整体白色背景 */
+			}
+
+			.prose :global(th),
+			.prose :global(td) {
+				padding: 0.75rem 1rem;
+				border: 1px solid #e0e0e0;
+				text-align: left;
+			}
+
+			/* 表头样式 - 模仿 Excel 列头 */
+			.prose :global(thead) {
+				background-color: #f8f9fa;
+				border-bottom: 2px solid #dee2e6;
+			}
+			
+			.prose :global(tbody tr) {
+				background-color: #fff; /* 默认行背景 */
+			}
+
+			.prose :global(th) {
+				font-weight: 600;
+				color: #495057;
+				position: relative;
+			}
+
+			/* 条纹背景 */
+			.prose :global(tbody tr:nth-child(even)) {
+				background-color: #f8f9fa;
+			}
+
+			/* 悬停效果 - 模仿选中行 */
+			.prose :global(tbody tr:hover) {
+				background-color: rgba(var(--accent), 0.05);
+			}
+
+			/* 单元格数字右对齐 (可选，需根据内容判断，这里暂不强制) */
 		</style>
 	</head>
 
@@ -71,9 +203,9 @@ const { title, description, pubDate, updatedDate, heroImage, tags, showReadingPr
 			<main>
 				<!-- 顶部大图 -->
 				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" style={`width: ${heroImageScale * 100}%;`} />}
 				</div>
-				<p></p>
+				<br/>
 				<div class="prose">
 					<div class="title">
 						<h1>{title}</h1>
@@ -102,5 +234,58 @@ const { title, description, pubDate, updatedDate, heroImage, tags, showReadingPr
 				</div>
 			</main>
 		<Footer />
+		<script>
+			// 为代码块添加复制按钮
+			const addCopyButtons = () => {
+				const preBlocks = document.querySelectorAll('.prose pre');
+				
+				preBlocks.forEach((pre) => {
+					// 避免重复添加
+					if (pre.parentElement?.classList.contains('code-container')) return;
+
+					// 创建 wrapper
+					const wrapper = document.createElement('div');
+					wrapper.className = 'code-container';
+					wrapper.style.position = 'relative'; // 确保定位生效
+					
+					// 插入 wrapper
+					pre.parentNode?.insertBefore(wrapper, pre);
+					wrapper.appendChild(pre);
+
+					// 创建复制按钮
+					const button = document.createElement('button');
+					button.className = 'copy-code-btn';
+					button.textContent = 'Copy';
+					
+					// 按钮点击事件
+					button.addEventListener('click', async () => {
+						const code = pre.querySelector('code');
+						if (!code) return;
+						
+						try {
+							await navigator.clipboard.writeText(code.textContent || '');
+							
+							// 复制成功反馈
+							const originalText = button.textContent;
+							button.textContent = 'Copied!';
+							button.classList.add('copied');
+							
+							setTimeout(() => {
+								button.textContent = originalText;
+								button.classList.remove('copied');
+							}, 2000);
+						} catch (err) {
+							console.error('Failed to copy:', err);
+							button.textContent = 'Error';
+						}
+					});
+					
+					wrapper.appendChild(button);
+				});
+			};
+
+			document.addEventListener('DOMContentLoaded', addCopyButtons);
+			document.addEventListener('astro:page-load', addCopyButtons);
+		</script>
 	</body>
 </html>
