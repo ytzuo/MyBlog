@@ -1,22 +1,250 @@
 ---
-// ReadingProgress.astro
+// ReadingProgress.astro - 阅读进度提示器组件
+interface Props {
+  height?: number; // 进度条高度，默认 3px
+  color?: string;  // 进度条颜色，默认使用 CSS 变量
+  throttleDelay?: number; // 节流延迟，默认 16ms (约60fps)
+  showPercentage?: boolean; // 是否显示百分比数字，默认 true
+}
+
+const {
+  height = 3,
+  color = 'var(--accent)',
+  throttleDelay = 16,
+  showPercentage = true
+} = Astro.props;
+
 ---
 
-<div id="reading-progress-bar" class="reading-progress"></div>
+<div class="reading-progress-container">
+  <div id="reading-progress-bar" class="reading-progress" data-height={height} style={`--progress-height: ${height}px`}></div>
+  {showPercentage && (
+    <div id="reading-progress-text" class="reading-progress-text" data-height={height}>0%</div>
+  )}
+</div>
 
 <style>
-  .reading-progress {
+  .reading-progress-container {
     position: fixed;
     top: 0;
     left: 0;
-    width: 0%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    right: 0;
+    display: flex;
+    align-items: center;
     z-index: 1000;
+    pointer-events: none; /* 让点击穿透到下方内容 */
+  }
+
+  .reading-progress {
+    width: 0%;
+    height: var(--progress-height, 3px);
+    background: linear-gradient(90deg, 
+      var(--accent, #705717) 0%, 
+      var(--accent-dark, #4f440e) 100%);
     transition: width 0.1s ease-out;
+    box-shadow: 0 0 8px rgba(112, 87, 23, 0.3);
+    transform-origin: left;
+  }
+
+  .reading-progress-text {
+    position: absolute;
+    top: 100%; /* 位于进度条下方 */
+    transform: translateX(-100%); /* 让数字的右侧对齐进度条末端 */
+    color: var(--accent, #705717);
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 4px;
+    background: transparent;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    /* 移除之前的复杂样式 */
+  }
+
+  /* 进度接近0时，调整位置避免溢出左侧 */
+  .reading-progress-text[data-value="start"] {
+    transform: translateX(0);
+  }
+
+  /* 滚动时显示数字 */
+  .reading-progress-container.scrolled .reading-progress-text {
+    opacity: 1;
+  }
+
+  /* 数字位置跟随进度条高度调整 */
+  /* .reading-progress-text[data-height="2"] ... 已移除 */
+
+  /* 响应式高度调整 */
+  @media (max-width: 768px) {
+    .reading-progress {
+      height: calc(var(--progress-height, 3px) * 0.8);
+    }
+    .reading-progress-text {
+      font-size: 9px;
+      padding: 1px 4px;
+      min-width: 28px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .reading-progress {
+      height: calc(var(--progress-height, 3px) * 1.2);
+    }
+    .reading-progress-text {
+      font-size: 11px;
+      padding: 3px 8px;
+    }
   }
 </style>
 
 <script>
-  // 上面的 JavaScript 代码
+  // 阅读进度提示器类
+  class ReadingProgress {
+    private progressBar: HTMLElement | null = null;
+    private progressText: HTMLElement | null = null;
+    private container: HTMLElement | null = null;
+    private isScrolling: boolean = false;
+    private scrollTimeout: number | null = null;
+    private readonly THROTTLE_DELAY: number;
+    private readonly PROGRESS_BAR_ID: string = 'reading-progress-bar';
+    private readonly PROGRESS_TEXT_ID: string = 'reading-progress-text';
+    private hideTextTimeout: number | null = null;
+
+    constructor(throttleDelay: number = 16) {
+      this.THROTTLE_DELAY = throttleDelay;
+      this.init();
+    }
+
+    private init(): void {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.setup());
+      } else {
+        this.setup();
+      }
+    }
+
+    private setup(): void {
+      this.progressBar = document.getElementById(this.PROGRESS_BAR_ID);
+      this.progressText = document.getElementById(this.PROGRESS_TEXT_ID);
+      this.container = document.querySelector('.reading-progress-container');
+      
+      if (!this.progressBar) {
+        console.warn('Reading progress bar element not found');
+        return;
+      }
+
+      this.updateProgress();
+      
+      window.addEventListener('scroll', this.throttledUpdate.bind(this), { passive: true });
+      window.addEventListener('resize', this.debounce(this.updateProgress.bind(this), 100));
+      window.addEventListener('load', () => this.updateProgress());
+    }
+
+    private throttledUpdate(): void {
+      if (!this.isScrolling) {
+        this.isScrolling = true;
+        requestAnimationFrame(() => {
+          this.updateProgress();
+          this.isScrolling = false;
+        });
+      }
+    }
+
+    private updateProgress(): void {
+      try {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const documentHeight = this.getDocumentHeight();
+        const windowHeight = window.innerHeight;
+        
+        // 显示/隐藏容器状态
+        if (this.container) {
+          if (scrollTop > 50) {
+            this.container.classList.add('scrolled');
+          } else {
+            this.container.classList.remove('scrolled');
+          }
+        }
+
+        if (documentHeight <= windowHeight) {
+          this.setProgress(100);
+          return;
+        }
+
+        const scrollProgress = Math.min(
+          Math.max((scrollTop / (documentHeight - windowHeight)) * 100, 0),
+          100
+        );
+        
+        this.setProgress(scrollProgress);
+      } catch (error) {
+        console.error('Error calculating reading progress:', error);
+      }
+    }
+
+    private getDocumentHeight(): number {
+      return Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight
+      );
+    }
+
+    private setProgress(progress: number): void {
+      const roundedProgress = Math.round(progress);
+      
+      if (this.progressBar) {
+        this.progressBar.style.width = `${progress}%`;
+      }
+      
+      if (this.progressText) {
+        this.progressText.textContent = `${roundedProgress}%`;
+        
+        // 简单跟随进度条末端
+        this.progressText.style.left = `${progress}%`;
+        
+        // 如果进度很小，改变对齐方式防止溢出左侧
+        if (progress < 5) {
+            this.progressText.style.transform = 'translateX(0)';
+            this.progressText.style.marginLeft = '2px'; // 稍微留点空隙
+        } else {
+            this.progressText.style.transform = 'translateX(-100%)';
+            this.progressText.style.marginLeft = '0';
+        }
+        
+        // 100% 时的特殊样式
+        if (roundedProgress === 100) {
+          this.progressText.style.color = 'var(--success, #22c55e)';
+        } else {
+          this.progressText.style.color = 'var(--accent, #705717)';
+        }
+      }
+    }
+
+    private debounce<T extends (...args: any[]) => any>(
+      func: T, 
+      wait: number
+    ): (...args: Parameters<T>) => void {
+      let timeout: number | null = null;
+      
+      return (...args: Parameters<T>): void => {
+        if (timeout) clearTimeout(timeout);
+        timeout = window.setTimeout(() => func(...args), wait);
+      };
+    }
+  }
+
+  // 初始化
+  try {
+    const progressBar = document.getElementById('reading-progress-bar');
+    const height = progressBar?.dataset.height ? parseInt(progressBar.dataset.height) : 3;
+    new ReadingProgress(height === 3 ? 16 : Math.max(10, Math.min(50, height)));
+  } catch (error) {
+    console.error('Failed to initialize reading progress:', error);
+  }
+  document.addEventListener('astro:page-load', () => {
+    new ReadingProgress();
+  })
 </script>
