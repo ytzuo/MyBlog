@@ -3,3 +3,8 @@
 
 export const SITE_TITLE = 'Saten同学的小基地';
 export const SITE_DESCRIPTION = 'Saten同学的小基地，记录自己的学习过程和生活经验。';
+
+// 图标配置
+export const SITE_LOGO = '/ghost-cat-code.svg';
+export const SITE_AVATAR = '/ghost-cat-code.svg';
+export const SITE_FAVICON = '/favicon.svg';
