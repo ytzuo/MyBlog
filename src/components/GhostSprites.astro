@@ -80,8 +80,8 @@ const { count = 5 } = Astro.props;
 					}
 
 					// let randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
-					const maxY = container.clientHeight - 60 - 20; // 20px 底部留白
-					const minY = 20; // 顶部留白
+					const maxY = container.clientHeight - 60 - 20;
+					const minY = 100; // 顶部留白
 		
 					const randomY = Math.random() * (maxY - minY) + minY;
 					
