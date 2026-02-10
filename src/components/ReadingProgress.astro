@@ -1,0 +1,22 @@
+---
+// ReadingProgress.astro
+---
+
+<div id="reading-progress-bar" class="reading-progress"></div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    z-index: 1000;
+    transition: width 0.1s ease-out;
+  }
+</style>
+
+<script>
+  // 上面的 JavaScript 代码
+</script>
