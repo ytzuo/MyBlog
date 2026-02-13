@@ -19,10 +19,17 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
+			.site-wrapper {
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+			}
+
 			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
 				margin: 0;
+				flex: 1;
 			}
 			.hero-image {
 				width: 100%;
@@ -199,41 +206,43 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 
 	<body>
 		{showReadingProgress && <ReadingProgress height={5} throttleDelay={16} showPercentage={true} />}
-		<Header />
-			<main>
-				<!-- 顶部大图 -->
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" style={`width: ${heroImageScale * 100}%;`} />}
-				</div>
-				<br/>
-				<div class="prose">
-					<div class="title">
-						<h1>{title}</h1>
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<!-- 标签展示 -->
-						{tags && tags.length > 0 && (
-							<div class="tags">
-								{tags.map((tag) => (
-									<Tag tag={tag} />
-								))}
-							</div>
-						)}
-						<hr />
+		<div class="site-wrapper">
+			<Header />
+				<main>
+					<!-- 顶部大图 -->
+					<div class="hero-image">
+						{heroImage && <Image width={1020} height={510} src={heroImage} alt="" style={`width: ${heroImageScale * 100}%;`} />}
 					</div>
-					<!-- 文章内容插槽 -->
-					<slot />
-				</div>
-			</main>
-		<Footer />
+					<br/>
+					<div class="prose">
+						<div class="title">
+							<h1>{title}</h1>
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<div class="last-updated-on">
+											Last updated on <FormattedDate date={updatedDate} />
+										</div>
+									)
+								}
+							</div>
+							<!-- 标签展示 -->
+							{tags && tags.length > 0 && (
+								<div class="tags">
+									{tags.map((tag) => (
+										<Tag tag={tag} />
+									))}
+								</div>
+							)}
+							<hr />
+						</div>
+						<!-- 文章内容插槽 -->
+						<slot />
+					</div>
+				</main>
+			<Footer />
+		</div>
 		<script>
 			// 为代码块添加复制按钮
 			const addCopyButtons = () => {

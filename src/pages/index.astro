@@ -25,11 +25,18 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
+			.site-wrapper {
+				display: flex;
+				flex-direction: column;
+				min-height: 100vh;
+			}
+
 			main {
 				width: 1100px;
 				max-width: calc(100% - 2em);
 				margin: auto;
 				padding: 3em 1em;
+				flex: 1;
 			}
 			
 			/* Top Section */
@@ -51,7 +58,8 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
     			transform-origin: center bottom; /* 从底部中心摇摆，更像不倒翁 */
 			}
 			/* 悬浮时的摇晃动画 */
-			.intro-image img:hover {
+			.intro-image img:hover,
+			.intro-image img.animate-shake {
     			animation: shake 0.5s ease-in-out;
 			}		
 			/* 关键帧定义：左右摇晃 */
@@ -123,57 +131,77 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 		</style>
 	</head>
 	<body>
-		<Header />
-		<GhostSprites />		
-		<main>
-			<!-- Top Section: Intro -->
-			<section class="top-section">
-				<div class="intro-image">
-					<Image src={aboutImage} alt="Profile Picture" />
-				</div>
-				<div class="intro-text">
-					<h1>你好! I'm Saten</h1>
-					<p>{SITE_DESCRIPTION}</p>
-					<p>欢迎来到我的小基地。这里记录了我的学习历程、技术分享以及生活点滴。</p>
-				</div>
-			</section>
-
-			<!-- Bottom Section: Split View -->
-			<section class="bottom-section">
-				<!-- Left Sidebar -->
-				<aside class="sidebar">
-					<Card class="widget">
-						<h3>统计信息</h3>
-						<div class="stat-item">
-							<span>文章总数</span>
-							<strong>{postCount}</strong>
-						</div>
-					</Card>
-					
-					<Card class="widget">
-						<h3>标签</h3>
-						<div class="tag-cloud">
-							{tags.length > 0 ? (
-								tags.map((tag) => (
-									<Tag tag={tag} />
-								))
-							) : (
-								<p style="color: #666; font-size: 0.9em; font-style: italic;">暂无标签</p>
-							)}
-						</div>
-					</Card>
-				</aside>
-
-				<!-- Right Content: Latest Posts -->
-				<div class="latest-posts">
-					<div class="post-list">
-						{latestPosts.map((post) => (
-							<PostCard post={post} />
-						))}
+		<div class="site-wrapper">
+			<Header />
+			<main>
+				<section class="top-section">
+					<div class="intro-image">
+						<Image src={aboutImage} alt="Profile" />
 					</div>
+					<div class="intro-text">
+						<h1>Hi, 我是 Saten! 👋</h1>
+						<p>欢迎来到我的小基地。这里记录了我的技术探索、生活感悟以及一些奇思妙想。</p>
+					</div>
+				</section>
+
+				<div class="bottom-section">
+					<!-- Sidebar -->
+					<aside class="sidebar">
+						<Card class="widget">
+							<h3>站点统计</h3>
+							<div class="stat-item">
+								<span>文章总数</span>
+								<strong>{postCount}</strong>
+							</div>
+							<div class="stat-item">
+								<span>标签数量</span>
+								<strong>{tags.length}</strong>
+							</div>
+						</Card>
+
+						<Card class="widget">
+							<h3>热门标签</h3>
+							<div class="tag-cloud">
+								{tags.map((tag) => (
+									<Tag tag={tag} />
+								))}
+							</div>
+						</Card>
+					</aside>
+
+					<!-- Latest Posts -->
+					<section class="latest-posts">
+						<h2 class="section-title">最新博文</h2>
+						<div class="post-list">
+							{latestPosts.map((post) => (
+								<PostCard post={post} />
+							))}
+						</div>
+						<div class="view-all">
+							<a href="/blog">查看全部博文 &rarr;</a>
+						</div>
+					</section>
 				</div>
-			</section>
-		</main>
-		<Footer />
+				<GhostSprites />
+			</main>
+			<Footer />
+		</div>
+
+		<script>
+			function triggerShake() {
+				const img = document.querySelector('.intro-image img');
+				if (img) {
+					// 添加类名触发动画
+					img.classList.add('animate-shake');
+					// 动画结束后移除类名，以便下次 hover 能正常触发
+					setTimeout(() => {
+						img.classList.remove('animate-shake');
+					}, 500); // 500ms 与 CSS 动画时长一致
+				}
+			}
+
+			// 监听 Astro 视图过渡后的页面加载
+			document.addEventListener('astro:page-load', triggerShake);
+		</script>
 	</body>
 </html>
