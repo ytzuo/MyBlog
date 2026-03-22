@@ -18,6 +18,15 @@
 
     /* Custom Material Styles */
     --noise-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.8'/%3E%3C/svg%3E");
+    --paper-base: #efebe2;
+    --paper-warm: #f8f4ec;
+    --paper-shadow: #d9d2c4;
+    --paper-line: rgba(121, 101, 56, 0.12);
+    --paper-stamp: rgba(140, 116, 63, 0.07);
+    --paper-highlight: rgba(255, 255, 255, 0.5);
+    --paper-ridge: rgba(168, 146, 103, 0.1);
+    --selection-bg: #8b6b45;
+    --selection-text: #f8f1e5;
 }
 @font-face {
     font-family: "Atkinson";
@@ -38,22 +47,104 @@ body {
     margin: 0;
     padding: 0;
     text-align: left;
-    background-color: #f4f4f5;
+    background-color: var(--paper-base);
     background-image:
-        linear-gradient(#e5e7eb 1px, transparent 1px),
-        linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
-    background-size: 20px 20px;
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 28%),
+        radial-gradient(circle at 85% 18%, rgba(255, 248, 232, 0.75), transparent 24%),
+        radial-gradient(circle at 12% 72%, rgba(228, 214, 182, 0.38), transparent 20%),
+        radial-gradient(circle at 88% 82%, rgba(214, 196, 160, 0.22), transparent 18%),
+        radial-gradient(circle at 50% 100%, rgba(205, 191, 165, 0.28), transparent 38%),
+        linear-gradient(180deg, var(--paper-warm) 0%, #ece6db 52%, #e7e0d3 100%);
     word-wrap: break-word;
     overflow-wrap: break-word;
     color: rgb(var(--gray-dark));
     font-size: 20px;
     line-height: 1.7;
+    position: relative;
+    min-height: 100vh;
+}
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+body::before {
+    background:
+        radial-gradient(circle at 12% 18%, var(--paper-highlight) 0 6px, transparent 7px) 0 0 / 280px 280px,
+        radial-gradient(circle at 78% 26%, var(--paper-stamp) 0 18px, transparent 19px) 0 0 / 360px 360px,
+        radial-gradient(circle at 24% 72%, rgba(255, 255, 255, 0.24) 0 14px, transparent 15px) 0 0 / 320px 320px,
+        linear-gradient(90deg, transparent 0 8%, rgba(255, 255, 255, 0.2) 8.5%, transparent 9.5%) 0 0 / 420px 420px,
+        linear-gradient(135deg, transparent 0 22%, var(--paper-line) 22.5%, transparent 23.5%) 0 0 / 160px 160px,
+        linear-gradient(315deg, transparent 0 18%, rgba(255, 255, 255, 0.28) 18.5%, transparent 19.5%) 0 0 / 220px 220px,
+        var(--noise-texture);
+    opacity: 0.24;
+    mix-blend-mode: multiply;
+}
+body::after {
+    background:
+        radial-gradient(circle at 6% 10%, rgba(255, 255, 255, 0.35), transparent 16%),
+        radial-gradient(circle at 92% 14%, rgba(180, 156, 104, 0.08), transparent 14%),
+        radial-gradient(circle at 82% 88%, rgba(255, 255, 255, 0.18), transparent 18%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -16px 40px rgba(141, 125, 92, 0.08);
+}
+::selection {
+    background: var(--selection-bg);
+    color: var(--selection-text);
+    text-shadow: none;
+}
+::-moz-selection {
+    background: var(--selection-bg);
+    color: var(--selection-text);
+    text-shadow: none;
 }
 main {
     width: 1100px;
     max-width: calc(100% - 2em);
     margin: auto;
     padding: 3em 1em;
+    position: relative;
+    isolation: isolate;
+}
+main::before,
+main::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+}
+main::before {
+    inset: 1.25rem -1.75rem 2rem;
+    border-radius: 36px;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(217, 204, 176, 0.3), transparent 26%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(231, 223, 209, 0.34));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        0 28px 60px rgba(122, 99, 55, 0.07);
+    opacity: 0.9;
+}
+main::after {
+    top: 2.5rem;
+    right: -0.5rem;
+    width: 13rem;
+    height: 13rem;
+    border-radius: 2rem 4rem 2rem 5rem;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgba(215, 198, 166, 0.14)),
+        repeating-linear-gradient(
+            -35deg,
+            transparent 0 14px,
+            var(--paper-ridge) 14px 16px,
+            transparent 16px 30px
+        );
+    filter: blur(0.2px);
+    opacity: 0.8;
 }
 h1,
 h2,
@@ -198,6 +289,17 @@ hr {
     }
     main {
         padding: 1em;
+    }
+    main::before {
+        inset: 0.5rem -0.25rem 1rem;
+        border-radius: 24px;
+    }
+    main::after {
+        top: 1.25rem;
+        right: 0.25rem;
+        width: 7rem;
+        height: 7rem;
+        border-radius: 1.5rem 2.5rem 1.5rem 3rem;
     }
 }
 

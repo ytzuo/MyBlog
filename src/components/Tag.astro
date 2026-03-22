@@ -9,37 +9,46 @@ const { tag } = Astro.props;
 <a href={`/tags/${tag}`} class="tag">{tag}</a>
 
 <style>
-	.tag {
-		background: #f1f1f1;
-		padding: 0.4rem 1rem;
-		border-radius: 8px; /* 柔和边缘 */
-		font-size: 0.9rem;
-		border: none;
-		color: var(--black);
-		text-decoration: none;
-		transition: all 0.1s ease;
-		display: inline-block;
-		cursor: pointer;
-		/* 软橡胶按钮风格 */
-		box-shadow: 
-			0 5px 0 #d0d0d0, /* 3D 侧面 */
-			0 5px 10px rgba(0,0,0,0.05); /* 投影 */
-		transform: translateY(0);
-	}
-	.tag:hover {
-		background: #efefef;
-		transform: translateY(1px);
-		box-shadow: 
-			0 3px 0 #d0d0d0, 
-			0 4px 8px rgba(0,0,0,0.05);
-		color: var(--black);
-		border-color: transparent;
-	}
-	.tag:active {
-		/* 按下状态：内阴影反转 */
-		transform: translateY(4px);
-		box-shadow: 
-			0 0 0 #e0e0e0, 
-			inset 0 2px 4px rgba(0,0,0,0.1); /* 模拟凹陷的内阴影 */
-	}
-</style>
+		.tag {
+			background: linear-gradient(180deg, #faf8f3 0%, #ece6dc 100%);
+			padding: 0.4rem 1rem;
+			border-radius: 8px; /* 柔和边缘 */
+			font-size: 0.9rem;
+			border: 1px solid rgba(126, 103, 64, 0.14);
+			color: rgb(var(--black));
+			text-decoration: none;
+			transition:
+				transform 0.12s ease,
+				box-shadow 0.12s ease,
+				background 0.12s ease,
+				color 0.12s ease;
+			display: inline-block;
+			cursor: pointer;
+			/* 软橡胶按钮风格 */
+			box-shadow: 
+				inset 0 1px 0 rgba(255, 255, 255, 0.9),
+				0 6px 0 #cdbfa8, /* 3D 侧面 */
+				0 9px 18px rgba(84, 70, 39, 0.12); /* 投影 */
+			transform: translateY(0);
+		}
+		.tag:hover {
+			background: linear-gradient(180deg, #fffdf7 0%, #f1eadf 100%);
+			transform: translateY(3px) scale(0.992);
+			box-shadow: 
+				0 3px 0 #cdbfa8,
+				inset 0 3px 6px rgba(84, 70, 39, 0.08),
+				inset 0 1px 0 rgba(255, 255, 255, 0.92),
+				0 7px 12px rgba(84, 70, 39, 0.12);
+			color: rgb(var(--black));
+			border-color: rgba(126, 103, 64, 0.2);
+		}
+		.tag:active {
+			/* 按下状态：内阴影反转 */
+			transform: translateY(6px) scale(0.98);
+			background: linear-gradient(180deg, #e4dbcd 0%, #d9cdb9 100%);
+			box-shadow: 
+				0 0 0 rgba(205, 191, 168, 0),
+				inset 0 6px 12px rgba(84, 70, 39, 0.2),
+				inset 0 1px 1px rgba(255, 255, 255, 0.28); /* 模拟明显凹陷的内阴影 */
+		}
+	</style>

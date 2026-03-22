@@ -16,11 +16,11 @@ interface Props {
 	count?: number;
 }
 
-const { count = 5 } = Astro.props;
+const { count = 9 } = Astro.props;
 ---
 
-<div id="ghost-container">
-	<!-- 幽灵将由客户端脚本注入以实现随机性 -->
+<div id="ghost-container" data-count={count}>
+		<!-- 幽灵将由客户端脚本注入以实现随机性 -->
 </div>
 
 <!-- 单个幽灵的模板，用于克隆 -->
@@ -40,44 +40,49 @@ const { count = 5 } = Astro.props;
 	</div>
 </template>
 
-<script>
-	const initGhosts = () => {
-		const container = document.getElementById('ghost-container');
-		const template = document.getElementById('ghost-template') as HTMLTemplateElement;
+	<script>
+		const initGhosts = () => {
+			const container = document.getElementById('ghost-container');
+			const template = document.getElementById('ghost-template') as HTMLTemplateElement;
 
-		if (container && template) {
+			if (container && template) {
 			// Clear existing ghosts to prevent duplicates if function runs multiple times
 			container.innerHTML = '';
 
-			//const ghostCount = 5; // 或者如果我们通过数据属性传递它，则从 props 读取
-			const ghostCount = Math.floor(Math.random() * 5 + 1);
-			const mainContentWidth = 1200; // 匹配 global.css 的主要宽度
-			
-			for (let i = 0; i < ghostCount; i++) {
-				const clone = template.content.cloneNode(true) as DocumentFragment;
-				const wrapper = clone.querySelector('.ghost-wrapper') as HTMLElement;
+				const preferredCount = Number(container.dataset.count || '9');
+				const ghostCount = Math.max(
+					6,
+					Math.round(preferredCount * (0.8 + Math.random() * 0.5))
+				);
+				const mainContentWidth = 1200; // 匹配 global.css 的主要宽度
+				
+				for (let i = 0; i < ghostCount; i++) {
+					const clone = template.content.cloneNode(true) as DocumentFragment;
+					const wrapper = clone.querySelector('.ghost-wrapper') as HTMLElement;
 				
 				if (wrapper) {
 					// 随机位置逻辑
 					// 我们希望避开中心列（mainContentWidth）
-					const windowWidth = window.innerWidth;
-					const sideWidth = (windowWidth - mainContentWidth) / 2;
-					
-					let randomX;
-					if (windowWidth > mainContentWidth + 100) {
-						// 两侧有足够的空间
-						const isLeft = Math.random() > 0.5;
-						if (isLeft) {
-							// 左侧：0 到 sideWidth
-							randomX = Math.random() * (sideWidth - 60); // -60 是幽灵的宽度
+						const windowWidth = window.innerWidth;
+						const sideWidth = (windowWidth - mainContentWidth) / 2;
+						const ghostWidth = 60;
+						const safeOffset = 16;
+						
+						let randomX;
+						if (windowWidth > mainContentWidth + 100) {
+							// 两侧有足够的空间
+							const isLeft = Math.random() > 0.5;
+							if (isLeft) {
+								// 左侧：0 到 sideWidth
+								randomX = safeOffset + Math.random() * Math.max(24, sideWidth - ghostWidth - safeOffset * 2);
+							} else {
+								// 右侧：windowWidth - sideWidth 到 windowWidth
+								randomX = (windowWidth - sideWidth) + safeOffset + Math.random() * Math.max(24, sideWidth - ghostWidth - safeOffset * 2);
+							}
 						} else {
-							// 右侧：windowWidth - sideWidth 到 windowWidth
-							randomX = (windowWidth - sideWidth) + Math.random() * (sideWidth - 60);
+							// 屏幕太窄，随机宽度（可能会覆盖内容）
+							randomX = Math.random() * Math.max(40, windowWidth - ghostWidth);
 						}
-					} else {
-						// 屏幕太窄，随机宽度（可能会覆盖内容）
-						randomX = Math.random() * (windowWidth - 60);
-					}
 
 					// let randomY = Math.random() * (document.documentElement.scrollHeight - 200) + 100;
 					const maxY = container.clientHeight - 60 - 20;
@@ -89,11 +94,13 @@ const { count = 5 } = Astro.props;
 					wrapper.style.left = `${randomX}px`;
 					wrapper.style.top = `${randomY}px`;
 					
-					// 添加漂浮动画延迟以增加多样性
-					wrapper.style.animationDelay = `-${Math.random() * 5}s`;
+						// 添加漂浮动画延迟以增加多样性
+						wrapper.style.animationDelay = `-${Math.random() * 5}s`;
+						wrapper.style.setProperty('--ghost-scale', `${0.75 + Math.random() * 0.55}`);
+						wrapper.style.setProperty('--ghost-opacity', `${0.45 + Math.random() * 0.3}`);
 
-					// 点击事件：飞走
-					wrapper.addEventListener('click', () => {
+						// 点击事件：飞走
+						wrapper.addEventListener('click', () => {
 						if (wrapper.classList.contains('flying')) {
 							return;
 						}
@@ -120,27 +127,29 @@ const { count = 5 } = Astro.props;
 	document.addEventListener('astro:page-load', initGhosts);
 </script>
 
-<style>
-	#ghost-container {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: none; /* 让点击穿过空白区域 */
-		overflow: hidden;
-		z-index: 50; /* 在普通内容之上，但在模态框/标题之下（如果需要） */
-	}
+	<style>
+		#ghost-container {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 100vw;
+			height: 100%;
+			pointer-events: none; /* 让点击穿过空白区域 */
+			overflow: hidden;
+			z-index: 50; /* 在普通内容之上，但在模态框/标题之下（如果需要） */
+		}
 
-	:global(.ghost-wrapper) {
-		position: absolute;
-		pointer-events: auto; /* 为幽灵重新启用点击 */
-		cursor: pointer;
-		transition: transform 1s ease-out, opacity 1s ease-out;
-		/* 初始不透明度为 0 并淡入以避免突然出现 */
-		opacity: 0; 
-		animation-fill-mode: forwards; /* 保持最终状态 */
-	}
+		:global(.ghost-wrapper) {
+			position: absolute;
+			pointer-events: auto; /* 为幽灵重新启用点击 */
+			cursor: pointer;
+			transition: transform 1s ease-out, opacity 1s ease-out;
+			/* 初始不透明度为 0 并淡入以避免突然出现 */
+			opacity: 0;
+			animation-fill-mode: forwards; /* 保持最终状态 */
+			transform: scale(var(--ghost-scale, 1));
+		}
 
 	/* 单独的淡入动画以处理初始加载 */
 	:global(.ghost-wrapper) {
@@ -156,10 +165,10 @@ const { count = 5 } = Astro.props;
 		50% { transform: translateY(-15px); }
 	}
 
-	@keyframes appear {
-		from { opacity: 0; }
-		to { opacity: 0.7; } /* 幽灵稍微透明 */
-	}
+		@keyframes appear {
+			from { opacity: 0; }
+			to { opacity: var(--ghost-opacity, 0.72); } /* 幽灵稍微透明 */
+		}
 
 	/* 飞走状态 */
 	:global(.ghost-wrapper.flying) {
