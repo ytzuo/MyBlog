@@ -62,11 +62,29 @@ import HeaderLink from './HeaderLink.astro';
 			syncState();
 
 			toggle.addEventListener('click', () => {
+				const rect = toggle.getBoundingClientRect();
 				const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-				root.dataset.theme = nextTheme;
-				root.style.colorScheme = nextTheme;
-				localStorage.setItem(storageKey, nextTheme);
-				syncState();
+				const overlay = document.createElement('div');
+				overlay.className = `theme-transition-overlay theme-to-${nextTheme}`;
+				overlay.innerHTML = '<div class="theme-transition-backdrop"></div>';
+				overlay.style.setProperty('--theme-origin-x', `${Math.max(rect.left + rect.width / 2, window.innerWidth - 80)}px`);
+				overlay.style.setProperty('--theme-origin-y', `${Math.max(rect.top + rect.height / 2, window.innerHeight - 80)}px`);
+				document.body.appendChild(overlay);
+
+				window.setTimeout(() => {
+					root.dataset.theme = nextTheme;
+					root.style.colorScheme = nextTheme;
+					localStorage.setItem(storageKey, nextTheme);
+					syncState();
+				}, 240);
+
+				overlay.addEventListener(
+					'animationend',
+					() => {
+						overlay.remove();
+					},
+					{ once: true }
+				);
 			});
 		};
 
