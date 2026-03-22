@@ -17,68 +17,105 @@ const { name, icon } = Astro.props;
 	<span class="name">{name}</span>
 </Card>
 
-<script>
-	const initTechCards = () => {
-		const cards = document.querySelectorAll('.tech-card') as NodeListOf<HTMLElement>;
+	<script>
+		const initTechCards = () => {
+			const cards = document.querySelectorAll('.tech-card') as NodeListOf<HTMLElement>;
 
-		cards.forEach(card => {
-			card.addEventListener('mouseenter', () => {
-				// 鼠标进入时，仅保留阴影的过渡效果，移除 transform 的过渡以便于实时跟随鼠标
-				card.style.transition = 'box-shadow 0.5s ease';
-			});
+			cards.forEach(card => {
+				if (card.dataset.techCardReady === 'true') {
+					return;
+				}
+				card.dataset.techCardReady = 'true';
 
-			card.addEventListener('mousemove', (e) => {
-				const rect = card.getBoundingClientRect();
-				// 计算鼠标在卡片内的相对位置
-				const x = e.clientX - rect.left;
-				const centerX = rect.width / 2;
-				// 计算相对于中心点的百分比位置 (-1 到 1)
-				const pct = (x - centerX) / centerX;
-				// 根据位置计算旋转角度 (最大 30 度)
-				const rotateY = pct * 30;
-				
-				card.style.transform = `perspective(1000px) rotateY(${rotateY}deg)`;
-			});
+				card.addEventListener('mouseenter', () => {
+					card.style.transition = 'transform 0.12s ease-out, box-shadow 0.22s ease-out';
+				});
 
-			card.addEventListener('mouseleave', () => {
-				// 鼠标离开时，恢复平滑过渡并重置旋转角度
-				card.style.transition = 'transform 0.5s ease, box-shadow 0.2s ease';
-				card.style.transform = 'perspective(1000px) rotateY(0deg)';
+				card.addEventListener('mousemove', (e) => {
+					const rect = card.getBoundingClientRect();
+					const x = e.clientX - rect.left;
+					const y = e.clientY - rect.top;
+					const centerX = rect.width / 2;
+					const centerY = rect.height / 2;
+					const pctX = (x - centerX) / centerX;
+					const pctY = (y - centerY) / centerY;
+					const rotateY = pctX * 18;
+					const rotateX = -pctY * 16;
+					const driftX = pctX * 8;
+					const driftY = pctY * 8;
+					const glowX = (x / rect.width) * 100;
+					const glowY = (y / rect.height) * 100;
+					
+					card.style.setProperty('--pointer-x', `${glowX}%`);
+					card.style.setProperty('--pointer-y', `${glowY}%`);
+					card.style.transform =
+						`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translate3d(${driftX}px, ${driftY}px, 0) scale(1.03)`;
+					card.style.boxShadow =
+						`${-driftX * 1.4}px ${18 + Math.abs(driftY)}px 30px rgba(84, 70, 39, 0.18),
+						${-driftX * 2.4}px ${28 + Math.abs(driftY)}px 52px rgba(84, 70, 39, 0.14),
+						inset 0 1px 0 rgba(255, 255, 255, 0.92)`;
+				});
+
+				card.addEventListener('mouseleave', () => {
+					card.style.transition = 'transform 0.5s ease, box-shadow 0.35s ease';
+					card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0) scale(1)';
+					card.style.boxShadow = '';
+					card.style.setProperty('--pointer-x', '50%');
+					card.style.setProperty('--pointer-y', '50%');
+				});
 			});
-		});
-	};
+		};
 
 	document.addEventListener('astro:page-load', initTechCards);
 </script>
 
 <style>
-	:global(.tech-card) {
-		padding: 0.5rem !important;
-		display: flex;
-		flex-direction: column;
+		:global(.tech-card) {
+			padding: 0.5rem !important;
+			display: flex;
+			flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		gap: 2rem;
 		text-align: center;
 		height: 100%;
-		min-height: 140px;
-		min-width: 120px;
-		cursor: default;
-		transform-style: preserve-3d;
-	}
+			min-height: 140px;
+			min-width: 120px;
+			cursor: default;
+			transform-style: preserve-3d;
+			perspective: 1000px;
+			--pointer-x: 50%;
+			--pointer-y: 50%;
+			will-change: transform, box-shadow;
+		}
 
-	.icon-wrapper {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-bottom: 0rem;
-		transform: translateZ(40px);
-	}
+		:global(.tech-card)::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			border-radius: inherit;
+			background:
+				radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(255, 255, 255, 0.42), transparent 34%);
+			opacity: 0.9;
+			pointer-events: none;
+			z-index: 1;
+			transition: background-position 0.12s ease-out;
+		}
 
-	.name {
-		font-size: 1.2rem;
-		font-weight: 500;
-		color: var(--gray-dark);
-		transform: translateZ(10px);
-	}
-</style>
+		.icon-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 0rem;
+			transform: translateZ(46px);
+			filter: drop-shadow(0 10px 12px rgba(84, 70, 39, 0.12));
+		}
+
+		.name {
+			font-size: 1.2rem;
+			font-weight: 500;
+			color: var(--gray-dark);
+			transform: translateZ(24px);
+			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
+		}
+	</style>
