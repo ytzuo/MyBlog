@@ -11,15 +11,23 @@ import HeaderLink from './HeaderLink.astro';
 				{SITE_TITLE}
 			</a>
 		</h2>
-		<div class="nav-right">
-			<div class="internal-links">
-				<HeaderLink href="/">首页</HeaderLink>
-				<HeaderLink href="/blog">博文</HeaderLink>
-				<HeaderLink href="/about">关于我</HeaderLink>				
-			</div>			
-			<div class="social-links">
-					<a href="https://github.com/ytzuo" target="_blank">
-						<span class="sr-only">Go to My GitHub</span>
+			<div class="nav-right">
+				<div class="internal-links">
+					<HeaderLink href="/">首页</HeaderLink>
+					<HeaderLink href="/blog">博文</HeaderLink>
+					<HeaderLink href="/about">关于我</HeaderLink>				
+				</div>
+					<button class="theme-toggle" type="button" aria-label="切换黑夜模式" title="切换黑夜模式">
+						<span class="theme-toggle-track" aria-hidden="true">
+							<span class="theme-toggle-knob">
+								<span class="theme-toggle-sun">☀</span>
+								<span class="theme-toggle-moon">☾</span>
+							</span>
+						</span>
+					</button>
+				<div class="social-links">
+						<a href="https://github.com/ytzuo" target="_blank">
+							<span class="sr-only">Go to My GitHub</span>
 						<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32" astro-icon="social/github">
 							<path
 								fill="currentColor"
@@ -30,7 +38,40 @@ import HeaderLink from './HeaderLink.astro';
 				</div>
 		</div>
 	</nav>
-</header>
+	</header>
+	<script>
+		const initThemeToggle = () => {
+			const root = document.documentElement;
+			const toggle = document.querySelector('.theme-toggle') as HTMLButtonElement | null;
+			if (!toggle) return;
+
+			if (toggle.dataset.ready === 'true') {
+				toggle.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
+				return;
+			}
+
+			const storageKey = 'theme-preference';
+			const syncState = () => {
+				const isDark = root.dataset.theme === 'dark';
+				toggle.setAttribute('aria-pressed', String(isDark));
+				toggle.setAttribute('title', isDark ? '切换到浅色模式' : '切换到黑夜模式');
+				toggle.setAttribute('aria-label', isDark ? '切换到浅色模式' : '切换到黑夜模式');
+			};
+
+			toggle.dataset.ready = 'true';
+			syncState();
+
+			toggle.addEventListener('click', () => {
+				const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+				root.dataset.theme = nextTheme;
+				root.style.colorScheme = nextTheme;
+				localStorage.setItem(storageKey, nextTheme);
+				syncState();
+			});
+		};
+
+		document.addEventListener('astro:page-load', initThemeToggle);
+	</script>
 <style>
 		header {
 			margin: 0;
@@ -142,13 +183,140 @@ import HeaderLink from './HeaderLink.astro';
 				0 4px 10px rgba(112, 87, 23, 0.08);
 			color: var(--accent-dark);
 		}
-		.social-links,
-		.social-links a {
-			display: flex;
-		}
-		.social-links a {
-			align-items: center;
-			justify-content: center;
+			.social-links,
+			.social-links a {
+				display: flex;
+			}
+			.theme-toggle {
+				width: 3.9rem;
+				height: 2.4rem;
+				border: 1px solid var(--theme-control-border);
+				border-radius: 999px;
+				background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(228, 220, 205, 0.92));
+				color: var(--theme-control-text);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.85),
+					0 5px 10px rgba(84, 70, 39, 0.08);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+				cursor: pointer;
+				transition:
+					transform 0.18s ease,
+					box-shadow 0.18s ease,
+					background 0.18s ease,
+					color 0.18s ease;
+				z-index: 1;
+			}
+			.theme-toggle:hover {
+				transform: translateY(-1px);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.92),
+					0 9px 16px rgba(84, 70, 39, 0.12);
+			}
+			.theme-toggle:active {
+				transform: translateY(4px) scale(0.98);
+				box-shadow:
+					inset 0 6px 10px rgba(84, 70, 39, 0.18),
+					inset 0 1px 1px rgba(255, 255, 255, 0.2);
+			}
+			.theme-toggle-track {
+				position: absolute;
+				inset: 0.18rem;
+				border-radius: 999px;
+				background:
+					linear-gradient(180deg, rgba(255, 251, 240, 0.92), rgba(215, 202, 177, 0.75));
+				box-shadow:
+					inset 0 1px 2px rgba(255, 255, 255, 0.85),
+					inset 0 -1px 2px rgba(84, 70, 39, 0.08);
+				overflow: hidden;
+			}
+			.theme-toggle-track::before,
+			.theme-toggle-track::after {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				font-size: 0.76rem;
+				line-height: 1;
+				opacity: 0.55;
+			}
+			.theme-toggle-track::before {
+				content: "☀";
+				left: 0.48rem;
+				color: #9b7525;
+			}
+			.theme-toggle-track::after {
+				content: "☾";
+				right: 0.52rem;
+				color: #6f5ea3;
+			}
+			.theme-toggle-knob {
+				position: absolute;
+				top: 0.12rem;
+				left: 0.14rem;
+				width: 1.7rem;
+				height: 1.7rem;
+				border-radius: 999px;
+				background: linear-gradient(180deg, #fffaf0 0%, #efe2c7 100%);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.95),
+					0 4px 10px rgba(84, 70, 39, 0.18);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition:
+					transform 0.24s ease,
+					background 0.24s ease,
+					box-shadow 0.24s ease;
+			}
+			.theme-toggle-sun,
+			.theme-toggle-moon {
+				position: absolute;
+				font-size: 0.95rem;
+				line-height: 1;
+				transition:
+					transform 0.24s ease,
+					opacity 0.24s ease;
+			}
+			.theme-toggle-sun {
+				opacity: 1;
+				transform: scale(1);
+				color: #9b7525;
+			}
+			.theme-toggle-moon {
+				opacity: 0;
+				transform: scale(0.6);
+				color: #efe7ff;
+			}
+			:global(html[data-theme='dark']) .theme-toggle {
+				background: linear-gradient(180deg, rgba(66, 57, 46, 0.92), rgba(42, 36, 29, 0.96));
+			}
+			:global(html[data-theme='dark']) .theme-toggle-track {
+				background:
+					linear-gradient(180deg, rgba(55, 48, 42, 0.96), rgba(30, 25, 20, 0.92));
+				box-shadow:
+					inset 0 1px 2px rgba(255, 255, 255, 0.06),
+					inset 0 -1px 2px rgba(0, 0, 0, 0.18);
+			}
+			:global(html[data-theme='dark']) .theme-toggle-knob {
+				transform: translateX(1.52rem);
+				background: linear-gradient(180deg, #4f5e7d 0%, #2f3a56 100%);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.12),
+					0 4px 10px rgba(0, 0, 0, 0.28);
+			}
+			:global(html[data-theme='dark']) .theme-toggle-sun {
+				opacity: 0;
+				transform: scale(0.6);
+			}
+			:global(html[data-theme='dark']) .theme-toggle-moon {
+				opacity: 1;
+				transform: scale(1);
+			}
+			.social-links a {
+				align-items: center;
+				justify-content: center;
 			width: 2.6rem;
 			height: 2.6rem;
 			border-radius: 999px;
@@ -182,13 +350,17 @@ import HeaderLink from './HeaderLink.astro';
 			.site-logo {
 				gap: 0.45rem;
 			}
-			.internal-links {
-				gap: 0.15rem;
-				padding: 0.2rem;
-			}
-			nav a {
-				padding: 0.58rem 0.72rem;
-				font-size: 0.92rem;
+				.internal-links {
+					gap: 0.15rem;
+					padding: 0.2rem;
+				}
+				.theme-toggle {
+					width: 3.45rem;
+					height: 2.2rem;
+				}
+				nav a {
+					padding: 0.58rem 0.72rem;
+					font-size: 0.92rem;
 			}
 			.social-links {
 				display: none;

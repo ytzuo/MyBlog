@@ -102,6 +102,11 @@ const { name, icon } = Astro.props;
 			transition: background-position 0.12s ease-out;
 		}
 
+		:global(html[data-theme='dark'] .tech-card::after) {
+			background: none;
+			opacity: 0;
+		}
+
 		.icon-wrapper {
 			display: flex;
 			align-items: center;

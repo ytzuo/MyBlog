@@ -34,6 +34,23 @@ const { title, description, image = FallbackImage } = Astro.props;
 <!-- View Transitions -->
 <ClientRouter />
 
+<script is:inline>
+	(() => {
+		const storageKey = 'theme-preference';
+		const applyTheme = () => {
+			const root = document.documentElement;
+			const stored = localStorage.getItem(storageKey);
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			const theme = stored === 'light' || stored === 'dark' ? stored : (prefersDark ? 'dark' : 'light');
+			root.dataset.theme = theme;
+			root.style.colorScheme = theme;
+		};
+
+		applyTheme();
+		document.addEventListener('astro:page-load', applyTheme);
+	})();
+</script>
+
 <!-- 字体预加载 -->
 <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
 <link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
