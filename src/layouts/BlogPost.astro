@@ -25,13 +25,13 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 				min-height: 100vh;
 			}
 
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-				flex: 1;
-				box-sizing: border-box;
-			}
+				main {
+					width: min(1120px, calc(100% - 2rem));
+					max-width: 100%;
+					margin: 0 auto;
+					flex: 1;
+					box-sizing: border-box;
+				}
 			.hero-image {
 				width: 100%;
 			}
@@ -41,14 +41,13 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 				border-radius: 10px;
 				box-shadow: var(--box-shadow);
 			}
-			.prose {
-				width: 1100px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 0em;
-				color: rgb(var(--gray-dark));
-				box-sizing: border-box;
-			}
+				.prose {
+					width: min(1100px, 100%);
+					margin: 0 auto;
+					padding: 0;
+					color: rgb(var(--gray-dark));
+					box-sizing: border-box;
+				}
 			.title {
 				margin-bottom: 0.5em;
 				padding: 0.1em 0;
@@ -87,24 +86,76 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 			}
 
 			/* --- 代码块样式优化 --- */
-			:global(.code-container) {
-				position: relative;
-				margin: 1.5rem 0;
-			}
-			
-			.prose :global(pre) {
-				padding: 1rem;
-				border-radius: 8px;
-				margin: 0; /* Margin handled by container */
-				border: 1px solid var(--gray-light, #e5e7eb);
-				overflow-x: auto;
-			}
-			
-			.prose :global(code) {
-				font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-				font-size: 0.85em; /* 减小字体大小 */
-				line-height: 1.5;
-			}
+				:global(.code-container) {
+					position: relative;
+					margin: 1.5rem 0;
+					max-width: 100%;
+				}
+				
+				.prose :global(pre) {
+					padding: 0;
+					border-radius: 8px;
+					margin: 0; /* Margin handled by container */
+					border: 1px solid var(--gray-light, #e5e7eb);
+					overflow-x: auto;
+					overflow-y: hidden;
+					-webkit-overflow-scrolling: touch;
+					overscroll-behavior-x: contain;
+				}
+
+				.prose :global(pre)::before,
+				.prose :global(pre)::after {
+					display: none;
+				}
+				
+				.prose :global(code) {
+					font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+					font-size: 0.85em; /* 减小字体大小 */
+					line-height: 1.5;
+				}
+
+				.prose :global(pre > code) {
+					display: block;
+					width: max-content;
+					min-width: 100%;
+					box-sizing: border-box;
+					padding: 1rem;
+					background:
+						radial-gradient(circle, rgba(18, 16, 16, 0) 0%, rgba(0, 0, 0, 0.3) 100%),
+						linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+						linear-gradient(
+							90deg,
+							rgba(255, 0, 0, 0.06),
+							rgba(0, 255, 0, 0.02),
+							rgba(0, 0, 255, 0.06)
+						),
+						#1a1a1a;
+					background-size:
+						auto,
+						100% 2px,
+						3px 100%,
+						auto;
+					background-repeat: no-repeat, repeat, repeat, no-repeat;
+				}
+
+				:global(html[data-theme='dark']) .prose :global(pre > code) {
+					background:
+						radial-gradient(circle, rgba(18, 16, 16, 0) 0%, rgba(0, 0, 0, 0.36) 100%),
+						linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%),
+						linear-gradient(
+							90deg,
+							rgba(255, 0, 0, 0.04),
+							rgba(0, 255, 0, 0.025),
+							rgba(0, 0, 255, 0.04)
+						),
+						#0c120d;
+					background-size:
+						auto,
+						100% 2px,
+						3px 100%,
+						auto;
+					background-repeat: no-repeat, repeat, repeat, no-repeat;
+				}
 
 			/* 内联代码样式 */
 			.prose :global(p code), .prose :global(li code) {
@@ -151,14 +202,91 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 				background-color: rgba(255, 255, 255, 0.2);
 			}
 
-			:global(.copy-code-btn.copied) {
-				background-color: var(--accent);
-				border-color: var(--accent);
-				color: #fff;
-			}
+				:global(.copy-code-btn.copied) {
+					background-color: var(--accent);
+					border-color: var(--accent);
+					color: #fff;
+				}
 
-			/* --- 电子表格样式 --- */
-			.prose :global(table) {
+				:global(.mermaid-container) {
+					margin: 1.5rem 0;
+					padding: 1rem;
+					border-radius: 8px;
+					border: 1px solid var(--gray-light, #e5e7eb);
+					background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(252, 249, 243, 0.95));
+					overflow-x: auto;
+				}
+
+				:global(html[data-theme='dark'] .mermaid-container) {
+					background: linear-gradient(180deg, #f2ecdf, #e8ddca);
+					border-color: rgba(85, 68, 44, 0.5);
+					box-shadow:
+						inset 0 1px 0 rgba(255, 255, 255, 0.65),
+						0 8px 20px rgba(0, 0, 0, 0.28);
+				}
+
+				:global(.mermaid-chart svg) {
+					display: block;
+					max-width: 100%;
+					height: auto;
+					margin: 0 auto;
+				}
+
+				/* Override prose paragraph indentation inside Mermaid labels */
+				.prose :global(.mermaid-chart .label p),
+				.prose :global(.mermaid-chart .nodeLabel p),
+				.prose :global(.mermaid-chart foreignObject p) {
+					margin: 0;
+					text-indent: 0;
+					text-align: center;
+					line-height: 1.35;
+				}
+
+				:global(.mermaid-chart .edgePath .path),
+				:global(.mermaid-chart .flowchart-link) {
+					stroke: #000;
+					stroke-width: 3.6px;
+					stroke-linecap: round;
+					stroke-linejoin: round;
+				}
+
+				:global(.mermaid-chart marker path) {
+					fill: #000;
+					stroke: #000;
+					stroke-width: 2.4px;
+				}
+
+				:global(.mermaid-chart.mermaid-error) {
+					color: #c0392b;
+					font-size: 0.95rem;
+					white-space: pre-wrap;
+				}
+
+				@media (max-width: 720px) {
+					:global(.code-container) {
+						margin: 1.25rem calc(-1rem - 1px);
+					}
+
+					.prose :global(pre) {
+						border-radius: 0;
+						border-left: 0;
+						border-right: 0;
+					}
+
+					.prose :global(pre code) {
+						font-size: 0.8rem;
+						padding: 0.9rem 0.9rem 0.9rem 1rem;
+					}
+
+					:global(.copy-code-btn) {
+						top: 0.65rem;
+						right: 0.75rem;
+						opacity: 1;
+					}
+				}
+
+				/* --- 电子表格样式 --- */
+				.prose :global(table) {
 				width: 100%;
 				border-collapse: collapse;
 				margin: 2rem 0;
@@ -246,11 +374,257 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 			<Footer />
 		</div>
 		<script>
+			import mermaid from 'mermaid';
+
+			let themeObserverAttached = false;
+			const globalWindow = window as Window & {
+				__MERMAID_DEBUG__?: {
+					enabled: boolean;
+					entries: Array<{ index: number; lineCount: number; charCount: number; ok: boolean; message?: string }>;
+				};
+			};
+
+			const MERMAID_DEBUG = (() => {
+				try {
+					const params = new URLSearchParams(window.location.search);
+					if (params.get('mermaidDebug') === '1' || params.has('mermaidDebug')) return true;
+					return localStorage.getItem('mermaid-debug') === '1';
+				} catch {
+					return false;
+				}
+			})();
+
+			if (!globalWindow.__MERMAID_DEBUG__) {
+				globalWindow.__MERMAID_DEBUG__ = { enabled: MERMAID_DEBUG, entries: [] };
+			}
+
+			const debugLog = (...args: unknown[]) => {
+				if (!MERMAID_DEBUG) return;
+				console.log('[Mermaid Debug]', ...args);
+			};
+
+			const isDynamicImportFetchError = (message: string): boolean =>
+				/Failed to fetch dynamically imported module/i.test(message);
+
+			const tryDevAutoReload = (): boolean => {
+				if (!import.meta.env.DEV) return false;
+
+				const key = 'mermaid-dev-reload-once';
+				if (sessionStorage.getItem(key) === '1') return false;
+
+				sessionStorage.setItem(key, '1');
+				setTimeout(() => {
+					window.location.reload();
+				}, 80);
+				return true;
+			};
+
+			const escapeHtml = (input: string): string =>
+				input
+					.replace(/&/g, '&amp;')
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;')
+					.replace(/"/g, '&quot;')
+					.replace(/'/g, '&#39;');
+
+			const getMermaidTheme = () =>
+				document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
+
+			const isMermaidCodeBlock = (pre: Element | null, code: Element | null): boolean => {
+				if (!pre && !code) return false;
+
+				const preLanguage = pre instanceof HTMLElement ? pre.dataset.language : '';
+				if (preLanguage?.toLowerCase() === 'mermaid') return true;
+
+				const preClassName = pre?.className || '';
+				if (/(^|\s)language-mermaid(\s|$)/.test(preClassName)) return true;
+
+				const codeClassName = code?.className || '';
+				return /(^|\s)language-mermaid(\s|$)/.test(codeClassName);
+			};
+
+			const initializeMermaid = () => {
+				mermaid.initialize({
+					startOnLoad: false,
+					theme: getMermaidTheme(),
+					securityLevel: 'loose',
+				});
+			};
+
+			const extractMermaidSource = (code: HTMLElement): string => {
+				const lines = Array.from(code.querySelectorAll('.line'));
+				const raw = lines.length > 0
+					? lines.map((line) => line.textContent || '').join('\n')
+					: (code.textContent || '');
+
+				return raw
+					.replace(/\u00A0/g, ' ')
+					.replace(/[\u200B-\u200D\uFEFF]/g, '')
+					.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+					.replace(/\r\n?/g, '\n')
+					.trim();
+			};
+
+			const validateMermaidSource = async (source: string): Promise<{ ok: boolean; message?: string }> => {
+				try {
+					await mermaid.parse(source);
+					return { ok: true };
+				} catch (error) {
+					return {
+						ok: false,
+						message: error instanceof Error ? error.message : String(error),
+					};
+				}
+			};
+
+			const renderMermaidChart = async (container: HTMLElement, index: number): Promise<void> => {
+				const source = container.dataset.mermaidSource;
+				if (!source) return;
+
+				const lines = source.split('\n');
+				const sourceMeta = {
+					lineCount: lines.length,
+					charCount: source.length,
+					preview: lines.slice(0, 8).join('\n'),
+				};
+
+				debugLog(`Start render #${index}`, sourceMeta);
+
+				try {
+					if (MERMAID_DEBUG) {
+						const validation = await validateMermaidSource(source);
+						if (!validation.ok) {
+							throw new Error(`Pre-parse failed: ${validation.message || 'unknown mermaid parse error'}`);
+						}
+					}
+
+					const { svg, bindFunctions } = await mermaid.render(
+						`mermaid-${index}-${Date.now()}`,
+						source,
+					);
+					sessionStorage.removeItem('mermaid-dev-reload-once');
+					container.classList.remove('mermaid-error');
+					container.innerHTML = svg;
+					globalWindow.__MERMAID_DEBUG__?.entries.push({
+						index,
+						lineCount: sourceMeta.lineCount,
+						charCount: sourceMeta.charCount,
+						ok: true,
+					});
+					debugLog(`Render success #${index}`);
+					if (bindFunctions) {
+						bindFunctions(container);
+					}
+				} catch (error) {
+					const message = error instanceof Error ? error.message : String(error);
+
+					if (isDynamicImportFetchError(message) && tryDevAutoReload()) {
+						container.classList.add('mermaid-error');
+						container.innerHTML = '<p>检测到 Mermaid 动态模块缓存失效，正在自动刷新页面重试...</p>';
+						return;
+					}
+
+					console.groupCollapsed(`[Mermaid Debug] Render failed #${index}`);
+					console.error('Error:', error);
+					console.info('Theme:', getMermaidTheme());
+					console.info('Source meta:', sourceMeta);
+					console.info('Source full text:\n' + source);
+					console.groupEnd();
+
+					globalWindow.__MERMAID_DEBUG__?.entries.push({
+						index,
+						lineCount: sourceMeta.lineCount,
+						charCount: sourceMeta.charCount,
+						ok: false,
+						message,
+					});
+
+					container.classList.add('mermaid-error');
+					const extraHint = isDynamicImportFetchError(message)
+						? '开发环境模块缓存可能失效，请 Ctrl+F5 强刷，或重启 dev（建议: pnpm dev -- --force）。'
+						: '';
+					container.innerHTML = `
+						<p>Mermaid 图表渲染失败，请打开控制台查看详细日志。</p>
+						<p>错误信息: ${escapeHtml(message)}</p>
+						${extraHint ? `<p>${escapeHtml(extraHint)}</p>` : ''}
+						<pre>${escapeHtml(sourceMeta.preview)}</pre>
+					`;
+				}
+			};
+
+			const renderMermaidDiagrams = async () => {
+				initializeMermaid();
+
+				const mermaidCodeBlocks = document.querySelectorAll('.prose pre > code');
+				let index = 0;
+
+				for (const code of mermaidCodeBlocks) {
+					if (!(code instanceof HTMLElement)) continue;
+
+					const pre = code.parentElement;
+					if (!isMermaidCodeBlock(pre, code)) continue;
+
+					if (!pre) continue;
+
+					if (pre.dataset.mermaidMounted === 'true') continue;
+
+					const source = extractMermaidSource(code);
+					if (!source) continue;
+
+					const wrapper = document.createElement('div');
+					wrapper.className = 'mermaid-container';
+
+					const chart = document.createElement('div');
+					chart.className = 'mermaid-chart';
+					chart.dataset.mermaidSource = source;
+
+					wrapper.appendChild(chart);
+					pre.dataset.mermaidMounted = 'true';
+					pre.replaceWith(wrapper);
+
+					await renderMermaidChart(chart, index++);
+				}
+			};
+
+			const rerenderMermaidDiagrams = async () => {
+				initializeMermaid();
+				const charts = document.querySelectorAll('.mermaid-chart[data-mermaid-source]');
+
+				let index = 0;
+				for (const chart of charts) {
+					if (!(chart instanceof HTMLElement)) continue;
+					await renderMermaidChart(chart, index++);
+				}
+			};
+
+			const observeThemeChanges = () => {
+				if (themeObserverAttached) return;
+				themeObserverAttached = true;
+
+				const observer = new MutationObserver((mutations) => {
+					for (const mutation of mutations) {
+						if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+							void rerenderMermaidDiagrams();
+							break;
+						}
+					}
+				});
+
+				observer.observe(document.documentElement, {
+					attributes: true,
+					attributeFilter: ['data-theme'],
+				});
+			};
+
 			// 为代码块添加复制按钮
 			const addCopyButtons = () => {
 				const preBlocks = document.querySelectorAll('.prose pre');
 				
 				preBlocks.forEach((pre) => {
+					if (!(pre instanceof HTMLElement)) return;
+					const code = pre.querySelector('code');
+					if (!code || isMermaidCodeBlock(pre, code)) return;
+
 					// 避免重复添加
 					if (pre.parentElement?.classList.contains('code-container')) return;
 
@@ -270,8 +644,6 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 					
 					// 按钮点击事件
 					button.addEventListener('click', async () => {
-						const code = pre.querySelector('code');
-						if (!code) return;
 						
 						try {
 							await navigator.clipboard.writeText(code.textContent || '');
@@ -295,8 +667,18 @@ const { title, description, pubDate, updatedDate, heroImage, heroImageScale = 1,
 				});
 			};
 
-			document.addEventListener('DOMContentLoaded', addCopyButtons);
-			document.addEventListener('astro:page-load', addCopyButtons);
+			const initPostEnhancements = async () => {
+				await renderMermaidDiagrams();
+				addCopyButtons();
+				observeThemeChanges();
+			};
+
+			document.addEventListener('DOMContentLoaded', () => {
+				void initPostEnhancements();
+			});
+			document.addEventListener('astro:page-load', () => {
+				void initPostEnhancements();
+			});
 		</script>
 	</body>
 </html>

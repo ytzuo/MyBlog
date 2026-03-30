@@ -149,13 +149,14 @@ import HeaderLink from './HeaderLink.astro';
 			opacity: 0.1;
 			pointer-events: none;
 		}
-		.nav-right {
-			display: flex;
-			align-items: center;
-			gap: 0.85rem;
-			position: relative;
-			z-index: 1;
-		}
+			.nav-right {
+				display: flex;
+				align-items: center;
+				gap: 0.85rem;
+				position: relative;
+				z-index: 1;
+				flex-shrink: 0;
+			}
 		.internal-links {
 			display: flex;
 			align-items: center;
@@ -206,11 +207,12 @@ import HeaderLink from './HeaderLink.astro';
 			.social-links a {
 				display: flex;
 			}
-			.theme-toggle {
-				width: 3.9rem;
-				height: 2.4rem;
-				border: 1px solid var(--theme-control-border);
-				border-radius: 999px;
+				.theme-toggle {
+					width: 3.9rem;
+					height: 2.4rem;
+					flex: 0 0 auto;
+					border: 1px solid var(--theme-control-border);
+					border-radius: 999px;
 				background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(228, 220, 205, 0.92));
 				color: var(--theme-control-text);
 				box-shadow:
@@ -357,32 +359,54 @@ import HeaderLink from './HeaderLink.astro';
 				inset 0 1px 0 rgba(255, 255, 255, 0.9),
 				0 9px 16px rgba(84, 70, 39, 0.12);
 		}
-		@media (max-width: 720px) {
-			header {
-				top: 0.5rem;
-				padding: 0 0.6rem;
-			}
-			nav {
-				padding: 0.7rem 0.8rem;
-				border-radius: 18px;
-			}
-			.site-logo {
-				gap: 0.45rem;
-			}
-				.internal-links {
-					gap: 0.15rem;
-					padding: 0.2rem;
+				@media (max-width: 720px) {
+					header {
+						top: 0.5rem;
+						padding: 0 0.6rem;
+					}
+					nav {
+						gap: 0.6rem;
+						padding: 0.65rem 0.7rem;
+						border-radius: 18px;
+					}
+					.nav-right {
+						gap: 0.45rem;
+					}
+					.site-logo {
+						gap: 0.45rem;
+						font-size: 0.95rem;
+					}
+						.internal-links {
+							gap: 0.15rem;
+							padding: 0.18rem;
+						}
+						.theme-toggle {
+							width: 3.3rem;
+							height: 2.12rem;
+						}
+					nav a {
+						padding: 0.52rem 0.64rem;
+						font-size: 0.88rem;
+					}
+					.social-links {
+						display: none;
+					}
 				}
-				.theme-toggle {
-					width: 3.45rem;
-					height: 2.2rem;
+
+				@media (max-width: 560px) {
+					nav {
+						flex-direction: column;
+						align-items: stretch;
+						gap: 0.55rem;
+					}
+
+					h2 {
+						display: flex;
+						justify-content: center;
+					}
+
+					.nav-right {
+						justify-content: center;
+					}
 				}
-				nav a {
-					padding: 0.58rem 0.72rem;
-					font-size: 0.92rem;
-			}
-			.social-links {
-				display: none;
-			}
-		}
-	</style>
+		</style>
