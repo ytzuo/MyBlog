@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,8 +21,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "pnpm"
 
       - name: Build
         run: |
@@ -38,7 +38,7 @@ jobs:
           source: "dist/"
           target: "/home/blog/MyBlog"
           strip_components: 1
-          rm: true  # 清空旧文件
+          rm: true # 清空旧文件
 
       - name: Reload Caddy
         uses: appleboy/ssh-action@v1.0.3
