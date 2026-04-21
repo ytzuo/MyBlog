@@ -7,6 +7,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Header from "../components/HeaderAndFooter/Header.astro";
 import Tag from "../components/Tag.astro";
 import ReadingProgress from "../components/ReadingProgress.astro";
+import ReprintCard from "../components/ReprintCard.astro";
 
 type Props = CollectionEntry<"blog">["data"] & {
     showReadingProgress?: boolean;
@@ -21,6 +22,9 @@ const {
     heroImageScale = 1,
     tags,
     showReadingProgress = true,
+    reprintAuthor,
+    reprintUrl,
+    reprintTitle,
 } = Astro.props;
 ---
 
@@ -425,6 +429,16 @@ const {
                         }
                         <hr />
                     </div>
+                    <!-- 转载声明卡片 -->
+                    {
+                        reprintAuthor && reprintUrl && (
+                            <ReprintCard
+                                author={reprintAuthor}
+                                url={reprintUrl}
+                                title={reprintTitle}
+                            />
+                        )
+                    }
                     <!-- 文章内容插槽 -->
                     <slot />
                 </div>
