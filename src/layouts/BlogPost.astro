@@ -105,13 +105,39 @@ const {
                 position: relative;
                 margin: 1.5rem 0;
                 max-width: 100%;
+                border-radius: 8px;
+                border: 1px solid var(--gray-light, #e5e7eb);
+                overflow: hidden;
+            }
+
+            /* 代码块顶部 header：语言标签 + 复制按钮 */
+            :global(.code-header) {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;
+                padding: 0.35rem 0.75rem 0.35rem 1rem;
+                background: #1c1c1c;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+                user-select: none;
+            }
+
+            :global(.code-lang) {
+                font-family:
+                    Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: rgba(120, 210, 160, 0.85);
+                letter-spacing: 0.06em;
+                text-transform: lowercase;
+                line-height: 1;
             }
 
             .prose :global(pre) {
                 padding: 0;
-                border-radius: 8px;
-                margin: 0; /* Margin handled by container */
-                border: 1px solid var(--gray-light, #e5e7eb);
+                border-radius: 0;
+                margin: 0;
+                border: none;
                 overflow-x: auto;
                 overflow-y: hidden;
                 -webkit-overflow-scrolling: touch;
@@ -152,7 +178,7 @@ const {
                         rgba(0, 255, 0, 0.02),
                         rgba(0, 0, 255, 0.06)
                     ),
-                    #1a1a1a;
+                    #2c2c2c;
                 background-size:
                     auto,
                     100% 2px,
@@ -178,7 +204,7 @@ const {
                         rgba(0, 255, 0, 0.025),
                         rgba(0, 0, 255, 0.04)
                     ),
-                    #0c120d;
+                    #212b23;
                 background-size:
                     auto,
                     100% 2px,
@@ -197,47 +223,28 @@ const {
                 font-size: 0.9em;
             }
 
-            /* 复制按钮样式 */
+            /* 复制按钮样式（位于 code-header 内，非绝对定位） */
             :global(.copy-code-btn) {
-                position: absolute;
-                top: 0.5rem;
-                right: 0.5rem;
-                background-color: rgba(
-                    255,
-                    255,
-                    255,
-                    0.1
-                ); /* 浅色半透明背景，适配深色代码块 */
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                flex-shrink: 0;
+                background-color: rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255, 255, 255, 0.15);
                 border-radius: 4px;
-                color: #e0e0e0; /* 浅色文字 */
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
+                color: #c0c0c0;
+                font-size: 0.72rem;
+                padding: 0.18rem 0.55rem;
                 cursor: pointer;
-                opacity: 0;
                 transition:
-                    opacity 0.2s,
-                    background-color 0.2s;
-                z-index: 10;
-            }
-
-            /* 深色模式下的适配（保留以防万一，但默认已改为深色适配） */
-            @media (prefers-color-scheme: dark) {
-                :global(.copy-code-btn) {
-                    background-color: rgba(255, 255, 255, 0.1);
-                    border-color: rgba(255, 255, 255, 0.2);
-                    color: #fff;
-                }
-            }
-
-            /* 浅色模式下的代码块（假设 Astro 默认代码块背景较深，或者需要适配） */
-            /* 这里我们让按钮在 hover 时显示 */
-            :global(.code-container:hover .copy-code-btn) {
-                opacity: 1;
+                    background-color 0.15s,
+                    color 0.15s,
+                    border-color 0.15s;
+                line-height: 1.6;
+                white-space: nowrap;
             }
 
             :global(.copy-code-btn:hover) {
-                background-color: rgba(255, 255, 255, 0.2);
+                background-color: rgba(255, 255, 255, 0.16);
+                color: #fff;
+                border-color: rgba(255, 255, 255, 0.28);
             }
 
             :global(.copy-code-btn.copied) {
@@ -306,23 +313,18 @@ const {
             @media (max-width: 720px) {
                 :global(.code-container) {
                     margin: 1.25rem calc(-1rem - 1px);
+                    border-radius: 0;
+                    border-left: none;
+                    border-right: none;
                 }
 
-                .prose :global(pre) {
+                :global(.code-header) {
                     border-radius: 0;
-                    border-left: 0;
-                    border-right: 0;
                 }
 
                 .prose :global(pre code) {
                     font-size: 0.8rem;
                     padding: 0.9rem 0.9rem 0.9rem 1rem;
-                }
-
-                :global(.copy-code-btn) {
-                    top: 0.65rem;
-                    right: 0.75rem;
-                    opacity: 1;
                 }
             }
 
@@ -511,7 +513,7 @@ const {
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#39;");
 
-            const getMermaidTheme = () => "default";
+            const getMermaidTheme = (): "default" => "default";
 
             const isMermaidCodeBlock = (
                 pre: Element | null,
@@ -731,7 +733,68 @@ const {
                 });
             };
 
-            // 为代码块添加复制按钮
+            // 从 pre/code 元素提取语言标识
+            const extractLanguage = (
+                pre: HTMLElement,
+                code: HTMLElement,
+            ): string => {
+                const fromData = pre.dataset.language || "";
+                if (fromData) return fromData;
+                const match = code.className.match(/(?:^|\s)language-(\S+)/);
+                return match ? match[1] : "";
+            };
+
+            // 语言标识 → 友好显示名
+            const formatLangLabel = (lang: string): string => {
+                const map: Record<string, string> = {
+                    js: "JavaScript",
+                    javascript: "JavaScript",
+                    ts: "TypeScript",
+                    typescript: "TypeScript",
+                    jsx: "JSX",
+                    tsx: "TSX",
+                    java: "Java",
+                    kotlin: "Kotlin",
+                    kt: "Kotlin",
+                    py: "Python",
+                    python: "Python",
+                    go: "Go",
+                    rs: "Rust",
+                    rust: "Rust",
+                    rb: "Ruby",
+                    php: "PHP",
+                    swift: "Swift",
+                    cs: "C#",
+                    cpp: "C++",
+                    c: "C",
+                    sh: "Shell",
+                    bash: "Bash",
+                    zsh: "Zsh",
+                    css: "CSS",
+                    scss: "SCSS",
+                    less: "Less",
+                    html: "HTML",
+                    xml: "XML",
+                    svg: "SVG",
+                    json: "JSON",
+                    yaml: "YAML",
+                    yml: "YAML",
+                    toml: "TOML",
+                    md: "Markdown",
+                    mdx: "MDX",
+                    sql: "SQL",
+                    astro: "Astro",
+                    vue: "Vue",
+                    svelte: "Svelte",
+                    text: "",
+                    txt: "",
+                    plaintext: "",
+                };
+                const key = lang.toLowerCase();
+                return key in map ? map[key] : lang;
+            };
+
+            // 为代码块添加顶部 header（语言标签 + 复制按钮）
             const addCopyButtons = () => {
                 const preBlocks = document.querySelectorAll(".prose pre");
 
@@ -747,31 +810,37 @@ const {
                     // 创建 wrapper
                     const wrapper = document.createElement("div");
                     wrapper.className = "code-container";
-                    wrapper.style.position = "relative"; // 确保定位生效
 
                     // 插入 wrapper
                     pre.parentNode?.insertBefore(wrapper, pre);
                     wrapper.appendChild(pre);
 
-                    // 创建复制按钮
+                    // 创建 header 栏
+                    const header = document.createElement("div");
+                    header.className = "code-header";
+
+                    // 语言标签（左侧）
+                    const rawLang = extractLanguage(pre, code as HTMLElement);
+                    const langLabel = formatLangLabel(rawLang);
+                    const langSpan = document.createElement("span");
+                    langSpan.className = "code-lang";
+                    langSpan.textContent = langLabel;
+                    header.appendChild(langSpan);
+
+                    // 复制按钮（右侧）
                     const button = document.createElement("button");
                     button.className = "copy-code-btn";
                     button.textContent = "Copy";
-
-                    // 按钮点击事件
                     button.addEventListener("click", async () => {
                         try {
                             await navigator.clipboard.writeText(
                                 code.textContent || "",
                             );
-
-                            // 复制成功反馈
-                            const originalText = button.textContent;
+                            const orig = button.textContent;
                             button.textContent = "Copied!";
                             button.classList.add("copied");
-
                             setTimeout(() => {
-                                button.textContent = originalText;
+                                button.textContent = orig;
                                 button.classList.remove("copied");
                             }, 2000);
                         } catch (err) {
@@ -779,8 +848,10 @@ const {
                             button.textContent = "Error";
                         }
                     });
+                    header.appendChild(button);
 
-                    wrapper.appendChild(button);
+                    // header 插在 pre 之前
+                    wrapper.insertBefore(header, pre);
                 });
             };
 
