@@ -250,21 +250,20 @@ const {
                 margin: 1.5rem 0;
                 padding: 1rem;
                 border-radius: 8px;
-                border: 1px solid var(--gray-light, #e5e7eb);
-                background: linear-gradient(
-                    180deg,
-                    rgba(255, 255, 255, 0.72),
-                    rgba(252, 249, 243, 0.95)
-                );
+                border: 1px solid rgba(85, 68, 44, 0.22);
+                background: linear-gradient(180deg, #f5f0e8, #ede5d4);
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+                    0 4px 12px rgba(0, 0, 0, 0.07);
                 overflow-x: auto;
             }
 
             :global(html[data-theme="dark"] .mermaid-container) {
-                background: linear-gradient(180deg, #f2ecdf, #e8ddca);
-                border-color: rgba(85, 68, 44, 0.5);
+                background: linear-gradient(180deg, #cec4b0, #c0b49c);
+                border-color: rgba(85, 68, 44, 0.4);
                 box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-                    0 8px 20px rgba(0, 0, 0, 0.28);
+                    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                    0 4px 12px rgba(0, 0, 0, 0.2);
             }
 
             :global(.mermaid-chart svg) {
@@ -512,10 +511,7 @@ const {
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#39;");
 
-            const getMermaidTheme = () =>
-                document.documentElement.dataset.theme === "dark"
-                    ? "dark"
-                    : "default";
+            const getMermaidTheme = () => "default";
 
             const isMermaidCodeBlock = (
                 pre: Element | null,
@@ -791,7 +787,6 @@ const {
             const initPostEnhancements = async () => {
                 await renderMermaidDiagrams();
                 addCopyButtons();
-                observeThemeChanges();
             };
 
             document.addEventListener("DOMContentLoaded", () => {
