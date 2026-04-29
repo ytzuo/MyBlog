@@ -2,7 +2,7 @@
 title: '让无外网的RHEL7用上新版中间件'
 description: '本地Docker启动CentOS7编译'
 pubDate: '2026-04-29'
-tags: ['Docker','Linux运维','记录']
+tags: ['Docker','Linux运维','记录','数据库','redis']
 ---
 
 #### 讲讲这个老服务器
