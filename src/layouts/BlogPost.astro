@@ -99,6 +99,20 @@ const {
             .prose :global(li p) {
                 text-indent: 0;
             }
+            /* 图片：block 居中，等比缩小，不拉伸 */
+            .prose :global(img) {
+                display: block;
+                max-width: 100%;
+                width: auto;
+                height: auto;
+                margin: 1.5rem auto;
+            }
+            /* 包含图片的段落取消首行缩进和文字居中影响 */
+            .prose :global(p:has(> img)) {
+                text-indent: 0;
+                text-align: center;
+                margin: 0;
+            }
 
             /* --- 代码块样式优化 --- */
             :global(.code-container) {
