@@ -1,412 +1,608 @@
 ---
-import { SITE_TITLE } from '../../consts';
-import HeaderLink from './HeaderLink.astro';
+import { SITE_TITLE } from "../../consts";
+import HeaderLink from "./HeaderLink.astro";
+import SmartIcon from "../SmartIcon.astro";
+import ghostFrame1 from "../../assets/lost/lost1.png";
+import ghostFrame2 from "../../assets/lost/lost2.png";
+import ghostFrame3 from "../../assets/lost/lost3.png";
+import ghostFrame4 from "../../assets/lost/lost4.png";
+import ghostFrame5 from "../../assets/lost/lost5.png";
+
+const ghostFrames: ImageMetadata[] = [
+    ghostFrame1,
+    ghostFrame2,
+    ghostFrame3,
+    ghostFrame4,
+    ghostFrame5,
+];
 ---
 
-	<header>
-		<nav>
-			<h2>
-				<a href="/" class="site-logo">
-				<img src="/ghost-cat-code.svg" alt="Blog Logo" width="32" height="32" />
-				{SITE_TITLE}
-			</a>
-		</h2>
-			<div class="nav-right">
-				<div class="internal-links">
-					<HeaderLink href="/">首页</HeaderLink>
-					<HeaderLink href="/blog">博文</HeaderLink>
-					<HeaderLink href="/about">关于我</HeaderLink>				
-				</div>
-					<button class="theme-toggle" type="button" aria-label="切换黑夜模式" title="切换黑夜模式">
-						<span class="theme-toggle-track" aria-hidden="true">
-							<span class="theme-toggle-knob">
-								<span class="theme-toggle-sun">☀</span>
-								<span class="theme-toggle-moon">☾</span>
-							</span>
-						</span>
-					</button>
-				<div class="social-links">
-						<a href="https://github.com/ytzuo" target="_blank">
-							<span class="sr-only">Go to My GitHub</span>
-						<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32" astro-icon="social/github">
-							<path
-								fill="currentColor"
-								d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z">
-							</path>
-						</svg>
-					</a>
-				</div>
-		</div>
-	</nav>
-	</header>
-	<script>
-		const initThemeToggle = () => {
-			const root = document.documentElement;
-			const toggle = document.querySelector('.theme-toggle') as HTMLButtonElement | null;
-			if (!toggle) return;
+<header>
+    <nav>
+        <h2>
+            <a href="/" class="site-logo">
+                <img
+                    src="/ghost-cat-code.svg"
+                    alt="Blog Logo"
+                    width="32"
+                    height="32"
+                />
+                {SITE_TITLE}
+            </a>
+        </h2>
+        <div class="nav-right">
+            <div class="internal-links">
+                <HeaderLink href="/">首页</HeaderLink>
+                <HeaderLink href="/blog">博文</HeaderLink>
+                <HeaderLink href="/about">关于我</HeaderLink>
+            </div>
+            <button
+                id="ghost-toggle-btn"
+                class="ghost-toggle-btn"
+                type="button"
+                aria-label="幽灵特效开关"
+                title="幽灵特效"
+                data-enabled="true"
+            >
+                <SmartIcon icon={ghostFrames} duration={0.8} size={22} />
+            </button>
+            <button
+                class="theme-toggle"
+                type="button"
+                aria-label="切换黑夜模式"
+                title="切换黑夜模式"
+            >
+                <span class="theme-toggle-track" aria-hidden="true">
+                    <span class="theme-toggle-knob">
+                        <span class="theme-toggle-sun">☀</span>
+                        <span class="theme-toggle-moon">☾</span>
+                    </span>
+                </span>
+            </button>
+            <div class="social-links">
+                <a href="https://github.com/ytzuo" target="_blank">
+                    <span class="sr-only">Go to My GitHub</span>
+                    <svg
+                        viewBox="0 0 16 16"
+                        aria-hidden="true"
+                        width="32"
+                        height="32"
+                        astro-icon="social/github"
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                        >
+                        </path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
+<script>
+    const initThemeToggle = () => {
+        const root = document.documentElement;
+        const toggle = document.querySelector(
+            ".theme-toggle",
+        ) as HTMLButtonElement | null;
+        if (!toggle) return;
 
-			if (toggle.dataset.ready === 'true') {
-				toggle.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
-				return;
-			}
+        if (toggle.dataset.ready === "true") {
+            toggle.setAttribute(
+                "aria-pressed",
+                String(root.dataset.theme === "dark"),
+            );
+            return;
+        }
 
-			const storageKey = 'theme-preference';
-			const syncState = () => {
-				const isDark = root.dataset.theme === 'dark';
-				toggle.setAttribute('aria-pressed', String(isDark));
-				toggle.setAttribute('title', isDark ? '切换到浅色模式' : '切换到黑夜模式');
-				toggle.setAttribute('aria-label', isDark ? '切换到浅色模式' : '切换到黑夜模式');
-			};
+        const storageKey = "theme-preference";
+        const syncState = () => {
+            const isDark = root.dataset.theme === "dark";
+            toggle.setAttribute("aria-pressed", String(isDark));
+            toggle.setAttribute(
+                "title",
+                isDark ? "切换到浅色模式" : "切换到黑夜模式",
+            );
+            toggle.setAttribute(
+                "aria-label",
+                isDark ? "切换到浅色模式" : "切换到黑夜模式",
+            );
+        };
 
-			toggle.dataset.ready = 'true';
-			syncState();
+        toggle.dataset.ready = "true";
+        syncState();
 
-			toggle.addEventListener('click', () => {
-				const rect = toggle.getBoundingClientRect();
-				const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-				const overlay = document.createElement('div');
-				overlay.className = `theme-transition-overlay theme-to-${nextTheme}`;
-				overlay.innerHTML = '<div class="theme-transition-backdrop"></div>';
-				overlay.style.setProperty('--theme-origin-x', `${Math.max(rect.left + rect.width / 2, window.innerWidth - 80)}px`);
-				overlay.style.setProperty('--theme-origin-y', `${Math.max(rect.top + rect.height / 2, window.innerHeight - 80)}px`);
-				document.body.appendChild(overlay);
+        toggle.addEventListener("click", () => {
+            const rect = toggle.getBoundingClientRect();
+            const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+            const overlay = document.createElement("div");
+            overlay.className = `theme-transition-overlay theme-to-${nextTheme}`;
+            overlay.innerHTML = '<div class="theme-transition-backdrop"></div>';
+            overlay.style.setProperty(
+                "--theme-origin-x",
+                `${Math.max(rect.left + rect.width / 2, window.innerWidth - 80)}px`,
+            );
+            overlay.style.setProperty(
+                "--theme-origin-y",
+                `${Math.max(rect.top + rect.height / 2, window.innerHeight - 80)}px`,
+            );
+            document.body.appendChild(overlay);
 
-				window.setTimeout(() => {
-					root.dataset.theme = nextTheme;
-					root.style.colorScheme = nextTheme;
-					localStorage.setItem(storageKey, nextTheme);
-					syncState();
-				}, 240);
+            window.setTimeout(() => {
+                root.dataset.theme = nextTheme;
+                root.style.colorScheme = nextTheme;
+                localStorage.setItem(storageKey, nextTheme);
+                syncState();
+            }, 240);
 
-				overlay.addEventListener(
-					'animationend',
-					() => {
-						overlay.remove();
-					},
-					{ once: true }
-				);
-			});
-		};
+            overlay.addEventListener(
+                "animationend",
+                () => {
+                    overlay.remove();
+                },
+                { once: true },
+            );
+        });
+    };
 
-		document.addEventListener('astro:page-load', initThemeToggle);
-	</script>
+    document.addEventListener("astro:page-load", initThemeToggle);
+
+    // 幽灵特效开关（仅在首页有效）
+    const initGhostToggle = () => {
+        const GHOST_KEY = "ghost-effect-enabled";
+        const btn = document.getElementById(
+            "ghost-toggle-btn",
+        ) as HTMLButtonElement | null;
+        if (!btn) return;
+
+        // 同步持久化状态到按钮外观
+        const enabled = localStorage.getItem(GHOST_KEY) !== "false";
+        btn.dataset.enabled = String(enabled);
+
+        // 仅在存在幽灵容器的页面（首页）激活并显示按钮
+        const container = document.getElementById(
+            "ghost-container",
+        ) as HTMLElement | null;
+        if (!container) return;
+
+        btn.style.display = "flex";
+
+        btn.addEventListener("click", () => {
+            const isEnabled = btn.dataset.enabled !== "false";
+            const next = !isEnabled;
+            btn.dataset.enabled = String(next);
+            localStorage.setItem(GHOST_KEY, String(next));
+
+            if (next) {
+                container.style.display = "";
+                document.dispatchEvent(new Event("ghost:reinit"));
+            } else {
+                container.style.display = "none";
+                container.innerHTML = "";
+            }
+        });
+    };
+
+    document.addEventListener("astro:page-load", initGhostToggle);
+</script>
 <style>
-		header {
-			margin: 0;
-			position: sticky;
-			top: 0.85rem;
-			z-index: 100;
-			padding: 0 1rem;
-		}
-		h2 {
-			margin: 0;
-			font-size: 1em;
-		}
+    header {
+        margin: 0;
+        position: sticky;
+        top: 0.85rem;
+        z-index: 100;
+        padding: 0 1rem;
+    }
+    h2 {
+        margin: 0;
+        font-size: 1em;
+    }
 
-	h2 a,
-	h2 a.active {
-		text-decoration: none;
-	}
-		.site-logo {
-			display: flex;
-			align-items: center;
-			gap: 0.7em;
-			font-weight: 700;
-			letter-spacing: 0.02em;
-		}
-		.site-logo img {
-			display: block;
-			filter: drop-shadow(0 4px 6px rgba(84, 70, 39, 0.14));
-		}
-		nav {
-			width: min(1120px, 100%);
-			margin: auto;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			padding: 0.8rem 1.15rem;
-			box-sizing: border-box;
-			border-radius: 22px;
-			background:
-				linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(238, 231, 220, 0.95));
-			border: 1px solid rgba(126, 103, 64, 0.14);
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.9),
-				0 10px 22px rgba(84, 70, 39, 0.1),
-				0 18px 40px rgba(84, 70, 39, 0.08);
-			backdrop-filter: blur(12px);
-			position: relative;
-			overflow: hidden;
-		}
-		nav::before {
-			content: "";
-			position: absolute;
-			inset: 0;
-			background:
-				radial-gradient(circle at top left, rgba(255, 255, 255, 0.45), transparent 28%),
-				linear-gradient(90deg, transparent 0 16%, rgba(255, 255, 255, 0.16) 17%, transparent 18%) 0 0 / 260px 260px,
-				var(--noise-texture);
-			opacity: 0.1;
-			pointer-events: none;
-		}
-			.nav-right {
-				display: flex;
-				align-items: center;
-				gap: 0.85rem;
-				position: relative;
-				z-index: 1;
-				flex-shrink: 0;
-			}
-		.internal-links {
-			display: flex;
-			align-items: center;
-			gap: 0.4rem;
-			padding: 0.3rem;
-			border-radius: 999px;
-			background: rgba(255, 255, 255, 0.38);
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.8),
-				inset 0 -1px 0 rgba(161, 140, 99, 0.08);
-		}
-		nav a {
-			padding: 0.7rem 1rem;
-			color: rgb(var(--black));
-			border-bottom: 0;
-			text-decoration: none;
-			border-radius: 999px;
-			position: relative;
-			transition:
-				background 0.18s ease,
-				box-shadow 0.18s ease,
-				transform 0.18s ease,
-				color 0.18s ease;
-			z-index: 1;
-		}
-		.site-logo,
-		h2 {
-			position: relative;
-			z-index: 1;
-		}
-		.internal-links a:hover {
-			background: rgba(255, 255, 255, 0.72);
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.9),
-				0 5px 12px rgba(84, 70, 39, 0.08);
-			transform: translateY(-1px);
-		}
-		nav a.active {
-			text-decoration: none;
-			background: linear-gradient(180deg, rgba(143, 112, 47, 0.16), rgba(143, 112, 47, 0.08));
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.5),
-				inset 0 -1px 0 rgba(112, 87, 23, 0.12),
-				0 4px 10px rgba(112, 87, 23, 0.08);
-			color: var(--accent-dark);
-		}
-			.social-links,
-			.social-links a {
-				display: flex;
-			}
-				.theme-toggle {
-					width: 3.9rem;
-					height: 2.4rem;
-					flex: 0 0 auto;
-					border: 1px solid var(--theme-control-border);
-					border-radius: 999px;
-				background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(228, 220, 205, 0.92));
-				color: var(--theme-control-text);
-				box-shadow:
-					inset 0 1px 0 rgba(255, 255, 255, 0.85),
-					0 5px 10px rgba(84, 70, 39, 0.08);
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				position: relative;
-				cursor: pointer;
-				transition:
-					transform 0.18s ease,
-					box-shadow 0.18s ease,
-					background 0.18s ease,
-					color 0.18s ease;
-				z-index: 1;
-			}
-			.theme-toggle:hover {
-				transform: translateY(-1px);
-				box-shadow:
-					inset 0 1px 0 rgba(255, 255, 255, 0.92),
-					0 9px 16px rgba(84, 70, 39, 0.12);
-			}
-			.theme-toggle:active {
-				transform: translateY(4px) scale(0.98);
-				box-shadow:
-					inset 0 6px 10px rgba(84, 70, 39, 0.18),
-					inset 0 1px 1px rgba(255, 255, 255, 0.2);
-			}
-			.theme-toggle-track {
-				position: absolute;
-				inset: 0.18rem;
-				border-radius: 999px;
-				background:
-					linear-gradient(180deg, rgba(255, 251, 240, 0.92), rgba(215, 202, 177, 0.75));
-				box-shadow:
-					inset 0 1px 2px rgba(255, 255, 255, 0.85),
-					inset 0 -1px 2px rgba(84, 70, 39, 0.08);
-				overflow: hidden;
-			}
-			.theme-toggle-track::before,
-			.theme-toggle-track::after {
-				position: absolute;
-				top: 50%;
-				transform: translateY(-50%);
-				font-size: 0.76rem;
-				line-height: 1;
-				opacity: 0.55;
-			}
-			.theme-toggle-track::before {
-				content: "☀";
-				left: 0.48rem;
-				color: #9b7525;
-			}
-			.theme-toggle-track::after {
-				content: "☾";
-				right: 0.52rem;
-				color: #6f5ea3;
-			}
-			.theme-toggle-knob {
-				position: absolute;
-				top: 0.12rem;
-				left: 0.14rem;
-				width: 1.7rem;
-				height: 1.7rem;
-				border-radius: 999px;
-				background: linear-gradient(180deg, #fffaf0 0%, #efe2c7 100%);
-				box-shadow:
-					inset 0 1px 0 rgba(255, 255, 255, 0.95),
-					0 4px 10px rgba(84, 70, 39, 0.18);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				transition:
-					transform 0.24s ease,
-					background 0.24s ease,
-					box-shadow 0.24s ease;
-			}
-			.theme-toggle-sun,
-			.theme-toggle-moon {
-				position: absolute;
-				font-size: 0.95rem;
-				line-height: 1;
-				transition:
-					transform 0.24s ease,
-					opacity 0.24s ease;
-			}
-			.theme-toggle-sun {
-				opacity: 1;
-				transform: scale(1);
-				color: #9b7525;
-			}
-			.theme-toggle-moon {
-				opacity: 0;
-				transform: scale(0.6);
-				color: #efe7ff;
-			}
-			:global(html[data-theme='dark']) .theme-toggle {
-				background: linear-gradient(180deg, rgba(66, 57, 46, 0.92), rgba(42, 36, 29, 0.96));
-			}
-			:global(html[data-theme='dark']) .theme-toggle-track {
-				background:
-					linear-gradient(180deg, rgba(55, 48, 42, 0.96), rgba(30, 25, 20, 0.92));
-				box-shadow:
-					inset 0 1px 2px rgba(255, 255, 255, 0.06),
-					inset 0 -1px 2px rgba(0, 0, 0, 0.18);
-			}
-			:global(html[data-theme='dark']) .theme-toggle-knob {
-				transform: translateX(1.52rem);
-				background: linear-gradient(180deg, #4f5e7d 0%, #2f3a56 100%);
-				box-shadow:
-					inset 0 1px 0 rgba(255, 255, 255, 0.12),
-					0 4px 10px rgba(0, 0, 0, 0.28);
-			}
-			:global(html[data-theme='dark']) .theme-toggle-sun {
-				opacity: 0;
-				transform: scale(0.6);
-			}
-			:global(html[data-theme='dark']) .theme-toggle-moon {
-				opacity: 1;
-				transform: scale(1);
-			}
-			.social-links a {
-				align-items: center;
-				justify-content: center;
-			width: 2.6rem;
-			height: 2.6rem;
-			border-radius: 999px;
-			background: rgba(255, 255, 255, 0.55);
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.85),
-				0 5px 10px rgba(84, 70, 39, 0.08);
-			transition:
-				transform 0.18s ease,
-				box-shadow 0.18s ease,
-				background 0.18s ease;
-			position: relative;
-			z-index: 1;
-		}
-		.social-links a:hover {
-			transform: translateY(-1px);
-			background: rgba(255, 255, 255, 0.76);
-			box-shadow:
-				inset 0 1px 0 rgba(255, 255, 255, 0.9),
-				0 9px 16px rgba(84, 70, 39, 0.12);
-		}
-				@media (max-width: 720px) {
-					header {
-						top: 0.5rem;
-						padding: 0 0.6rem;
-					}
-					nav {
-						gap: 0.6rem;
-						padding: 0.65rem 0.7rem;
-						border-radius: 18px;
-					}
-					.nav-right {
-						gap: 0.45rem;
-					}
-					.site-logo {
-						gap: 0.45rem;
-						font-size: 0.95rem;
-					}
-						.internal-links {
-							gap: 0.15rem;
-							padding: 0.18rem;
-						}
-						.theme-toggle {
-							width: 3.3rem;
-							height: 2.12rem;
-						}
-					nav a {
-						padding: 0.52rem 0.64rem;
-						font-size: 0.88rem;
-					}
-					.social-links {
-						display: none;
-					}
-				}
+    h2 a,
+    h2 a.active {
+        text-decoration: none;
+    }
+    .site-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.7em;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+    .site-logo img {
+        display: block;
+        filter: drop-shadow(0 4px 6px rgba(84, 70, 39, 0.14));
+    }
+    nav {
+        width: min(1120px, 100%);
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.8rem 1.15rem;
+        box-sizing: border-box;
+        border-radius: 22px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.86),
+            rgba(238, 231, 220, 0.95)
+        );
+        border: 1px solid rgba(126, 103, 64, 0.14);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            0 10px 22px rgba(84, 70, 39, 0.1),
+            0 18px 40px rgba(84, 70, 39, 0.08);
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+    }
+    nav::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(
+                circle at top left,
+                rgba(255, 255, 255, 0.45),
+                transparent 28%
+            ),
+            linear-gradient(
+                    90deg,
+                    transparent 0 16%,
+                    rgba(255, 255, 255, 0.16) 17%,
+                    transparent 18%
+                )
+                0 0 / 260px 260px,
+            var(--noise-texture);
+        opacity: 0.1;
+        pointer-events: none;
+    }
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+    .internal-links {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.38);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.8),
+            inset 0 -1px 0 rgba(161, 140, 99, 0.08);
+    }
+    nav a {
+        padding: 0.7rem 1rem;
+        color: rgb(var(--black));
+        border-bottom: 0;
+        text-decoration: none;
+        border-radius: 999px;
+        position: relative;
+        transition:
+            background 0.18s ease,
+            box-shadow 0.18s ease,
+            transform 0.18s ease,
+            color 0.18s ease;
+        z-index: 1;
+    }
+    .site-logo,
+    h2 {
+        position: relative;
+        z-index: 1;
+    }
+    .internal-links a:hover {
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            0 5px 12px rgba(84, 70, 39, 0.08);
+        transform: translateY(-1px);
+    }
+    nav a.active {
+        text-decoration: none;
+        background: linear-gradient(
+            180deg,
+            rgba(143, 112, 47, 0.16),
+            rgba(143, 112, 47, 0.08)
+        );
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            inset 0 -1px 0 rgba(112, 87, 23, 0.12),
+            0 4px 10px rgba(112, 87, 23, 0.08);
+        color: var(--accent-dark);
+    }
+    .social-links,
+    .social-links a {
+        display: flex;
+    }
+    .ghost-toggle-btn {
+        display: none; /* 默认隐藏，JS 在首页显示 */
+        align-items: center;
+        justify-content: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--theme-control-border);
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.85),
+            0 5px 10px rgba(84, 70, 39, 0.08);
+        cursor: pointer;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            background 0.18s ease,
+            opacity 0.2s ease,
+            filter 0.2s ease;
+    }
+    .ghost-toggle-btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            0 9px 16px rgba(84, 70, 39, 0.12);
+    }
+    .ghost-toggle-btn:active {
+        transform: translateY(4px) scale(0.98);
+        box-shadow:
+            inset 0 6px 10px rgba(84, 70, 39, 0.18),
+            inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+    .ghost-toggle-btn[data-enabled="false"] {
+        opacity: 0.45;
+        filter: grayscale(0.9);
+    }
+    :global(html[data-theme="dark"]) .ghost-toggle-btn {
+        background: var(--theme-control-bg);
+        border-color: var(--theme-control-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    :global(html[data-theme="dark"]) .ghost-toggle-btn:hover {
+        background: rgba(66, 57, 46, 0.95);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 9px 16px rgba(0, 0, 0, 0.28);
+    }
+    .theme-toggle {
+        width: 3.9rem;
+        height: 2.4rem;
+        flex: 0 0 auto;
+        border: 1px solid var(--theme-control-border);
+        border-radius: 999px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.62),
+            rgba(228, 220, 205, 0.92)
+        );
+        color: var(--theme-control-text);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.85),
+            0 5px 10px rgba(84, 70, 39, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            background 0.18s ease,
+            color 0.18s ease;
+        z-index: 1;
+    }
+    .theme-toggle:hover {
+        transform: translateY(-1px);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.92),
+            0 9px 16px rgba(84, 70, 39, 0.12);
+    }
+    .theme-toggle:active {
+        transform: translateY(4px) scale(0.98);
+        box-shadow:
+            inset 0 6px 10px rgba(84, 70, 39, 0.18),
+            inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+    .theme-toggle-track {
+        position: absolute;
+        inset: 0.18rem;
+        border-radius: 999px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 251, 240, 0.92),
+            rgba(215, 202, 177, 0.75)
+        );
+        box-shadow:
+            inset 0 1px 2px rgba(255, 255, 255, 0.85),
+            inset 0 -1px 2px rgba(84, 70, 39, 0.08);
+        overflow: hidden;
+    }
+    .theme-toggle-track::before,
+    .theme-toggle-track::after {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.76rem;
+        line-height: 1;
+        opacity: 0.55;
+    }
+    .theme-toggle-track::before {
+        content: "☀";
+        left: 0.48rem;
+        color: #9b7525;
+    }
+    .theme-toggle-track::after {
+        content: "☾";
+        right: 0.52rem;
+        color: #6f5ea3;
+    }
+    .theme-toggle-knob {
+        position: absolute;
+        top: 0.12rem;
+        left: 0.14rem;
+        width: 1.7rem;
+        height: 1.7rem;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #fffaf0 0%, #efe2c7 100%);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.95),
+            0 4px 10px rgba(84, 70, 39, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+            transform 0.24s ease,
+            background 0.24s ease,
+            box-shadow 0.24s ease;
+    }
+    .theme-toggle-sun,
+    .theme-toggle-moon {
+        position: absolute;
+        font-size: 0.95rem;
+        line-height: 1;
+        transition:
+            transform 0.24s ease,
+            opacity 0.24s ease;
+    }
+    .theme-toggle-sun {
+        opacity: 1;
+        transform: scale(1);
+        color: #9b7525;
+    }
+    .theme-toggle-moon {
+        opacity: 0;
+        transform: scale(0.6);
+        color: #efe7ff;
+    }
+    :global(html[data-theme="dark"]) .theme-toggle {
+        background: linear-gradient(
+            180deg,
+            rgba(66, 57, 46, 0.92),
+            rgba(42, 36, 29, 0.96)
+        );
+    }
+    :global(html[data-theme="dark"]) .theme-toggle-track {
+        background: linear-gradient(
+            180deg,
+            rgba(55, 48, 42, 0.96),
+            rgba(30, 25, 20, 0.92)
+        );
+        box-shadow:
+            inset 0 1px 2px rgba(255, 255, 255, 0.06),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.18);
+    }
+    :global(html[data-theme="dark"]) .theme-toggle-knob {
+        transform: translateX(1.52rem);
+        background: linear-gradient(180deg, #4f5e7d 0%, #2f3a56 100%);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            0 4px 10px rgba(0, 0, 0, 0.28);
+    }
+    :global(html[data-theme="dark"]) .theme-toggle-sun {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    :global(html[data-theme="dark"]) .theme-toggle-moon {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .social-links a {
+        align-items: center;
+        justify-content: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.55);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.85),
+            0 5px 10px rgba(84, 70, 39, 0.08);
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            background 0.18s ease;
+        position: relative;
+        z-index: 1;
+    }
+    .social-links a:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            0 9px 16px rgba(84, 70, 39, 0.12);
+    }
+    @media (max-width: 720px) {
+        header {
+            top: 0.5rem;
+            padding: 0 0.6rem;
+        }
+        nav {
+            gap: 0.6rem;
+            padding: 0.65rem 0.7rem;
+            border-radius: 18px;
+        }
+        .nav-right {
+            gap: 0.45rem;
+        }
+        .site-logo {
+            gap: 0.45rem;
+            font-size: 0.95rem;
+        }
+        .internal-links {
+            gap: 0.15rem;
+            padding: 0.18rem;
+        }
+        .ghost-toggle-btn {
+            width: 2.2rem;
+            height: 2.2rem;
+        }
+        .theme-toggle {
+            width: 3.3rem;
+            height: 2.12rem;
+            border-width: 2px;
+        }
+        /* 移动端 knob 缩小为 1.5rem，避免贴边裁切:
+           track 高 1.76rem → top = (1.76 - 1.5) / 2 = 0.13rem
+           track 宽 2.94rem → translateX = 2.94 - 1.5 - 0.14×2 = 1.16rem */
+        .theme-toggle-knob {
+            top: 0.13rem;
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        :global(html[data-theme="dark"]) .theme-toggle-knob {
+            transform: translateX(1.16rem);
+        }
+        nav a {
+            padding: 0.52rem 0.64rem;
+            font-size: 0.88rem;
+        }
+        .social-links {
+            display: none;
+        }
+    }
 
-				@media (max-width: 560px) {
-					nav {
-						flex-direction: column;
-						align-items: stretch;
-						gap: 0.55rem;
-					}
+    @media (max-width: 560px) {
+        nav {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.55rem;
+        }
 
-					h2 {
-						display: flex;
-						justify-content: center;
-					}
+        h2 {
+            display: flex;
+            justify-content: center;
+        }
 
-					.nav-right {
-						justify-content: center;
-					}
-				}
-		</style>
+        .nav-right {
+            justify-content: center;
+        }
+    }
+</style>
