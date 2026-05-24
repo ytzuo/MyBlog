@@ -1,0 +1,160 @@
+---
+import Card from './Cards/Card.astro';
+import Tag from './Tag.astro';
+
+interface Props {
+    tags: string[];
+    title?: string;
+    visibleCount?: number;
+}
+
+const { tags, title = '热门标签', visibleCount = 10 } = Astro.props;
+
+const visibleTags = tags.slice(0, visibleCount);
+const hiddenTags = tags.slice(visibleCount);
+---
+
+<Card class="widget">
+    <h3>{title}</h3>
+    <div class="tag-cloud">
+        {visibleTags.map((tag) => <Tag tag={tag} />)}
+    </div>
+    {hiddenTags.length > 0 && (
+        <>
+            <div class="tag-extra-wrapper" data-collapsed="true">
+                <div class="tag-extra-inner">
+                    {hiddenTags.map((tag) => <Tag tag={tag} />)}
+                </div>
+            </div>
+            <button
+                class="tag-cloud-toggle-btn"
+                data-total={tags.length}
+                aria-expanded="false"
+            >
+                <span class="btn-label">展开全部 ({tags.length})</span>
+                <span class="btn-arrow">▾</span>
+            </button>
+        </>
+    )}
+</Card>
+
+<script>
+    function initTagCloudToggle() {
+        document
+            .querySelectorAll<HTMLButtonElement>('.tag-cloud-toggle-btn')
+            .forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const wrapper = btn.previousElementSibling as HTMLElement;
+                    const collapsed = wrapper.dataset.collapsed === 'true';
+                    wrapper.dataset.collapsed = collapsed ? 'false' : 'true';
+                    btn.setAttribute('aria-expanded', String(collapsed));
+                    const label = btn.querySelector('.btn-label');
+                    if (label) {
+                        label.textContent = collapsed
+                            ? '收起标签'
+                            : `展开全部 (${btn.dataset.total})`;
+                    }
+                });
+            });
+    }
+
+    document.addEventListener('astro:page-load', initTagCloudToggle);
+</script>
+
+<style>
+    /* widget 标题 —— 对所有 .widget 卡片内的 h3 生效 */
+    :global(.widget) h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        border-bottom: 2px solid var(--accent);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        /* 为 tag 的 3D 阴影预留底部空间 */
+        padding-bottom: 1rem;
+    }
+
+    .tag-extra-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+            grid-template-rows 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.55s ease;
+    }
+
+    .tag-extra-wrapper[data-collapsed="false"] {
+        grid-template-rows: 1fr;
+        opacity: 1;
+    }
+
+    .tag-extra-inner {
+        min-height: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding-top: 0.5rem;
+        /* 防止 overflow:hidden 裁切最后一行 tag 的阴影 */
+        padding-bottom: 1rem;
+    }
+
+    .tag-cloud-toggle-btn {
+        width: 100%;
+        background: transparent;
+        padding: 0.4rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1.5px dashed rgba(112, 87, 23, 0.38);
+        color: var(--accent);
+        cursor: pointer;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        box-shadow: none;
+        transition:
+            background 0.18s ease,
+            border-color 0.18s ease;
+    }
+
+    .tag-cloud-toggle-btn:hover {
+        background: rgba(112, 87, 23, 0.06);
+        border-color: var(--accent);
+    }
+
+    .tag-cloud-toggle-btn:active {
+        background: rgba(112, 87, 23, 0.12);
+    }
+
+    .btn-arrow {
+        display: inline-block;
+        font-size: 0.8rem;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        line-height: 1;
+    }
+
+    .tag-cloud-toggle-btn[aria-expanded="true"] .btn-arrow {
+        transform: rotate(180deg);
+    }
+
+    /* 暗黑模式 */
+    :global(html[data-theme="dark"]) .tag-cloud-toggle-btn {
+        background: transparent;
+        border-color: rgba(214, 183, 117, 0.4);
+        color: var(--accent);
+        box-shadow: none;
+    }
+
+    :global(html[data-theme="dark"]) .tag-cloud-toggle-btn:hover {
+        background: rgba(212, 176, 103, 0.08);
+        border-color: var(--accent);
+    }
+</style>

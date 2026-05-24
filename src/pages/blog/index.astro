@@ -1,237 +1,263 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseHead from '../../components/HeaderAndFooter/BaseHead.astro';
-import Footer from '../../components/HeaderAndFooter/Footer.astro';
-import Header from '../../components/HeaderAndFooter/Header.astro';
-import PostCard from '../../components/Cards/PostCard.astro';
-import Tag from '../../components/Tag.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
-import GhostSprites from '../../components/GhostSprites.astro';
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/Cards/PostCard.astro";
+import Tag from "../../components/Tag.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import GhostSprites from "../../components/GhostSprites.astro";
 
 // 获取所有博客文章并按发布日期降序排序
-const posts = (await getCollection('blog')).sort(
-	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
+const posts = (await getCollection("blog")).sort(
+    (a, b) =>
+        new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
 );
 
 // 获取所有唯一的标签
 const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 1100px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 3em 1em;
-				box-sizing: border-box;
-			}
-			.blog-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-start;
-				margin-bottom: 2rem;
-				position: relative;
-			}
-			.filter-container {
-				position: relative;
-				z-index: 10;
-			}
-				.tag-toggle-btn {
-					background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(238, 231, 220, 0.95));
-					border: 1px solid rgba(126, 103, 64, 0.16);
-					padding: 0.5rem 1.5rem;
-					border-radius: 20px;
-					cursor: pointer;
-					font-size: 1rem;
-					color: rgb(var(--black));
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-					transition:
-						transform 0.14s ease,
-						box-shadow 0.14s ease,
-						background 0.14s ease;
-					font-weight: bold;
-					box-shadow:
-						inset 0 1px 0 rgba(255, 255, 255, 0.9),
-						0 6px 0 #cdbfa8,
-						0 10px 18px rgba(84, 70, 39, 0.1);
-				}
-				.tag-toggle-btn:hover {
-					background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 236, 225, 0.98));
-					border-color: rgba(126, 103, 64, 0.24);
-					transform: translateY(3px) scale(0.992);
-					box-shadow:
-						0 3px 0 #cdbfa8,
-						inset 0 3px 6px rgba(84, 70, 39, 0.08),
-						inset 0 1px 0 rgba(255, 255, 255, 0.96),
-						0 8px 14px rgba(84, 70, 39, 0.14);
-				}
-				.tag-toggle-btn:active {
-					transform: translateY(6px) scale(0.98);
-					box-shadow:
-						0 0 0 rgba(205, 191, 168, 0),
-						inset 0 6px 12px rgba(84, 70, 39, 0.2),
-						inset 0 1px 1px rgba(255, 255, 255, 0.3);
-				}
-			.btn-icon {
-				display: inline-block;
-				transition: transform 0.3s ease;
-				font-size: 0.8rem;
-			}
-			.tags-wrapper {
-				position: absolute;
-				top: 100%;
-				right: 0;
-				width: 300px; /* 固定宽度或根据内容调整 */
-				background: rgba(255, 255, 255, 0.9);
-				backdrop-filter: blur(10px);
-				border: 1px solid rgba(255, 255, 255, 0.2);
-				border-radius: 12px;
-				box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-				padding: 0;
-				margin-top: 0.5rem;
-				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-				overflow: hidden;
-				transform-origin: top right;
-				/* 初始状态在 JS 中设置 */
-			}
-			.tags-container {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.5rem;
-				justify-content: center;
-				padding: 1rem;
-			}
-			.section-title {
-				font-size: 1.5rem;
-				color: rgb(var(--black));
-				margin-bottom: 1rem;
-				text-align: center;
-				width: 100%;
-				font-weight: 700;
-			}
-			.blog-title {
-				font-size: 2.5rem;
-				font-weight: 800;
-				margin: 0; /* 移除底部边距，由父容器控制 */
-				color: rgb(var(--black));
-				text-align: left;
-				line-height: 1.2;
-			}
-			.empty-state {
-				text-align: center;
-				padding: 4rem 2rem;
-				background: rgba(255, 255, 255, 0.5);
-				border-radius: 16px;
-				backdrop-filter: blur(10px);
-				border: 1px solid rgba(255, 255, 255, 0.2);
-				margin-top: 2rem;
-			}
-			.empty-icon {
-				font-size: 4rem;
-				margin-bottom: 1rem;
-				animation: float 3s ease-in-out infinite;
-			}
-			.empty-state h3 {
-				font-size: 1.5rem;
-				margin-bottom: 0.5rem;
-				color: rgb(var(--black));
-			}
-			.empty-state p {
-				color: rgb(var(--gray));
-			}
-			.post-list {
-				display: flex;
-				flex-direction: column;
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<GhostSprites />
-		<main>
-			<div class="blog-header">
-				<h2 class="blog-title">所有博客</h2>
-				<!-- 标签筛选按钮 -->
-				{
-					tags.length > 0 && (
-						<div class="filter-container">
-							<button id="tag-toggle-btn" class="tag-toggle-btn">
-								<span class="btn-text">按标签筛选</span>
-								<span class="btn-icon">▼</span>
-							</button>
-							<div id="tags-wrapper" class="tags-wrapper">
-								<div class="tags-container">
-									{tags.map((tag) => (
-										<Tag tag={tag} />
-									))}
-								</div>
-							</div>
-						</div>
-					)
-				}
-			</div>
+<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+    <GhostSprites />
+    <div class="blog-header">
+        <h2 class="blog-title">所有博客</h2>
+        <!-- 标签筛选按钮 -->
+        {
+            tags.length > 0 && (
+                <div class="filter-container">
+                    <button
+                        id="tag-toggle-btn"
+                        class="tag-toggle-btn"
+                        aria-expanded="false"
+                    >
+                        <span class="btn-text">按标签筛选</span>
+                        <span class="btn-icon">▼</span>
+                    </button>
+                    <div
+                        id="tags-wrapper"
+                        class="tags-wrapper"
+                        data-open="false"
+                    >
+                        <div class="tags-container">
+                            {tags.map((tag) => (
+                                <Tag tag={tag} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+    </div>
 
-			<script>
-				const initTagFilter = () => {
-					const toggleBtn = document.getElementById('tag-toggle-btn');
-					const tagsWrapper = document.getElementById('tags-wrapper');
-					const btnIcon = toggleBtn?.querySelector('.btn-icon') as HTMLElement;
+    <section>
+        <div class="post-list">
+            {
+                posts.length > 0 ? (
+                    posts.map((post) => <PostCard post={post} />)
+                ) : (
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>暂无博客文章</h3>
+                        <p>博主正在努力创作中，敬请期待...</p>
+                    </div>
+                )
+            }
+        </div>
+    </section>
+</BaseLayout>
 
-					if (toggleBtn && tagsWrapper && btnIcon) {
-						toggleBtn.addEventListener('click', () => {
-							const isHidden = tagsWrapper.style.maxHeight === '0px' || !tagsWrapper.style.maxHeight;
-							
-							if (isHidden) {
-								// 展开
-								tagsWrapper.style.maxHeight = tagsWrapper.scrollHeight + 'px';
-								tagsWrapper.style.opacity = '1';
-								tagsWrapper.style.marginTop = '1rem';
-								btnIcon.style.transform = 'rotate(180deg)';
-							} else {
-								// 收起
-								tagsWrapper.style.maxHeight = '0px';
-								tagsWrapper.style.opacity = '0';
-								tagsWrapper.style.marginTop = '0';
-								btnIcon.style.transform = 'rotate(0deg)';
-							}
-						});
-						
-						// 初始化为收起状态
-						tagsWrapper.style.maxHeight = '0px';
-						tagsWrapper.style.opacity = '0';
-						tagsWrapper.style.marginTop = '0';
-						tagsWrapper.style.overflow = 'hidden';
-						btnIcon.style.transform = 'rotate(0deg)';
-					}
-				};
+<style>
+    .blog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    .filter-container {
+        position: relative;
+        z-index: 10;
+    }
+    .tag-toggle-btn {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.82),
+            rgba(238, 231, 220, 0.95)
+        );
+        border: 1px solid rgba(126, 103, 64, 0.16);
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        color: rgb(var(--black));
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition:
+            transform 0.14s ease,
+            box-shadow 0.14s ease,
+            background 0.14s ease;
+        font-weight: bold;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            0 6px 0 #cdbfa8,
+            0 10px 18px rgba(84, 70, 39, 0.1);
+    }
+    .tag-toggle-btn:hover {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(244, 236, 225, 0.98)
+        );
+        border-color: rgba(126, 103, 64, 0.24);
+        transform: translateY(3px) scale(0.992);
+        box-shadow:
+            0 3px 0 #cdbfa8,
+            inset 0 3px 6px rgba(84, 70, 39, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.96),
+            0 8px 14px rgba(84, 70, 39, 0.14);
+    }
+    .tag-toggle-btn:active {
+        transform: translateY(6px) scale(0.98);
+        box-shadow:
+            0 0 0 rgba(205, 191, 168, 0),
+            inset 0 6px 12px rgba(84, 70, 39, 0.2),
+            inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    }
+    .btn-icon {
+        display: inline-block;
+        transition: transform 0.3s ease;
+        font-size: 0.8rem;
+    }
+    .tag-toggle-btn[aria-expanded="true"] .btn-icon {
+        transform: rotate(180deg);
+    }
+    .tags-wrapper {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 300px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transform-origin: top right;
+        /* 初始收起状态 */
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        pointer-events: none;
+        transition:
+            max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.3s ease,
+            margin-top 0.3s ease;
+    }
+    .tags-wrapper[data-open="true"] {
+        max-height: 400px;
+        opacity: 1;
+        margin-top: 0.5rem;
+        pointer-events: auto;
+    }
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        color: rgb(var(--black));
+        margin-bottom: 1rem;
+        text-align: center;
+        width: 100%;
+        font-weight: 700;
+    }
+    .blog-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        color: rgb(var(--black));
+        text-align: left;
+        line-height: 1.2;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 2rem;
+    }
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: rgb(var(--black));
+    }
+    .empty-state p {
+        color: rgb(var(--gray));
+    }
+    .post-list {
+        display: flex;
+        flex-direction: column;
+    }
 
-				document.addEventListener('astro:page-load', initTagFilter);
-			</script>
+    /* 暗黑模式 */
+    :global(html[data-theme="dark"]) .tags-wrapper {
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border-color: var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 10px 24px var(--surface-shadow);
+    }
+    :global(html[data-theme="dark"]) .empty-state {
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border-color: var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 10px 24px var(--surface-shadow);
+    }
+    :global(html[data-theme="dark"]) .tag-toggle-btn {
+        background: linear-gradient(180deg, #3b3127 0%, #2a231c 100%);
+        border-color: var(--surface-border);
+        color: rgb(var(--black));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 6px 0 #1a1510,
+            0 10px 18px rgba(0, 0, 0, 0.28);
+    }
+    :global(html[data-theme="dark"]) .tag-toggle-btn:hover {
+        background: linear-gradient(180deg, #453929 0%, #352c22 100%);
+    }
+</style>
 
-			<section>
-				<div class="post-list">
-					{
-						posts.length > 0 ? (
-							posts.map((post) => (
-								<PostCard post={post} />
-							))
-						) : (
-							<div class="empty-state">
-								<div class="empty-icon">📝</div>
-								<h3>暂无博客文章</h3>
-								<p>博主正在努力创作中，敬请期待...</p>
-							</div>
-						)
-					}
-				</div>
-			</section>
-		</main>
-		<Footer />
-	</body>
-</html>
+<script>
+    const initTagFilter = () => {
+        const toggleBtn = document.getElementById(
+            "tag-toggle-btn",
+        ) as HTMLButtonElement | null;
+        const tagsWrapper = document.getElementById(
+            "tags-wrapper",
+        ) as HTMLElement | null;
+        const btnIcon = toggleBtn?.querySelector(
+            ".btn-icon",
+        ) as HTMLElement | null;
+
+        if (!toggleBtn || !tagsWrapper || !btnIcon) return;
+
+        toggleBtn.addEventListener("click", () => {
+            const isOpen = tagsWrapper.dataset.open === "true";
+            tagsWrapper.dataset.open = isOpen ? "false" : "true";
+            toggleBtn.setAttribute("aria-expanded", String(!isOpen));
+        });
+    };
+
+    document.addEventListener("astro:page-load", initTagFilter);
+</script>
