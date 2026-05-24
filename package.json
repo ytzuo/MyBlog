@@ -16,5 +16,11 @@
     "mermaid": "^11.13.0",
     "sharp": "^0.34.3"
   },
-  "packageManager": "pnpm@11.1.0"
+  "packageManager": "pnpm@11.1.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
+  }
 }
