@@ -271,20 +271,20 @@ const {
                 margin: 1.5rem 0;
                 padding: 1rem;
                 border-radius: 8px;
-                border: 1px solid rgba(85, 68, 44, 0.22);
-                background: linear-gradient(180deg, #f5f0e8, #ede5d4);
+                border: 1px solid rgba(126, 103, 64, 0.12);
+                background: linear-gradient(180deg, #fffdf8, #f8f4ec);
                 box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-                    0 4px 12px rgba(0, 0, 0, 0.07);
+                    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+                    0 4px 12px rgba(84, 70, 39, 0.05);
                 overflow-x: auto;
             }
 
             :global(html[data-theme="dark"] .mermaid-container) {
-                background: linear-gradient(180deg, #cec4b0, #c0b49c);
-                border-color: rgba(85, 68, 44, 0.4);
+                background: linear-gradient(180deg, #2b241d, #1f1a15);
+                border-color: rgba(214, 183, 117, 0.18);
                 box-shadow:
-                    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-                    0 4px 12px rgba(0, 0, 0, 0.2);
+                    inset 0 1px 0 rgba(255, 244, 219, 0.06),
+                    0 4px 12px rgba(0, 0, 0, 0.24);
             }
 
             :global(.mermaid-chart svg) {
@@ -385,6 +385,40 @@ const {
             /* 悬停效果 - 模仿选中行 */
             .prose :global(tbody tr:hover) {
                 background-color: rgba(var(--accent), 0.05);
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(table) {
+                background-color: #1f1a15;
+                box-shadow: 0 0 0 1px rgba(214, 183, 117, 0.18);
+                color: rgb(var(--gray-dark));
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(th),
+            :global(html[data-theme="dark"]) .prose :global(td) {
+                border-color: rgba(214, 183, 117, 0.18);
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(thead) {
+                background-color: #2b241d;
+                border-bottom-color: rgba(214, 183, 117, 0.28);
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(tbody tr) {
+                background-color: #1f1a15;
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(th) {
+                color: rgb(var(--black));
+            }
+
+            :global(html[data-theme="dark"])
+                .prose
+                :global(tbody tr:nth-child(even)) {
+                background-color: #251f19;
+            }
+
+            :global(html[data-theme="dark"]) .prose :global(tbody tr:hover) {
+                background-color: rgba(212, 176, 103, 0.12);
             }
 
             /* 单元格数字右对齐 (可选，需根据内容判断，这里暂不强制) */
