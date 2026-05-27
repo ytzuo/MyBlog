@@ -13,6 +13,10 @@ const { icon, alt = "", size = 32, duration = 1 } = Astro.props;
 
 const isImage = typeof icon === 'object' && icon !== null && !Array.isArray(icon);
 const isAnimated = Array.isArray(icon);
+const isImagePath =
+	typeof icon === 'string' &&
+	(/^(\/|https?:\/\/|data:image\/)/.test(icon) ||
+		/\.(svg|png|jpe?g|webp|gif|avif)(\?.*)?$/i.test(icon));
 
 // 辅助函数：将 icon 转换为数组以便进行 map 操作
 const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
@@ -44,6 +48,15 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 				width={size * 2} 
 				height={size * 2} 
 				class="icon-img"
+			/>
+		) : isImagePath ? (
+			<img
+				src={icon as string}
+				alt={alt}
+				width={size * 2}
+				height={size * 2}
+				class="icon-img"
+				loading="lazy"
 			/>
 		) : (
 			<span class="icon-text">{icon}</span>
