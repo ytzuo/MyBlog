@@ -9,4 +9,7 @@ export default defineConfig({
 	site: 'https://saten.website',
 	integrations: [mdx(), sitemap()],
 	prefetch: true,
+	experimental: {
+		rustCompiler: true,
+	},
 });
