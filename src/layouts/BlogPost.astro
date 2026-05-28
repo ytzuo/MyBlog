@@ -71,6 +71,26 @@ const {
             }
             .title h1 {
                 margin: 0 0 0.5em 0;
+                font-size: 1.9em;
+            }
+            /* 正文内各级标题缩小 */
+            .prose :global(h1) {
+                font-size: 1.7em;
+            }
+            .prose :global(h2) {
+                font-size: 1.45em;
+            }
+            .prose :global(h3) {
+                font-size: 1.2em;
+            }
+            .prose :global(h4) {
+                font-size: 1.05em;
+            }
+            .prose :global(h5) {
+                font-size: 0.95em;
+            }
+            .prose :global(h6) {
+                font-size: 0.875em;
             }
             .date {
                 margin-bottom: 0.1em;
@@ -81,6 +101,7 @@ const {
             }
             .tags {
                 display: flex;
+                flex-wrap: wrap;
                 justify-content: center;
                 gap: 0.5em;
                 margin-top: 1em;
@@ -339,6 +360,27 @@ const {
                 .prose :global(pre code) {
                     font-size: 0.8rem;
                     padding: 0.9rem 0.9rem 0.9rem 1rem;
+                }
+                .title h1 {
+                    font-size: 1.5em;
+                }
+                .prose :global(h1) {
+                    font-size: 1.4em;
+                }
+                .prose :global(h2) {
+                    font-size: 1.25em;
+                }
+                .prose :global(h3) {
+                    font-size: 1.1em;
+                }
+                .prose :global(h4) {
+                    font-size: 1em;
+                }
+                .prose :global(h5) {
+                    font-size: 0.9em;
+                }
+                .prose :global(h6) {
+                    font-size: 0.85em;
                 }
             }
 

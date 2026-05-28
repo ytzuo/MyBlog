@@ -29,7 +29,7 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
                         class="tag-toggle-btn"
                         aria-expanded="false"
                     >
-                        <span class="btn-text">按标签筛选</span>
+                        <span class="btn-text">按标签</span>
                         <span class="btn-icon">▼</span>
                     </button>
                     <div
@@ -69,13 +69,15 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
     .blog-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
+        gap: clamp(0.75rem, 4vw, 1.5rem);
         margin-bottom: 2rem;
         position: relative;
     }
     .filter-container {
         position: relative;
         z-index: 10;
+        flex: 0 0 auto;
     }
     .tag-toggle-btn {
         background: linear-gradient(
@@ -84,19 +86,21 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
             rgba(238, 231, 220, 0.95)
         );
         border: 1px solid rgba(126, 103, 64, 0.16);
-        padding: 0.5rem 1.5rem;
+        padding: clamp(0.4rem, 1.8vw, 0.5rem) clamp(0.85rem, 4vw, 1.5rem);
         border-radius: 20px;
         cursor: pointer;
-        font-size: 1rem;
+        font-size: clamp(0.82rem, 3.4vw, 1rem);
         color: rgb(var(--black));
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: clamp(0.25rem, 1.6vw, 0.5rem);
         transition:
             transform 0.14s ease,
             box-shadow 0.14s ease,
             background 0.14s ease;
         font-weight: bold;
+        line-height: 1;
+        white-space: nowrap;
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.9),
             0 6px 0 #cdbfa8,
@@ -126,7 +130,7 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
     .btn-icon {
         display: inline-block;
         transition: transform 0.3s ease;
-        font-size: 0.8rem;
+        font-size: 0.8em;
     }
     .tag-toggle-btn[aria-expanded="true"] .btn-icon {
         transform: rotate(180deg);
@@ -135,7 +139,7 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
         position: absolute;
         top: 100%;
         right: 0;
-        width: 300px;
+        width: min(300px, calc(100vw - 2rem));
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -175,12 +179,15 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
         font-weight: 700;
     }
     .blog-title {
-        font-size: 2.5rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: clamp(1.35rem, 7vw, 2rem);
         font-weight: 800;
         margin: 0;
         color: rgb(var(--black));
         text-align: left;
         line-height: 1.2;
+        white-space: nowrap;
     }
     .empty-state {
         text-align: center;

@@ -123,6 +123,12 @@ const { post } = Astro.props;
     @media (max-width: 720px) {
         :global(.post-card) {
             flex-direction: column;
+            gap: 1rem;
+            width: calc(100% + 2rem);
+            max-width: calc(100% + 2rem);
+            margin-left: -1rem;
+            margin-right: -1rem;
+            padding: 1.25rem;
         }
 
         /* 移动端改为横向铺满，高度保持正方形比例 */
