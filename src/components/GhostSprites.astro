@@ -186,6 +186,8 @@ const { count = 9 } = Astro.props;
         pointer-events: none; /* 让点击穿过空白区域 */
         overflow: hidden;
         z-index: 50; /* 在普通内容之上，但在模态框/标题之下（如果需要） */
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
     }
 
     :global(.ghost-wrapper) {
@@ -199,6 +201,9 @@ const { count = 9 } = Astro.props;
         opacity: 0;
         animation-fill-mode: forwards; /* 保持最终状态 */
         transform: scale(var(--ghost-scale, 1));
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
     }
 
     /* 单独的淡入动画以处理初始加载 */
@@ -240,6 +245,23 @@ const { count = 9 } = Astro.props;
         /* 图标的内部容器 */
         filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         transition: transform 0.2s;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+
+    :global(.ghost-wrapper .smart-icon),
+    :global(.ghost-wrapper smart-icon-anim),
+    :global(.ghost-wrapper .frame),
+    :global(.ghost-wrapper img) {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+
+    :global(.ghost-wrapper img) {
+        -webkit-user-drag: none;
+        user-drag: none;
+        pointer-events: none;
     }
 
     :global(.ghost-wrapper:hover) .ghost-inner {
