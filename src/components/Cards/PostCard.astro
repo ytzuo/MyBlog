@@ -12,7 +12,7 @@ interface Props {
 const { post } = Astro.props;
 ---
 
-<Card class="post-card" hoverEffect={true}>
+<Card class="post-card" hoverEffect={true} data-post-url={`/blog/${post.id}/`}>
     {
         post.data.heroImage && (
             <a href={`/blog/${post.id}/`} class="image-link">
@@ -48,6 +48,23 @@ const { post } = Astro.props;
     </div>
 </Card>
 
+<script>
+    function initPostCardClick() {
+        document.querySelectorAll<HTMLElement>(".post-card").forEach((card) => {
+            card.addEventListener("click", (e) => {
+                const target = e.target as HTMLElement;
+                // 如果点击的是链接或其子元素，让默认行为执行
+                if (target.closest("a")) return;
+                const url = card.dataset.postUrl;
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    }
+    document.addEventListener("astro:page-load", initPostCardClick);
+</script>
+
 <style>
     :global(.post-card) {
         display: flex;
@@ -56,6 +73,7 @@ const { post } = Astro.props;
         padding: 2rem;
         text-decoration: none;
         color: inherit;
+        cursor: pointer;
     }
 
     /* 正方形图片容器 */
