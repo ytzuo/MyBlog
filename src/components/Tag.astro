@@ -1,12 +1,13 @@
 ---
 interface Props {
     tag: string;
+    class?: string;
 }
 
-const { tag } = Astro.props;
+const { tag, class: className } = Astro.props;
 ---
 
-<a href={`/tags/${tag}`} class="tag">{tag}</a>
+<a href={`/tags/${tag}`} class:list={["tag", className]}>{tag}</a>
 
 <style>
     .tag {
@@ -23,6 +24,7 @@ const { tag } = Astro.props;
             background 0.12s ease,
             color 0.12s ease;
         display: inline-block;
+        white-space: nowrap;
         cursor: pointer;
         /* 软橡胶按钮风格 */
         box-shadow:

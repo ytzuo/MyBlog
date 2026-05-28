@@ -1,64 +1,82 @@
 ---
-import Card from './Cards/Card.astro';
-import Tag from './Tag.astro';
+import Card from "./Cards/Card.astro";
+import Tag from "./Tag.astro";
 
 interface Props {
     tags: string[];
     title?: string;
     visibleCount?: number;
+    mobileVisibleCount?: number;
 }
 
-const { tags, title = '热门标签', visibleCount = 10 } = Astro.props;
+const {
+    tags,
+    title = "热门标签",
+    visibleCount = 10,
+    mobileVisibleCount = 6,
+} = Astro.props;
 
 const visibleTags = tags.slice(0, visibleCount);
 const hiddenTags = tags.slice(visibleCount);
+const mobileOnlyTags = visibleTags.slice(mobileVisibleCount);
+const hasExtraTags = hiddenTags.length > 0 || mobileOnlyTags.length > 0;
+const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
 ---
 
-<Card class="widget">
+<Card class="widget tag-cloud-card">
     <h3>{title}</h3>
-    <div class="tag-cloud">
-        {visibleTags.map((tag) => <Tag tag={tag} />)}
+    <div class="tag-scroll-host">
+        <div class="tag-cloud">
+            {visibleTags.map((tag) => <Tag tag={tag} />)}
+        </div>
     </div>
-    {hiddenTags.length > 0 && (
-        <>
-            <div class="tag-extra-wrapper" data-collapsed="true">
-                <div class="tag-extra-inner">
-                    {hiddenTags.map((tag) => <Tag tag={tag} />)}
+    {
+        hasExtraTags && (
+            <>
+                <div class="tag-extra-wrapper" data-collapsed="true">
+                    <div class="tag-extra-inner">
+                        {mobileOnlyTags.map((tag) => (
+                            <Tag tag={tag} class="mobile-only-tag" />
+                        ))}
+                        {hiddenTags.map((tag) => (
+                            <Tag tag={tag} />
+                        ))}
+                    </div>
                 </div>
-            </div>
-            <button
-                class="tag-cloud-toggle-btn"
-                data-total={tags.length}
-                aria-expanded="false"
-            >
-                <span class="btn-label">展开全部 ({tags.length})</span>
-                <span class="btn-arrow">▾</span>
-            </button>
-        </>
-    )}
+                <button
+                    class:list={["tag-cloud-toggle-btn", extraButtonClass]}
+                    data-total={tags.length}
+                    aria-expanded="false"
+                >
+                    <span class="btn-label">展开全部 ({tags.length})</span>
+                    <span class="btn-arrow">▾</span>
+                </button>
+            </>
+        )
+    }
 </Card>
 
 <script>
     function initTagCloudToggle() {
         document
-            .querySelectorAll<HTMLButtonElement>('.tag-cloud-toggle-btn')
+            .querySelectorAll<HTMLButtonElement>(".tag-cloud-toggle-btn")
             .forEach((btn) => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener("click", () => {
                     const wrapper = btn.previousElementSibling as HTMLElement;
-                    const collapsed = wrapper.dataset.collapsed === 'true';
-                    wrapper.dataset.collapsed = collapsed ? 'false' : 'true';
-                    btn.setAttribute('aria-expanded', String(collapsed));
-                    const label = btn.querySelector('.btn-label');
+                    const collapsed = wrapper.dataset.collapsed === "true";
+                    wrapper.dataset.collapsed = collapsed ? "false" : "true";
+                    btn.setAttribute("aria-expanded", String(collapsed));
+                    const label = btn.querySelector(".btn-label");
                     if (label) {
                         label.textContent = collapsed
-                            ? '收起标签'
+                            ? "收起标签"
                             : `展开全部 (${btn.dataset.total})`;
                     }
                 });
             });
     }
 
-    document.addEventListener('astro:page-load', initTagCloudToggle);
+    document.addEventListener("astro:page-load", initTagCloudToggle);
 </script>
 
 <style>
@@ -78,6 +96,12 @@ const hiddenTags = tags.slice(visibleCount);
         gap: 0.5rem;
         /* 为 tag 的 3D 阴影预留底部空间 */
         padding-bottom: 1rem;
+    }
+
+    .tag-scroll-host {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .tag-extra-wrapper {
@@ -143,6 +167,88 @@ const hiddenTags = tags.slice(visibleCount);
 
     .tag-cloud-toggle-btn[aria-expanded="true"] .btn-arrow {
         transform: rotate(180deg);
+    }
+
+    :global(.mobile-only-tag),
+    .mobile-extra-only {
+        display: none;
+    }
+
+    /* 移动端：受屏幕宽度约束的自然换行 */
+    @media (max-width: 720px) {
+        :global(.tag-cloud-card) {
+            width: 100%;
+            min-width: 0;
+            padding: 1rem;
+        }
+
+        :global(.tag-cloud-card) h3 {
+            margin-bottom: 0.85rem;
+            font-size: 1rem;
+        }
+
+        .tag-scroll-host {
+            overflow-x: hidden;
+            overflow-y: visible;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            scrollbar-width: none;
+        }
+
+        .tag-scroll-host::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 100%;
+            gap: 0.45rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .tag-cloud :global(.tag:nth-child(n + 7)) {
+            display: none;
+        }
+
+        .tag-extra-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            padding-top: 0;
+            padding-bottom: 0.75rem;
+        }
+
+        :global(.mobile-only-tag),
+        .mobile-extra-only {
+            display: inline-block;
+        }
+
+        .tag-cloud :global(.tag),
+        .tag-extra-inner :global(.tag) {
+            display: inline-block;
+            min-width: 0;
+            max-width: 100%;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.82rem;
+            line-height: 1.2;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 4px 0 #cdbfa8,
+                0 6px 12px rgba(84, 70, 39, 0.1);
+        }
+
+        .tag-cloud-toggle-btn {
+            min-height: 2.25rem;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+        }
     }
 
     /* 暗黑模式 */
