@@ -49,13 +49,15 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
         <aside class="sidebar">
             <Card class="widget">
                 <h3>站点统计</h3>
-                <div class="stat-item">
-                    <span>文章总数</span>
-                    <strong>{postCount}</strong>
-                </div>
-                <div class="stat-item">
-                    <span>标签数量</span>
-                    <strong>{tags.length}</strong>
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <span>文章总数</span>
+                        <strong>{postCount}</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>标签数量</span>
+                        <strong>{tags.length}</strong>
+                    </div>
                 </div>
             </Card>
 
@@ -123,8 +125,8 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
     /* Bottom Section */
     .bottom-section {
         display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 3rem;
+        grid-template-columns: 260px 1fr;
+        gap: 2.5rem;
     }
 
     /* Sidebar */
@@ -158,11 +160,51 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
             flex-direction: column;
             text-align: center;
         }
+        .intro-image {
+            display: none;
+        }
         .bottom-section {
             grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        .latest-posts {
+            order: 1;
+            min-width: 0;
         }
         .sidebar {
             position: static;
+            order: 2;
+            gap: 1rem;
+            min-width: 0;
+        }
+        /* 紧凑横排统计 */
+        .stats-list {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .stat-item {
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.15rem;
+            margin-bottom: 0;
+            text-align: center;
+            padding: 0.5rem 0.25rem;
+            border-radius: 8px;
+            background: rgba(112, 87, 23, 0.04);
+        }
+        .stat-item strong {
+            font-size: 1.6rem;
+            line-height: 1.1;
+        }
+        .stat-item span {
+            font-size: 0.75rem;
+            color: rgb(var(--gray));
+            letter-spacing: 0.02em;
+        }
+        :global(html[data-theme="dark"]) .stat-item {
+            background: rgba(214, 183, 117, 0.05);
         }
     }
 </style>
