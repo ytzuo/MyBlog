@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 import aboutImage from "../assets/blog-placeholder-about.jpg";
 import TagCloud from "../components/TagCloud.astro";
 import Card from "../components/Cards/Card.astro";
-import PostCard from "../components/Cards/PostCard.astro";
+import PostList from "../components/Cards/PostList.astro";
 import GhostSprites from "../components/GhostSprites.astro";
 
 const posts = (await getCollection("blog")).sort(
@@ -67,9 +67,7 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
         <!-- Latest Posts -->
         <section class="latest-posts">
             <h2 class="section-title">最新博文</h2>
-            <div class="post-list">
-                {latestPosts.map((post) => <PostCard post={post} />)}
-            </div>
+            <PostList posts={latestPosts} />
             <div class="view-all">
                 <a href="/blog">查看全部博文 &rarr;</a>
             </div>
@@ -83,7 +81,7 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
     .top-section {
         display: flex;
         gap: 2rem;
-        margin-bottom: 4rem;
+        margin-bottom: 1.75rem;
         align-items: center;
     }
     .intro-image img {
@@ -118,7 +116,7 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
         }
     }
     .intro-text h1 {
-        font-size: 2.5em;
+        font-size: clamp(1.75rem, 5vw, 2.1rem);
         margin-bottom: 0.5em;
     }
 
@@ -147,14 +145,10 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
 
     /* Latest Posts */
     .latest-posts h2 {
+        font-size: clamp(1.35rem, 4vw, 1.75rem);
         margin-top: 0;
         margin-bottom: 1.5rem;
     }
-    .post-list {
-        display: flex;
-        flex-direction: column;
-    }
-
     @media (max-width: 720px) {
         .top-section {
             flex-direction: column;
@@ -176,6 +170,13 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
             order: 2;
             gap: 1rem;
             min-width: 0;
+        }
+        .sidebar :global(.card) {
+            width: calc(100% + 2rem);
+            max-width: calc(100% + 2rem);
+            margin-left: -1rem;
+            margin-right: -1rem;
+            box-sizing: border-box;
         }
         /* 紧凑横排统计 */
         .stats-list {

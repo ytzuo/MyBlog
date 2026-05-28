@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostCard from "../../components/Cards/PostCard.astro";
+import PostList from "../../components/Cards/PostList.astro";
 import Tag from "../../components/Tag.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 import GhostSprites from "../../components/GhostSprites.astro";
@@ -49,19 +49,13 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
     </div>
 
     <section>
-        <div class="post-list">
-            {
-                posts.length > 0 ? (
-                    posts.map((post) => <PostCard post={post} />)
-                ) : (
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <h3>暂无博客文章</h3>
-                        <p>博主正在努力创作中，敬请期待...</p>
-                    </div>
-                )
-            }
-        </div>
+        <PostList posts={posts} centered>
+            <div slot="empty" class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3>暂无博客文章</h3>
+                <p>博主正在努力创作中，敬请期待...</p>
+            </div>
+        </PostList>
     </section>
 </BaseLayout>
 
@@ -211,11 +205,6 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
     .empty-state p {
         color: rgb(var(--gray));
     }
-    .post-list {
-        display: flex;
-        flex-direction: column;
-    }
-
     /* 暗黑模式 */
     :global(html[data-theme="dark"]) .tags-wrapper {
         background: linear-gradient(180deg, var(--surface-1), var(--surface-2));

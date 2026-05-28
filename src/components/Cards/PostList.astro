@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+import PostCard from "./PostCard.astro";
+
+interface Props {
+    posts: CollectionEntry<"blog">[];
+    centered?: boolean;
+}
+
+const { posts, centered = false } = Astro.props;
+---
+
+<div class:list={["post-list", { centered }]}>
+    {
+        posts.length > 0 ? (
+            posts.map((post) => <PostCard post={post} />)
+        ) : (
+            <slot name="empty" />
+        )
+    }
+</div>
+
+<style>
+    .post-list {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .post-list.centered {
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 720px) {
+        .post-list.centered {
+            max-width: 100%;
+        }
+    }
+</style>

@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
-import PostCard from "../../components/Cards/PostCard.astro";
+import PostList from "../../components/Cards/PostList.astro";
 
 export async function getStaticPaths() {
     const allPosts = await getCollection("blog");
@@ -29,18 +29,12 @@ const title = `Tag: ${tag}`;
 <BaseLayout title={title} description={SITE_DESCRIPTION}>
     <h2 class="content-title">文章标签: {tag}</h2>
     <section>
-        <div class="post-list">
-            {posts.map((post) => <PostCard post={post} />)}
-        </div>
+        <PostList posts={posts} centered />
     </section>
 </BaseLayout>
 
 <style>
     .content-title {
         margin-bottom: 2rem;
-    }
-    .post-list {
-        display: flex;
-        flex-direction: column;
     }
 </style>
