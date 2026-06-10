@@ -133,7 +133,7 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
         flex-direction: column;
         gap: 2rem;
         position: sticky;
-        top: 6rem;
+        top: var(--header-sticky-clearance, 6rem);
         align-self: start;
     }
 

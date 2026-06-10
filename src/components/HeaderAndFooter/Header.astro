@@ -185,6 +185,27 @@ const ghostFrames: ImageMetadata[] = [
     };
 
     document.addEventListener("astro:page-load", initGhostToggle);
+
+    const syncHeaderStickyClearance = () => {
+        const header = document.querySelector("header");
+        if (!header) return;
+
+        const rect = header.getBoundingClientRect();
+        const clearance = Math.ceil(rect.top + rect.height + 32);
+        document.documentElement.style.setProperty(
+            "--header-sticky-clearance",
+            `${clearance}px`,
+        );
+    };
+
+    const initHeaderStickyMetrics = () => {
+        syncHeaderStickyClearance();
+        window.addEventListener("resize", syncHeaderStickyClearance, {
+            passive: true,
+        });
+    };
+
+    document.addEventListener("astro:page-load", initHeaderStickyMetrics);
 </script>
 <style>
     header {
