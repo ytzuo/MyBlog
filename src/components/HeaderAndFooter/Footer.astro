@@ -51,9 +51,16 @@ const today = new Date();
 
 <style>
     footer {
-        padding: 1.1rem 1rem 1.6rem;
+        padding: 0;
         color: rgb(var(--gray));
         text-align: center;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(250, 250, 250, 0.98)
+        );
+        border-top: 1px solid rgba(90, 90, 90, 0.12);
+        box-shadow: 0 -8px 18px rgba(35, 35, 35, 0.04);
     }
 
     .footer-shell {
@@ -61,17 +68,10 @@ const today = new Date();
         margin: 0 auto;
         padding: 0.9rem 1.25rem;
         box-sizing: border-box;
-        border-radius: 18px 18px 12px 12px;
-        background: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.78),
-            rgba(241, 236, 227, 0.92)
-        );
-        border: 1px solid rgba(122, 104, 68, 0.14);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.85),
-            0 -1px 0 rgba(255, 255, 255, 0.5),
-            0 8px 18px rgba(84, 70, 39, 0.08);
+        border-radius: 0;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -142,7 +142,7 @@ const today = new Date();
         width: 2.25rem;
         height: 2.25rem;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 252, 246, 0.78);
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.85),
             0 4px 8px rgba(84, 70, 39, 0.08);
@@ -170,14 +170,17 @@ const today = new Date();
 
     /* 暗黑模式 */
     :global(html[data-theme="dark"]) .footer-shell {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+    :global(html[data-theme="dark"]) footer {
         background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
-        border-color: var(--surface-border);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.05),
-            0 10px 24px var(--surface-shadow);
+        border-top-color: var(--surface-border);
+        box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.35);
     }
     :global(html[data-theme="dark"]) .social-links a {
-        background: var(--theme-control-bg);
+        background: rgba(34, 29, 24, 0.9);
         color: rgb(var(--black));
     }
 
