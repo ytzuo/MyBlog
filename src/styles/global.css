@@ -45,8 +45,8 @@ html[data-theme="dark"] {
     --gray: 162, 169, 188;
     --gray-light: 72, 78, 92;
     --gray-dark: 221, 224, 232;
-    --paper-base: #090909;
-    --paper-warm: #111111;
+    --paper-base: #181818;
+    --paper-warm: #202020;
     --paper-shadow: #000000;
     --paper-line: rgba(255, 255, 255, 0.07);
     --paper-stamp: rgba(255, 255, 255, 0.04);
@@ -54,9 +54,9 @@ html[data-theme="dark"] {
     --paper-ridge: rgba(255, 255, 255, 0.05);
     --selection-bg: #6d5432;
     --selection-text: #f8edd6;
-    --surface-1: rgba(20, 20, 20, 0.94);
-    --surface-2: rgba(12, 12, 12, 0.97);
-    --surface-3: #151515;
+    --surface-1: rgba(40, 40, 40, 0.94);
+    --surface-2: rgba(30, 30, 30, 0.97);
+    --surface-3: #2a2a2a;
     --surface-border: rgba(214, 183, 117, 0.14);
     --surface-shadow: rgba(0, 0, 0, 0.32);
     --theme-control-bg: rgba(56, 48, 39, 0.9);

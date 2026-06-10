@@ -72,10 +72,10 @@ const { author, url, platform, title } = Astro.props;
             rgba(245, 238, 224, 0.95) 100%
         );
         box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.85),
-            0 6px 16px rgba(97, 82, 51, 0.09),
-            0 14px 28px rgba(97, 82, 51, 0.07),
-            0 0 0 1px rgba(126, 103, 64, 0.1);
+            inset 0 1px 0 rgba(255, 255, 255, 0.58),
+            0 5px 12px rgba(97, 82, 51, 0.06),
+            0 10px 20px rgba(97, 82, 51, 0.045),
+            0 0 0 1px rgba(126, 103, 64, 0.08);
         /* 使 text-indent 不影响此卡片 */
         text-indent: 0 !important;
     }
@@ -86,7 +86,7 @@ const { author, url, platform, title } = Astro.props;
         position: absolute;
         inset: 0;
         background-image: var(--noise-texture);
-        opacity: 0.12;
+        opacity: 0.06;
         pointer-events: none;
         z-index: 0;
     }

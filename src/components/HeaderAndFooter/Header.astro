@@ -249,7 +249,7 @@ const ghostFrames: ImageMetadata[] = [
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.8rem 1.15rem;
+        padding: 1.05rem 1.15rem;
         box-sizing: border-box;
         border-radius: 0;
         background: transparent;
@@ -279,7 +279,7 @@ const ghostFrames: ImageMetadata[] = [
         align-items: center;
         gap: 0.4rem;
         padding: 0.3rem;
-        border-radius: 999px;
+        border-radius: 10px;
         background: rgba(252, 248, 240, 0.56);
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.8),
@@ -290,7 +290,7 @@ const ghostFrames: ImageMetadata[] = [
         color: rgb(var(--black));
         border-bottom: 0;
         text-decoration: none;
-        border-radius: 999px;
+        border-radius: 10px;
         position: relative;
         transition:
             background 0.18s ease,
@@ -334,7 +334,7 @@ const ghostFrames: ImageMetadata[] = [
         justify-content: center;
         width: 2.6rem;
         height: 2.6rem;
-        border-radius: 999px;
+        border-radius: 10px;
         border: 1px solid var(--theme-control-border);
         background: rgba(255, 255, 255, 0.55);
         box-shadow:
@@ -386,7 +386,7 @@ const ghostFrames: ImageMetadata[] = [
         height: 2.4rem;
         flex: 0 0 auto;
         border: 1px solid var(--theme-control-border);
-        border-radius: 999px;
+        border-radius: 10px;
         background: linear-gradient(
             180deg,
             rgba(255, 253, 248, 0.84),
@@ -423,7 +423,7 @@ const ghostFrames: ImageMetadata[] = [
     .theme-toggle-track {
         position: absolute;
         inset: 0.18rem;
-        border-radius: 999px;
+        border-radius: 10px;
         background: linear-gradient(
             180deg,
             rgba(255, 252, 245, 0.94),
@@ -558,13 +558,36 @@ const ghostFrames: ImageMetadata[] = [
     :global(html[data-theme="dark"]) header {
         background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
         border-bottom-color: var(--surface-border);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
     }
     :global(html[data-theme="dark"]) .internal-links {
         background: rgba(255, 255, 255, 0.03);
         box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.04),
             inset 0 -1px 0 rgba(214, 183, 117, 0.05);
+    }
+    :global(html[data-theme="dark"]) .internal-links a:hover {
+        background: rgba(70, 58, 45, 0.58);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 5px 12px rgba(0, 0, 0, 0.18);
+    }
+    :global(html[data-theme="dark"]) .ghost-toggle-btn:hover,
+    :global(html[data-theme="dark"]) .social-links a:hover {
+        background: rgba(70, 58, 45, 0.62);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.07),
+            0 8px 14px rgba(0, 0, 0, 0.22);
+    }
+    :global(html[data-theme="dark"]) .theme-toggle:hover {
+        background: linear-gradient(
+            180deg,
+            rgba(50, 42, 34, 0.96),
+            rgba(28, 23, 18, 0.98)
+        );
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.07),
+            0 8px 14px rgba(0, 0, 0, 0.22);
     }
     :global(html[data-theme="dark"]) .social-links a {
         background: var(--theme-control-bg);
@@ -577,7 +600,7 @@ const ghostFrames: ImageMetadata[] = [
         }
         nav {
             gap: 0.6rem;
-            padding: 0.65rem 0.7rem;
+            padding: 0.9rem 0.7rem;
             border-radius: 0;
         }
         .nav-right {
