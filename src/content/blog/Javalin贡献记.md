@@ -12,7 +12,7 @@ tags: ['Javalin','Kotlin','记录']
 这次经历主要围绕两个 issue 展开：
 
 - [javalin/javalin#2601](https://github.com/javalin/javalin/issues/2601): Route-group-level middleware / handler chain API?
-- `javalin/javalin-routing-extensions#64`: Support multi-layered path operations in In-Place DSL
+- [javalin/javalin-routing-extensions#64](https://github.com/javalin/javalin-routing-extensions/issues/64): Support multi-layered path operations in In-Place DSL
 
 
 ## 背景：我遇到的问题
