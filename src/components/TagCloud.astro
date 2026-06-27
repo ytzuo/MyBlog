@@ -4,6 +4,7 @@ import Tag from "./Tag.astro";
 
 interface Props {
     tags: string[];
+    tagCounts?: Record<string, number>;
     title?: string;
     visibleCount?: number;
     mobileVisibleCount?: number;
@@ -11,6 +12,7 @@ interface Props {
 
 const {
     tags,
+    tagCounts = {},
     title = "热门标签",
     visibleCount = 10,
     mobileVisibleCount = 6,
@@ -27,7 +29,7 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
     <h3>{title}</h3>
     <div class="tag-scroll-host">
         <div class="tag-cloud">
-            {visibleTags.map((tag) => <Tag tag={tag} />)}
+            {visibleTags.map((tag) => <Tag tag={tag} count={tagCounts[tag]} />)}
         </div>
     </div>
     {
@@ -36,10 +38,14 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
                 <div class="tag-extra-wrapper" data-collapsed="true">
                     <div class="tag-extra-inner">
                         {mobileOnlyTags.map((tag) => (
-                            <Tag tag={tag} class="mobile-only-tag" />
+                            <Tag
+                                tag={tag}
+                                count={tagCounts[tag]}
+                                class="mobile-only-tag"
+                            />
                         ))}
                         {hiddenTags.map((tag) => (
-                            <Tag tag={tag} />
+                            <Tag tag={tag} count={tagCounts[tag]} />
                         ))}
                     </div>
                 </div>
@@ -223,12 +229,12 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
 
         :global(.mobile-only-tag),
         .mobile-extra-only {
-            display: inline-block;
+            display: inline-flex;
         }
 
         .tag-cloud :global(.tag),
         .tag-extra-inner :global(.tag) {
-            display: inline-block;
+            display: inline-flex;
             min-width: 0;
             max-width: 100%;
             padding: 0.35rem 0.65rem;
@@ -242,6 +248,13 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
                 inset 0 1px 0 rgba(255, 255, 255, 0.9),
                 0 4px 0 #c8c1b7,
                 0 6px 12px rgba(62, 58, 52, 0.09);
+        }
+
+        .tag-cloud :global(.tag-label),
+        .tag-extra-inner :global(.tag-label) {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tag-cloud-toggle-btn {

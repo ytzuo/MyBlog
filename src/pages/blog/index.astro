@@ -13,7 +13,14 @@ const posts = (await getCollection("blog")).sort(
 );
 
 // 获取所有唯一的标签
+const tagFrequency = new Map<string, number>();
+posts.forEach((post) => {
+    (post.data.tags || []).forEach((tag) => {
+        tagFrequency.set(tag, (tagFrequency.get(tag) ?? 0) + 1);
+    });
+});
 const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
+const tagCounts = Object.fromEntries(tagFrequency);
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -39,7 +46,7 @@ const tags = [...new Set(posts.map((post) => post.data.tags || []).flat())];
                     >
                         <div class="tags-container">
                             {tags.map((tag) => (
-                                <Tag tag={tag} />
+                                <Tag tag={tag} count={tagCounts[tag]} />
                             ))}
                         </div>
                     </div>
