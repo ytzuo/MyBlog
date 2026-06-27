@@ -114,6 +114,13 @@ const { name, icon } = Astro.props;
 			margin-bottom: 0rem;
 			transform: translateY(0.35rem) translateZ(46px);
 			filter: drop-shadow(0 10px 12px rgba(84, 70, 39, 0.12));
+			transition: filter 0.2s ease;
+		}
+
+		:global(html[data-theme='dark']) .icon-wrapper {
+			filter:
+				drop-shadow(0 0 6px rgba(255, 255, 255, 0.14))
+				drop-shadow(0 7px 12px rgba(255, 255, 255, 0.06));
 		}
 
 		.name {
