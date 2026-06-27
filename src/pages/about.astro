@@ -71,10 +71,10 @@ const interests = [
 >
 	<GhostSprites />
 	
-	<p style="text-align: center; line-height: 1.5; margin-bottom: 2em; font-size: 1.1em;">
-		软件工程大三在读，喜欢打打游戏听听歌。<br/>
-		全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。
-	</p>
+	<div class="about-intro">
+		<div>软件工程大三在读，喜欢打打游戏听听歌。</div>
+		<div>全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。</div>
+	</div>
 
 	<hr />
 
@@ -96,6 +96,21 @@ const interests = [
 	</div>
 
 	<style>
+		.about-intro {
+			width: 100vw;
+			margin: 0 0 2em 50%;
+			box-sizing: border-box;
+			transform: translateX(-50%);
+			text-align: center;
+			line-height: 1.5;
+			font-size: 1.1em;
+		}
+
+		.about-intro div {
+			text-align: center;
+			white-space: nowrap;
+		}
+
 		.interests-grid {
 			display: flex;
 			flex-direction: column;
@@ -117,6 +132,17 @@ const interests = [
 		}
 
 		@media (max-width: 600px) {
+			.about-intro {
+				width: min(100%, calc(100vw - 2rem));
+				margin-left: auto;
+				margin-right: auto;
+				transform: none;
+			}
+
+			.about-intro div {
+				white-space: normal;
+			}
+
 			.card-grid {
 				grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 			}
