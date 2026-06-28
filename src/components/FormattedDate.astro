@@ -12,9 +12,9 @@ const isValidDate = !isNaN(d.valueOf());
 <time datetime={isValidDate ? d.toISOString() : undefined}>
 	{
 		isValidDate
-			? d.toLocaleDateString('en-us', {
+			? d.toLocaleDateString('zh-CN', {
 					year: 'numeric',
-					month: 'short',
+					month: 'long',
 					day: 'numeric',
 				})
 			: date
