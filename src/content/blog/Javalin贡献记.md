@@ -15,7 +15,7 @@ tags: ['Javalin','Kotlin','记录']
 - [javalin/javalin-routing-extensions#64](https://github.com/javalin/javalin-routing-extensions/issues/64): Support multi-layered path operations in In-Place DSL
 
 
-## 背景：我遇到的问题
+## 我遇到的问题
 
 我最初遇到的问题是：在 Javalin 中，如何优雅地给一组路由挂载统一的 middleware 或 handler chain？
 
