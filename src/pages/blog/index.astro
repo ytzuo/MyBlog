@@ -27,9 +27,13 @@ const tagCounts = Object.fromEntries(tagFrequency);
     <GhostSprites />
     <div class="blog-header">
         <h2 class="blog-title">所有博客</h2>
-        <!-- 标签筛选按钮 -->
-        {
-            tags.length > 0 && (
+        <div class="blog-actions">
+            <a class="blog-action-btn search-link" href="/search">
+                <span class="btn-text">搜索文章</span>
+            </a>
+            <!-- 标签筛选按钮 -->
+            {
+                tags.length > 0 && (
                 <div class="filter-container">
                     <button
                         id="tag-toggle-btn"
@@ -51,8 +55,9 @@ const tagCounts = Object.fromEntries(tagFrequency);
                         </div>
                     </div>
                 </div>
-            )
-        }
+                )
+            }
+        </div>
     </div>
 
     <section>
@@ -80,6 +85,14 @@ const tagCounts = Object.fromEntries(tagFrequency);
         z-index: 10;
         flex: 0 0 auto;
     }
+    .blog-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex: 0 0 auto;
+    }
+    .blog-action-btn,
     .tag-toggle-btn {
         background: linear-gradient(
             180deg,
@@ -107,6 +120,13 @@ const tagCounts = Object.fromEntries(tagFrequency);
             0 6px 0 #c8c1b7,
             0 10px 18px rgba(62, 58, 52, 0.09);
     }
+    .blog-action-btn {
+        text-decoration: none;
+    }
+    .search-link {
+        border-radius: 18px;
+    }
+    .blog-action-btn:hover,
     .tag-toggle-btn:hover {
         background: linear-gradient(
             180deg,
@@ -121,6 +141,7 @@ const tagCounts = Object.fromEntries(tagFrequency);
             inset 0 1px 0 rgba(255, 255, 255, 0.96),
             0 8px 14px rgba(62, 58, 52, 0.11);
     }
+    .blog-action-btn:active,
     .tag-toggle-btn:active {
         transform: translateY(6px) scale(0.98);
         box-shadow:
@@ -227,6 +248,7 @@ const tagCounts = Object.fromEntries(tagFrequency);
             inset 0 1px 0 rgba(255, 255, 255, 0.05),
             0 10px 24px var(--surface-shadow);
     }
+    :global(html[data-theme="dark"]) .blog-action-btn,
     :global(html[data-theme="dark"]) .tag-toggle-btn {
         background: linear-gradient(180deg, #343230 0%, #242220 100%);
         border-color: var(--surface-border);
@@ -236,8 +258,22 @@ const tagCounts = Object.fromEntries(tagFrequency);
             0 6px 0 #171514,
             0 10px 18px rgba(0, 0, 0, 0.24);
     }
+    :global(html[data-theme="dark"]) .blog-action-btn:hover,
     :global(html[data-theme="dark"]) .tag-toggle-btn:hover {
         background: linear-gradient(180deg, #3d3a36 0%, #292624 100%);
+    }
+
+    @media (max-width: 560px) {
+        .blog-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .blog-actions {
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
     }
 </style>
 
