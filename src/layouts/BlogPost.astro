@@ -9,9 +9,11 @@ import Header from "../components/HeaderAndFooter/Header.astro";
 import Tag from "../components/Tag.astro";
 import ReadingProgress from "../components/ReadingProgress.astro";
 import ReprintCard from "../components/ReprintCard.astro";
+import type { ReadingStats } from "../lib/readingStats";
 
 type Props = CollectionEntry<"blog">["data"] & {
     headings?: MarkdownHeading[];
+    readingStats?: ReadingStats;
     showReadingProgress?: boolean;
 };
 
@@ -24,6 +26,7 @@ const {
     heroImageScale = 1,
     tags,
     headings = [],
+    readingStats,
     showReadingProgress = true,
     reprintAuthor,
     reprintUrl,
@@ -47,7 +50,7 @@ const hasToc = tocHeadings.length > 0;
             }
 
             main {
-                width: min(1120px, calc(100% - 2rem));
+                width: min(1280px, calc(100% - 2rem));
                 max-width: 100%;
                 margin: 0 auto;
                 flex: 1;
@@ -65,7 +68,7 @@ const hasToc = tocHeadings.length > 0;
                 max-width: 100%;
             }
             .prose {
-                width: min(1100px, 100%);
+                width: min(1240px, 100%);
                 margin: 0 auto;
                 padding: 0;
                 color: rgb(var(--gray-dark));
@@ -108,10 +111,20 @@ const hasToc = tocHeadings.length > 0;
                 scroll-margin-top: var(--header-sticky-clearance, 6rem);
             }
             .date {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.35rem 0.65rem;
                 margin-bottom: 0.1em;
                 color: rgb(var(--gray));
             }
+            .date-item:not(:last-child)::after {
+                content: "·";
+                margin-left: 0.65rem;
+                color: rgba(var(--gray), 0.75);
+            }
             .last-updated-on {
+                flex-basis: 100%;
                 font-style: italic;
             }
             .tags {
@@ -156,8 +169,8 @@ const hasToc = tocHeadings.length > 0;
 
             .article-shell.has-toc {
                 display: grid;
-                grid-template-columns: minmax(0, 1fr) 14.5rem;
-                gap: 2rem;
+                grid-template-columns: minmax(0, 1fr) 17rem;
+                gap: 1.65rem;
                 align-items: start;
             }
 
@@ -170,7 +183,7 @@ const hasToc = tocHeadings.length > 0;
                 top: var(--header-sticky-clearance, 6rem);
                 max-height: calc(100vh - var(--header-sticky-clearance, 6rem) - 1rem);
                 overflow: auto;
-                padding: 0.9rem;
+                padding: 1rem 1.05rem;
                 border-radius: 8px;
                 border: 1px solid var(--surface-border);
                 background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
@@ -183,7 +196,7 @@ const hasToc = tocHeadings.length > 0;
                 list-style: none;
                 cursor: default;
                 color: rgb(var(--black));
-                font-size: 0.95rem;
+                font-size: 1.05rem;
                 font-weight: 800;
                 line-height: 1.2;
             }
@@ -210,16 +223,16 @@ const hasToc = tocHeadings.length > 0;
             .toc-list {
                 display: flex;
                 flex-direction: column;
-                gap: 0.2rem;
-                margin-top: 0.8rem;
+                gap: 0.25rem;
+                margin-top: 0.9rem;
             }
 
             .toc-link {
                 display: block;
                 border-radius: 6px;
-                padding: 0.35rem 0.45rem;
+                padding: 0.42rem 0.5rem;
                 color: rgb(var(--gray-dark));
-                font-size: 0.86rem;
+                font-size: 0.94rem;
                 line-height: 1.35;
                 text-decoration: none;
                 transition:
@@ -229,8 +242,8 @@ const hasToc = tocHeadings.length > 0;
             }
 
             .toc-link.depth-3 {
-                padding-left: 1.15rem;
-                font-size: 0.8rem;
+                padding-left: 1.25rem;
+                font-size: 0.87rem;
                 color: rgb(var(--gray));
             }
 
@@ -740,7 +753,21 @@ const hasToc = tocHeadings.length > 0;
                     <div class="title">
                         <h1>{title}</h1>
                         <div class="date">
-                            <FormattedDate date={pubDate} />
+                            <span class="date-item">
+                                <FormattedDate date={pubDate} />
+                            </span>
+                            {
+                                readingStats && (
+                                    <>
+                                        <span class="date-item">
+                                            {readingStats.wordCountText}
+                                        </span>
+                                        <span class="date-item">
+                                            {readingStats.readingTimeText}
+                                        </span>
+                                    </>
+                                )
+                            }
                             {
                                 updatedDate && (
                                     <div class="last-updated-on">

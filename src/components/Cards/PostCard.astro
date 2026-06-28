@@ -4,12 +4,14 @@ import { Image } from "astro:assets";
 import FormattedDate from "../FormattedDate.astro";
 import Tag from "../Tag.astro";
 import Card from "./Card.astro";
+import { getReadingStats } from "../../lib/readingStats";
 
 interface Props {
     post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props;
+const readingStats = getReadingStats(post.body ?? "");
 ---
 
 <Card class="post-card" hoverEffect={true} data-post-url={`/blog/${post.id}/`}>
@@ -27,7 +29,9 @@ const { post } = Astro.props;
         </h3>
         <!-- 文章元数据：日期 -->
         <div class="post-meta">
-            <FormattedDate date={new Date(post.data.pubDate)} />
+            <span><FormattedDate date={new Date(post.data.pubDate)} /></span>
+            <span>{readingStats.wordCountText}</span>
+            <span>{readingStats.readingTimeText}</span>
         </div>
         <!-- 文章描述 -->
         {
@@ -122,9 +126,19 @@ const { post } = Astro.props;
     }
 
     .post-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.65rem;
+        align-items: center;
         color: rgb(var(--gray));
         font-size: 0.9rem;
         margin-bottom: 0.8rem;
+    }
+
+    .post-meta span:not(:last-child)::after {
+        content: "·";
+        margin-left: 0.65rem;
+        color: rgba(var(--gray), 0.75);
     }
 
     .post-description {
