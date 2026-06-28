@@ -8,10 +8,14 @@ tags: ['Java','Kotlin','记录']
 ---
 
 
+## 背景：想在 Java 项目里尝试 Kotlin
+
 xx校xx中心项目的后端是 **Java** + **Springboot** 开发。
 
 
 嗯，很常规的技术栈，也很成熟，大家都很熟悉这一套技术栈下的开发流程。直到有一天，有一位开发人员（没错就是我）脑洞大开，说：“既然 Kotlin 可以和 Java 互操作，为什么不在项目中混用它们呢？享受一下现代编程语言的便利”
+
+## 本地验证：IDEA 启动一切正常
 
 首先，为了快速验证能不能成功在项目中混用 Java 和 Kotlin，我在项目里使用 Kotlin 写了一个新的Controller，暴露一个 `/hello` 接口，当调用这个接口时，返回一个简单的字符串 `Hello, Kotlin!`。大概就是这样：
 ```kotlin
@@ -26,7 +30,11 @@ class HelloController {
 ```
 然后我点击 IDEA 的那个小三角，项目顺利启动。我在浏览器里访问 `http://localhost:8080/test/hello`，成功返回了 `Hello, Kotlin!`。
 
+## 线上翻车：部署后接口 404
+
 于是我把分支上传到仓库，自动CI/CD结束后，项目被成功部署到服务器，其他成员访问 `http://开发域名/test/hello`，却返回了 `404 Not Found`。于是“差评”飞到群里，要求我马上检查一下。
+
+## 排查：Maven 打包没有编译 Kotlin 类
 
 我首先检查CI/CD是否成功，答案是肯定的。但是为什么没有这个 `/hello` 接口呢？我检查项目的CI/CD脚本，发现在脚本中，使用 `./mvnw clean package` 打包项目。我意识到，可能是由于开发环境的不同导致的问题，导致实际上在项目部署到服务器后，并没有正确构建 Kotlin 部分的代码。
 
@@ -38,6 +46,8 @@ jar tf target/xxx.jar | grep "HelloController"
 结果并没有找到 `HelloController` 类！所以这个问题出在 IDEA 构建和 mvn 构建的差异上！
 
 **我没有显示指定 Kotlin 代码的路径！** 这导致 Kotlin 编译器找不到 Kotlin 代码，自然也不会编译它。
+
+## 原因：混合编译顺序不能只靠默认配置
 
 接着，我检查 pom.xml 文件中关于编译过程的配置：
 ```xml
@@ -76,6 +86,8 @@ jar tf target/xxx.jar | grep "HelloController"
 但是在场景2中，Java 代码引用了 Kotlin 代码，这就涉及到一个问题：Java 代码在编译时，需要先编译 Kotlin 代码，才能引用 Kotlin 类。这就要求 Kotlin 代码必须在 Java 代码之前编译。
 
 所以，为了确保在 Java 代码中引用 Kotlin 类时，Kotlin 代码已经被编译，我们需要在 Maven 构建中，显式地配置 Kotlin 代码的编译顺序。
+
+## 修复：显式声明源码目录和编译阶段
 
 具体来说，我们可以在 pom.xml 中，为 Kotlin 插件添加一个 `compile` 执行，将其绑定到 `compile` 阶段之前。这样，在编译 Java 代码时，Kotlin 代码就会先被编译，确保 Java 代码可以引用 Kotlin 类。
 
@@ -171,5 +183,7 @@ jar tf target/xxx.jar | grep "HelloController"
 | compile | ❌ Kotlin + Java 同时<br>或顺序不确定<br>互相冲突 | ✅ Java 编译<br>引用 Kotlin .class |
 | 结果 | ❌ 类找不到或缺失 | ✅ 所有类正确生成 |
 
+
+## 验证结果
 
 修改完成后，我重新编译项目，再次检查是否包含 Kotlin 类的 .class 文件。发现所有 Kotlin 类都被成功编译，生成了对应的 .class 文件。

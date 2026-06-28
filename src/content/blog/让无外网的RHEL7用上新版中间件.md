@@ -5,7 +5,7 @@ pubDate: '2026-04-29'
 tags: ['Docker','Linux运维','记录','数据库','redis']
 ---
 
-#### 讲讲这个老服务器
+## 讲讲这个老服务器
 
 因为新项目甲方不想要走学校的（又臭又长的）流程，所以为了后续部署，我们开始搜罗手上的服务器，发现了4个远古服务器：
 
@@ -34,10 +34,10 @@ REDHAT_SUPPORT_PRODUCT_VERSION="7.4"
 
 ![Support of Postgresql](../../assets/BlogImg/SupportOfPostgreSQL.png)
 
-#### 本地环境准备
+## 本地环境准备
 
 
-**1. 启动 CentOS 7 构建容器**
+### 启动 CentOS 7 构建容器
 
 由于我的设备是 `Windows`，所以采用 `Docker` 拉取 `CentOS7` 镜像（因为同属红帽系），并进入镜像进行构建：
 
@@ -45,7 +45,7 @@ REDHAT_SUPPORT_PRODUCT_VERSION="7.4"
 docker run -it --rm centos:7 bash
 ```
 
-**2. 修复 CentOS 7 yum 源**
+### 修复 CentOS 7 yum 源
 
 CentOS 7 已 EOL，默认源不可用，需要切换到 Vault 源：
 
@@ -74,15 +74,15 @@ yum clean all
 yum makecache
 ```
 
-**3. 安装通用编译依赖**
+### 安装通用编译依赖
 
 ```bash
 yum install -y wget gcc make perl tar readline-devel zlib-devel bison flex
 ```
 
-#### 开始构建
+## 开始构建
 
-**1. 编译PostgreSQL 18**
+### 编译 PostgreSQL 18
 
 ```bash
 cd /usr/local/src
@@ -93,7 +93,7 @@ tar -zxvf postgresql-18.0.tar.gz
 cd postgresql-18.0
 ```
 
-**2. 编译、安装 PostgreSQL 并检查版本**
+### 编译、安装 PostgreSQL 并检查版本
 
 ```bash
 make -j$(nproc)
@@ -104,7 +104,7 @@ make install
 /usr/local/pgsql18/bin/psql --version
 ```
 
-**3. 打包 PostgreSQL 编译产物并上传**
+### 打包 PostgreSQL 编译产物并上传
 
 在 `Docker` 容器中打包
 
@@ -120,7 +120,7 @@ docker ps
 docker cp 容器ID:/tmp/pgsql18-centos7-build.tar.gz .
 ```
 
-**4. 在 RHEL7 的离线服务器上部署**
+### 在 RHEL7 的离线服务器上部署 PostgreSQL
 
 解压并验证版本
 
@@ -177,7 +177,7 @@ systemctl status postgresql-18
 ss -lntp | grep 5432
 ```
 
-**5. 编译 Redis7.0.15 源码**
+### 编译 Redis 7.0.15 源码
 
 ```bash
 cd /usr/local/src
@@ -194,7 +194,7 @@ src/redis-server --version
 src/redis-cli --version
 ```
 
-**6. 整理 Redis 安装目录**
+### 整理 Redis 安装目录
 
 ```bash
 mkdir -p /usr/local/redis7/{bin,etc,data,log,run}
@@ -218,7 +218,7 @@ sed -i 's|^logfile ""|logfile "/usr/local/redis7/log/redis.log"|' /usr/local/red
 sed -i 's|^pidfile /var/run/redis_6379.pid|pidfile /usr/local/redis7/run/redis_6379.pid|' /usr/local/redis7/etc/redis.conf
 ```
 
-**7. 打包 Redis 构建产物并上传**
+### 打包 Redis 构建产物并上传
 
 在 `Docker` 容器中打包
 
@@ -234,7 +234,7 @@ docker ps
 docker cp 容器ID:/tmp/redis7-centos7-build.tar.gz .
 ```
 
-**8. 在 RHEL7 的离线服务器上部署**
+### 在 RHEL7 的离线服务器上部署 Redis
 
 ```bash
 cd /usr/local
@@ -291,7 +291,7 @@ ss -lntp | grep 6379
 /usr/local/redis7/bin/redis-cli -h 127.0.0.1 -p 6379 ping
 ```
 
-#### 总结
+## 总结
 
 总的来说，可以这样总结：
 
