@@ -1,40 +1,204 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_DESCRIPTION } from "../../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
+import GhostSprites from "../../components/GhostSprites.astro";
 import PostList from "../../components/Cards/PostList.astro";
+import Tag from "../../components/Tag.astro";
+import {
+    buildTagCounts,
+    buildTagSummaries,
+    getRelatedTagSummaries,
+    sortPostsByDateDesc,
+} from "../../lib/tags";
 
 export async function getStaticPaths() {
-    const allPosts = await getCollection("blog");
-    const uniqueTags = [
-        ...new Set(allPosts.map((post) => post.data.tags || []).flat()),
-    ];
+    const allPosts = sortPostsByDateDesc(await getCollection("blog"));
+    const tagSummaries = buildTagSummaries(allPosts);
+    const tagCounts = buildTagCounts(tagSummaries);
 
-    return uniqueTags.map((tag) => {
-        const filteredPosts = allPosts.filter((post) =>
-            post.data.tags?.includes(tag),
+    return tagSummaries.map((summary) => {
+        const tag = summary.name;
+        const filteredPosts = sortPostsByDateDesc(
+            allPosts.filter((post) => post.data.tags?.includes(tag)),
         );
+        const relatedTagSummaries = getRelatedTagSummaries(
+            filteredPosts,
+            tag,
+        ).slice(0, 8);
+        const siblingTagSummaries = tagSummaries
+            .filter((item) => item.name !== tag)
+            .slice(0, 10);
+
         return {
             params: { tag },
-            props: { posts: filteredPosts },
+            props: {
+                posts: filteredPosts,
+                relatedTagSummaries,
+                siblingTagSummaries,
+                tagCounts,
+            },
         };
     });
 }
 
-const { tag } = Astro.params;
-const { posts } = Astro.props;
-const title = `Tag: ${tag}`;
+const { tag = "" } = Astro.params;
+const { posts, relatedTagSummaries, siblingTagSummaries, tagCounts } =
+    Astro.props;
+const title = `标签：${tag} - ${SITE_TITLE}`;
+const tagCount = tagCounts[tag] ?? posts.length;
 ---
 
 <BaseLayout title={title} description={SITE_DESCRIPTION}>
-    <h2 class="content-title">文章标签: {tag}</h2>
+    <GhostSprites />
+
+    <section class="tag-page-hero">
+        <div>
+            <a class="back-link" href="/tags">全部标签</a>
+            <h1>#{tag}</h1>
+            <p>这个标签下共有 {tagCount} 篇文章。</p>
+        </div>
+        <div class="tag-page-stat" aria-label="当前标签文章数量">
+            <strong>{tagCount}</strong>
+            <span>篇文章</span>
+        </div>
+    </section>
+
+    {
+        relatedTagSummaries.length > 0 && (
+            <section class="tag-related-section">
+                <h2>常一起出现</h2>
+                <div class="tag-related-list">
+                    {relatedTagSummaries.map((summary) => (
+                        <Tag tag={summary.name} count={summary.count} />
+                    ))}
+                </div>
+            </section>
+        )
+    }
+
+    {
+        relatedTagSummaries.length === 0 && siblingTagSummaries.length > 0 && (
+            <section class="tag-related-section">
+                <h2>其他标签</h2>
+                <div class="tag-related-list">
+                    {siblingTagSummaries.map((summary) => (
+                        <Tag
+                            tag={summary.name}
+                            count={tagCounts[summary.name]}
+                        />
+                    ))}
+                </div>
+            </section>
+        )
+    }
+
     <section>
         <PostList posts={posts} centered />
     </section>
 </BaseLayout>
 
 <style>
-    .content-title {
-        margin-bottom: 2rem;
+    .tag-page-hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.5rem;
+        width: min(860px, 100%);
+        margin: 0 auto 1.5rem;
+        padding: clamp(1.1rem, 4vw, 1.6rem);
+        border-radius: 12px;
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border: 1px solid var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.72),
+            0 10px 24px var(--surface-shadow);
+        box-sizing: border-box;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 0.55rem;
+        color: var(--accent);
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: var(--accent-dark);
+    }
+
+    .tag-page-hero h1 {
+        margin-bottom: 0.45rem;
+        font-size: clamp(1.65rem, 7vw, 2.4rem);
+    }
+
+    .tag-page-hero p {
+        margin: 0;
+        color: rgb(var(--gray-dark));
+    }
+
+    .tag-page-stat {
+        flex: 0 0 auto;
+        min-width: 6rem;
+        padding: 0.85rem 1rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(126, 103, 64, 0.1);
+        text-align: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .tag-page-stat strong {
+        display: block;
+        color: rgb(var(--black));
+        font-size: 1.7rem;
+        line-height: 1;
+    }
+
+    .tag-page-stat span {
+        display: block;
+        margin-top: 0.25rem;
+        color: rgb(var(--gray));
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .tag-related-section {
+        width: min(860px, 100%);
+        margin: 0 auto 1.75rem;
+    }
+
+    .tag-related-section h2 {
+        margin-bottom: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    .tag-related-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding-bottom: 0.4rem;
+    }
+
+    :global(html[data-theme="dark"]) .tag-page-stat {
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border-color: var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.04),
+            0 10px 24px var(--surface-shadow);
+    }
+
+    @media (max-width: 720px) {
+        .tag-page-hero {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .tag-page-stat {
+            width: 100%;
+            box-sizing: border-box;
+        }
     }
 </style>

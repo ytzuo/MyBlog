@@ -1,0 +1,253 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
+import GhostSprites from "../../components/GhostSprites.astro";
+import Tag from "../../components/Tag.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import {
+    buildTagCounts,
+    buildTagSummaries,
+    sortPostsByDateDesc,
+} from "../../lib/tags";
+
+const posts = sortPostsByDateDesc(await getCollection("blog"));
+const tagSummaries = buildTagSummaries(posts);
+const tagCounts = buildTagCounts(tagSummaries);
+const totalTagUses = tagSummaries.reduce(
+    (total, summary) => total + summary.count,
+    0,
+);
+const title = `全部标签 - ${SITE_TITLE}`;
+---
+
+<BaseLayout title={title} description={SITE_DESCRIPTION}>
+    <GhostSprites />
+
+    <section class="tags-hero">
+        <div>
+            <h1>全部标签</h1>
+            <p>按主题快速翻找文章，也可以从最新关联文章继续读下去。</p>
+        </div>
+        <div class="tag-stats" aria-label="标签统计">
+            <div class="tag-stat">
+                <span>标签数量</span>
+                <strong>{tagSummaries.length}</strong>
+            </div>
+            <div class="tag-stat">
+                <span>标记次数</span>
+                <strong>{totalTagUses}</strong>
+            </div>
+        </div>
+    </section>
+
+    {
+        tagSummaries.length > 0 && (
+            <>
+                <section class="tag-cloud-section" aria-label="标签云">
+                    {tagSummaries.map((summary) => (
+                        <Tag
+                            tag={summary.name}
+                            count={tagCounts[summary.name]}
+                        />
+                    ))}
+                </section>
+
+                <section class="tag-index-grid" aria-label="标签索引">
+                    {tagSummaries.map((summary) => (
+                        <article class="tag-index-card">
+                            <div class="tag-index-card-header">
+                                <a
+                                    class="tag-index-title"
+                                    href={`/tags/${summary.name}`}
+                                >
+                                    {summary.name}
+                                </a>
+                                <span>{summary.count} 篇</span>
+                            </div>
+                            <a
+                                class="latest-post-link"
+                                href={summary.latestPostUrl}
+                            >
+                                {summary.latestPostTitle}
+                            </a>
+                            <div class="latest-post-date">
+                                <FormattedDate date={summary.latestPubDate} />
+                            </div>
+                        </article>
+                    ))}
+                </section>
+            </>
+        )
+    }
+</BaseLayout>
+
+<style>
+    .tags-hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.4rem;
+        padding: clamp(1.1rem, 4vw, 1.6rem);
+        border-radius: 12px;
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border: 1px solid var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.72),
+            0 10px 24px var(--surface-shadow);
+    }
+
+    .tags-hero h1 {
+        margin-bottom: 0.45rem;
+        font-size: clamp(1.65rem, 6vw, 2.35rem);
+    }
+
+    .tags-hero p {
+        max-width: 32rem;
+        margin: 0;
+        color: rgb(var(--gray-dark));
+        line-height: 1.7;
+    }
+
+    .tag-stats {
+        display: flex;
+        gap: 0.75rem;
+        flex: 0 0 auto;
+    }
+
+    .tag-stat {
+        min-width: 5.5rem;
+        padding: 0.75rem 0.85rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(126, 103, 64, 0.1);
+        text-align: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .tag-stat span {
+        display: block;
+        color: rgb(var(--gray));
+        font-size: 0.78rem;
+        line-height: 1.2;
+    }
+
+    .tag-stat strong {
+        display: block;
+        margin-top: 0.25rem;
+        color: rgb(var(--black));
+        font-size: 1.35rem;
+        line-height: 1;
+    }
+
+    .tag-cloud-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-bottom: 2rem;
+        padding-bottom: 0.4rem;
+    }
+
+    .tag-index-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .tag-index-card {
+        position: relative;
+        overflow: hidden;
+        padding: 1.1rem;
+        border-radius: 12px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(248, 246, 241, 0.96)
+        );
+        border: 1px solid rgba(126, 103, 64, 0.12);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.82),
+            0 8px 18px rgba(97, 82, 51, 0.07);
+    }
+
+    .tag-index-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--noise-texture);
+        opacity: 0.055;
+        pointer-events: none;
+    }
+
+    .tag-index-card-header,
+    .latest-post-link,
+    .latest-post-date {
+        position: relative;
+        z-index: 1;
+    }
+
+    .tag-index-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .tag-index-title {
+        color: rgb(var(--black));
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .tag-index-title:hover,
+    .latest-post-link:hover {
+        color: var(--accent);
+    }
+
+    .tag-index-card-header span {
+        flex: 0 0 auto;
+        color: var(--accent-dark);
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .latest-post-link {
+        display: block;
+        color: rgb(var(--gray-dark));
+        line-height: 1.45;
+        text-decoration: none;
+    }
+
+    .latest-post-date {
+        margin-top: 0.6rem;
+        color: rgb(var(--gray));
+        font-size: 0.82rem;
+    }
+
+    :global(html[data-theme="dark"]) .tag-stat,
+    :global(html[data-theme="dark"]) .tag-index-card {
+        background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+        border-color: var(--surface-border);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.04),
+            0 10px 24px var(--surface-shadow);
+    }
+
+    @media (max-width: 720px) {
+        .tags-hero {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .tag-stats {
+            width: 100%;
+        }
+
+        .tag-stat {
+            flex: 1 1 0;
+        }
+    }
+</style>
