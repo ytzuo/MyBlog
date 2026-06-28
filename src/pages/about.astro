@@ -13,9 +13,10 @@ import nodeIcon from '../assets/techIcon/Nodejs.png';
 import goIcon from '../assets/techIcon/go-original-wordmark.svg?url';
 import cppIcon from '../assets/techIcon/cplusplus.png';
 import cSharpIcon from '../assets/techIcon/csharp.png';
-import Layout from '../layouts/BlogPost.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import TechCard from '../components/Cards/TechCard.astro';
 import GhostSprites from '../components/GhostSprites.astro';
+import { SITE_TITLE } from '../consts';
 
 // 定义兴趣列表数据
 // 包含分类和具体的项目（名称和图标）
@@ -63,52 +64,76 @@ const interests = [
 ];
 ---
 
-<Layout
-	title="About Me"
-	description="关于我自己"
-	pubDate="2026-2-5 农历腊月十八"
-	showReadingProgress={false}
->
+<BaseLayout title={`关于我 - ${SITE_TITLE}`} description="关于我自己">
 	<GhostSprites />
-	
-	<div class="about-intro">
-		<div>软件工程大三在读，喜欢打打游戏听听歌。</div>
-		<div>全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。</div>
-	</div>
 
-	<hr />
-
-	<h3 style="margin-top: 2rem; margin-bottom: 1.5rem;">本站可能包含：</h3>
-
-	<div class="interests-grid">
-		<!-- 遍历兴趣分类 -->
-		{interests.map((section) => (
-			<div class="interest-section">
-				<h4 class="category-title">{section.category}</h4>
-				<div class="card-grid">
-					<!-- 遍历分类下的每个项目并渲染 TechCard -->
-					{section.items.map((item) => (
-						<TechCard name={item.name} icon={item.icon} />
-					))}
-				</div>
+	<section class="about-page">
+		<header class="about-hero">
+			<h1>关于我</h1>
+			<div class="about-intro">
+				<div>软件工程大三在读，喜欢打打游戏听听歌。</div>
+				<div>全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。</div>
 			</div>
-		))}
-	</div>
+		</header>
+
+		<section class="interests-section" aria-labelledby="interests-title">
+			<h2 id="interests-title" class="section-title">本站可能包含</h2>
+
+			<div class="interests-grid">
+				{interests.map((section) => (
+					<div class="interest-section">
+						<h3 class="category-title">{section.category}</h3>
+						<div class="card-grid">
+							{section.items.map((item) => (
+								<TechCard name={item.name} icon={item.icon} />
+							))}
+						</div>
+					</div>
+				))}
+			</div>
+		</section>
+	</section>
 
 	<style>
-		.about-intro {
-			width: 100vw;
-			margin: 0 0 2em 50%;
-			box-sizing: border-box;
-			transform: translateX(-50%);
+		.about-page {
+			width: min(100%, 1120px);
+			margin: 0 auto;
+		}
+
+		.about-hero {
+			margin-bottom: clamp(2.5rem, 7vw, 4.5rem);
 			text-align: center;
-			line-height: 1.5;
-			font-size: 1.1em;
+		}
+
+		.about-hero h1 {
+			margin-bottom: 1rem;
+			font-size: clamp(2rem, 8vw, 3rem);
+			line-height: 1.1;
+		}
+
+		.about-intro {
+			width: min(100%, calc(100vw - 2rem));
+			margin: 0 auto;
+			box-sizing: border-box;
+			text-align: center;
+			line-height: 1.7;
+			font-size: clamp(1rem, 3vw, 1.18rem);
+			color: rgb(var(--gray-dark));
 		}
 
 		.about-intro div {
 			text-align: center;
 			white-space: nowrap;
+		}
+
+		.interests-section {
+			margin-top: 0;
+		}
+
+		.section-title {
+			margin: 0 0 1.5rem;
+			font-size: clamp(1.35rem, 4vw, 1.75rem);
+			text-align: left;
 		}
 
 		.interests-grid {
@@ -120,7 +145,7 @@ const interests = [
 		.category-title {
 			margin-bottom: 1rem;
 			font-size: 1.2rem;
-			color: var(--gray-dark);
+			color: rgb(var(--gray-dark));
 			border-left: 4px solid var(--accent);
 			padding-left: 0.8rem;
 		}
@@ -128,15 +153,12 @@ const interests = [
 		.card-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-			gap: 2rem;
+			gap: 1.6rem 1.5rem;
 		}
 
 		@media (max-width: 600px) {
 			.about-intro {
-				width: min(100%, calc(100vw - 2rem));
-				margin-left: auto;
-				margin-right: auto;
-				transform: none;
+				width: min(100%, calc(100vw - 2.5rem));
 			}
 
 			.about-intro div {
@@ -148,4 +170,4 @@ const interests = [
 			}
 		}
 	</style>
-</Layout>
+</BaseLayout>

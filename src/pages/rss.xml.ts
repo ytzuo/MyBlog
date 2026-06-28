@@ -1,10 +1,15 @@
 import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
+import type { APIRoute } from 'astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 // 生成 RSS feed，包含所有博客文章
-export async function GET(context) {
-	const posts = await getCollection('blog');
+export const GET: APIRoute = async (context) => {
+	const posts = (await getCollection('blog')).sort(
+		(a, b) =>
+			new Date(b.data.pubDate).valueOf() -
+			new Date(a.data.pubDate).valueOf(),
+	);
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
@@ -15,4 +20,4 @@ export async function GET(context) {
 			link: `/blog/${post.id}/`,
 		})),
 	});
-}
+};
