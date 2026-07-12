@@ -15,8 +15,10 @@ import cppIcon from '../assets/techIcon/cplusplus.png';
 import cSharpIcon from '../assets/techIcon/csharp.png';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import TechCard from '../components/Cards/TechCard.astro';
+import FriendCard from '../components/Cards/FriendCard.astro';
 import GhostSprites from '../components/GhostSprites.astro';
 import { SITE_TITLE } from '../consts';
+import { friendLinks } from '../data/friends';
 
 // 定义兴趣列表数据
 // 包含分类和具体的项目（名称和图标）
@@ -92,6 +94,19 @@ const interests = [
 				))}
 			</div>
 		</section>
+
+		<section class="friends-section" aria-labelledby="friends-title">
+			<div class="section-heading">
+				<h2 id="friends-title" class="section-title">友情链接</h2>
+				<p>一些可以顺手串门的站点。</p>
+			</div>
+
+			<div class="friends-grid" aria-label="友情链接列表">
+				{friendLinks.map((friend) => (
+					<FriendCard friend={friend} />
+				))}
+			</div>
+		</section>
 	</section>
 
 	<style>
@@ -130,6 +145,30 @@ const interests = [
 			margin-top: 0;
 		}
 
+		.friends-section {
+			margin-top: clamp(5rem, 10vw, 7rem);
+		}
+
+		.section-heading {
+			display: flex;
+			align-items: flex-end;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.section-heading .section-title {
+			margin-bottom: 0;
+		}
+
+		.section-heading p {
+			margin: 0;
+			color: rgb(var(--gray));
+			font-size: clamp(0.92rem, 3vw, 1rem);
+			line-height: 1.5;
+			text-align: right;
+		}
+
 		.section-title {
 			margin: 0 0 1.5rem;
 			font-size: clamp(1.35rem, 4vw, 1.75rem);
@@ -156,6 +195,12 @@ const interests = [
 			gap: 1.6rem 1.5rem;
 		}
 
+		.friends-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 27rem));
+			gap: 1.35rem;
+		}
+
 		@media (max-width: 600px) {
 			.about-intro {
 				width: min(100%, calc(100vw - 2.5rem));
@@ -167,6 +212,19 @@ const interests = [
 
 			.card-grid {
 				grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+			}
+
+			.section-heading {
+				display: block;
+			}
+
+			.section-heading p {
+				margin-top: 0.35rem;
+				text-align: left;
+			}
+
+			.friends-grid {
+				grid-template-columns: minmax(0, 1fr);
 			}
 		}
 	</style>
