@@ -370,8 +370,12 @@ const hasToc = tocHeadings.length > 0;
             /* 内联代码样式 */
             .prose :global(p code),
             .prose :global(li code) {
-                background-color: rgba(var(--accent), 0.12);
-                color: rgb(var(--accent));
+                background-color: color-mix(
+                    in srgb,
+                    var(--accent) 12%,
+                    transparent
+                );
+                color: var(--accent);
                 padding: 0.2em 0.4em;
                 border-radius: 4px;
                 font-size: 0.9em;
@@ -681,7 +685,11 @@ const hasToc = tocHeadings.length > 0;
 
             /* 悬停效果 - 模仿选中行 */
             .prose :global(tbody tr:hover) {
-                background-color: rgba(var(--accent), 0.05);
+                background-color: color-mix(
+                    in srgb,
+                    var(--accent) 5%,
+                    transparent
+                );
             }
 
             :global(html[data-theme="dark"]) .prose :global(table) {
