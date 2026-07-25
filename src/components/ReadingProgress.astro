@@ -110,21 +110,14 @@ const {
     private readonly PROGRESS_BAR_ID: string = 'reading-progress-bar';
     private readonly PROGRESS_TEXT_ID: string = 'reading-progress-text';
     private hideTextTimeout: number | null = null;
+    private listeners: AbortController | null = null;
 
     constructor(throttleDelay: number = 16) {
       this.THROTTLE_DELAY = throttleDelay;
-      this.init();
     }
 
-    private init(): void {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.setup());
-      } else {
-        this.setup();
-      }
-    }
-
-    private setup(): void {
+    setup(): void {
+      this.destroy();
       this.progressBar = document.getElementById(this.PROGRESS_BAR_ID);
       this.progressText = document.getElementById(this.PROGRESS_TEXT_ID);
       this.container = document.querySelector('.reading-progress-container');
@@ -135,10 +128,31 @@ const {
       }
 
       this.updateProgress();
-      
-      window.addEventListener('scroll', this.throttledUpdate.bind(this), { passive: true });
-      window.addEventListener('resize', this.debounce(this.updateProgress.bind(this), 100));
-      window.addEventListener('load', () => this.updateProgress());
+
+      this.listeners = new AbortController();
+      const { signal } = this.listeners;
+      window.addEventListener('scroll', this.throttledUpdate.bind(this), {
+        passive: true,
+        signal,
+      });
+      window.addEventListener(
+        'resize',
+        this.debounce(this.updateProgress.bind(this), 100),
+        { signal },
+      );
+      window.addEventListener('load', () => this.updateProgress(), { signal });
+    }
+
+    destroy(): void {
+      this.listeners?.abort();
+      this.listeners = null;
+      if (this.hideTextTimeout) {
+        window.clearTimeout(this.hideTextTimeout);
+        this.hideTextTimeout = null;
+      }
+      this.progressBar = null;
+      this.progressText = null;
+      this.container = null;
     }
 
     private throttledUpdate(): void {
@@ -236,15 +250,29 @@ const {
     }
   }
 
-  // 初始化
-  try {
+  let readingProgress: ReadingProgress | null = null;
+
+  const initReadingProgress = () => {
     const progressBar = document.getElementById('reading-progress-bar');
-    const height = progressBar?.dataset.height ? parseInt(progressBar.dataset.height) : 3;
-    new ReadingProgress(height === 3 ? 16 : Math.max(10, Math.min(50, height)));
-  } catch (error) {
-    console.error('Failed to initialize reading progress:', error);
-  }
-  document.addEventListener('astro:page-load', () => {
-    new ReadingProgress();
-  })
+    if (!progressBar) {
+      readingProgress?.destroy();
+      readingProgress = null;
+      return;
+    }
+
+    try {
+      const height = progressBar.dataset.height
+        ? parseInt(progressBar.dataset.height)
+        : 3;
+      const throttleDelay =
+        height === 3 ? 16 : Math.max(10, Math.min(50, height));
+      readingProgress ??= new ReadingProgress(throttleDelay);
+      readingProgress.setup();
+    } catch (error) {
+      console.error('Failed to initialize reading progress:', error);
+    }
+  };
+
+  document.addEventListener('astro:page-load', initReadingProgress);
+  document.addEventListener('astro:before-swap', () => readingProgress?.destroy());
 </script>

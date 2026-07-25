@@ -198,14 +198,23 @@ const ghostFrames: ImageMetadata[] = [
         );
     };
 
+    let headerMetricsController: AbortController | null = null;
+
     const initHeaderStickyMetrics = () => {
+        headerMetricsController?.abort();
+        headerMetricsController = new AbortController();
         syncHeaderStickyClearance();
         window.addEventListener("resize", syncHeaderStickyClearance, {
             passive: true,
+            signal: headerMetricsController.signal,
         });
     };
 
     document.addEventListener("astro:page-load", initHeaderStickyMetrics);
+    document.addEventListener("astro:before-swap", () => {
+        headerMetricsController?.abort();
+        headerMetricsController = null;
+    });
 </script>
 <style>
     header {
