@@ -20,6 +20,9 @@ const { name, icon } = Astro.props;
 	<script>
 		const initTechCards = () => {
 			const cards = document.querySelectorAll('.tech-card') as NodeListOf<HTMLElement>;
+			const reduceMotion = window.matchMedia(
+				'(prefers-reduced-motion: reduce)',
+			).matches;
 
 			cards.forEach(card => {
 				if (card.dataset.techCardReady === 'true') {
@@ -27,25 +30,29 @@ const { name, icon } = Astro.props;
 				}
 				card.dataset.techCardReady = 'true';
 
-				card.addEventListener('mouseenter', () => {
-					card.style.transition = 'transform 0.12s ease-out, box-shadow 0.22s ease-out';
-				});
+				if (reduceMotion) return;
 
-				card.addEventListener('mousemove', (e) => {
-					const rect = card.getBoundingClientRect();
-					const x = e.clientX - rect.left;
-					const y = e.clientY - rect.top;
-					const centerX = rect.width / 2;
-					const centerY = rect.height / 2;
+				let animationFrame: number | null = null;
+				let latestEvent: MouseEvent | null = null;
+				let cardRect: DOMRect | null = null;
+
+				const updateCardTransform = () => {
+					animationFrame = null;
+					if (!latestEvent || !cardRect) return;
+
+					const x = latestEvent.clientX - cardRect.left;
+					const y = latestEvent.clientY - cardRect.top;
+					const centerX = cardRect.width / 2;
+					const centerY = cardRect.height / 2;
 					const pctX = (x - centerX) / centerX;
 					const pctY = (y - centerY) / centerY;
 					const rotateY = pctX * 18;
 					const rotateX = -pctY * 16;
 					const driftX = pctX * 8;
 					const driftY = pctY * 8;
-					const glowX = (x / rect.width) * 100;
-					const glowY = (y / rect.height) * 100;
-					
+					const glowX = (x / cardRect.width) * 100;
+					const glowY = (y / cardRect.height) * 100;
+
 					card.style.setProperty('--pointer-x', `${glowX}%`);
 					card.style.setProperty('--pointer-y', `${glowY}%`);
 					card.style.transform =
@@ -54,9 +61,27 @@ const { name, icon } = Astro.props;
 						`${-driftX * 1.4}px ${18 + Math.abs(driftY)}px 30px rgba(84, 70, 39, 0.18),
 						${-driftX * 2.4}px ${28 + Math.abs(driftY)}px 52px rgba(84, 70, 39, 0.14),
 						inset 0 1px 0 rgba(255, 255, 255, 0.92)`;
+				};
+
+				card.addEventListener('mouseenter', () => {
+					cardRect = card.getBoundingClientRect();
+					card.classList.add('is-interacting');
+					card.style.transition = 'transform 0.12s ease-out, box-shadow 0.22s ease-out';
+				});
+
+				card.addEventListener('mousemove', (e) => {
+					latestEvent = e;
+					animationFrame ??= requestAnimationFrame(updateCardTransform);
 				});
 
 				card.addEventListener('mouseleave', () => {
+					if (animationFrame !== null) {
+						cancelAnimationFrame(animationFrame);
+						animationFrame = null;
+					}
+					latestEvent = null;
+					cardRect = null;
+					card.classList.remove('is-interacting');
 					card.style.transition = 'transform 0.5s ease, box-shadow 0.35s ease';
 					card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0) scale(1)';
 					card.style.boxShadow = '';
@@ -86,6 +111,9 @@ const { name, icon } = Astro.props;
 			perspective: 1000px;
 			--pointer-x: 50%;
 			--pointer-y: 50%;
+		}
+
+		:global(.tech-card.is-interacting) {
 			will-change: transform, box-shadow;
 		}
 
