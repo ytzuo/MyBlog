@@ -45,7 +45,7 @@ requestLog before
 requestLog after
 ```
 
-**以上这些可以在我的这一片博客中找到：[Spring Boot VS Hertz：框架托管复杂性 vs 开发者显式组织复杂性](/blog/spring_vs_hertz/)**
+**以上这些可以在我的这一篇博客中找到：[Spring Boot VS Hertz：框架托管复杂性 vs 开发者显式组织复杂性](/blog/spring_vs_hertz/)**
 
 我希望在 Javalin 中也能表达类似的模型：
 
