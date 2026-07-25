@@ -965,6 +965,9 @@ const hasToc = tocHeadings.length > 0;
             let tocObserver: IntersectionObserver | null = null;
             let themeObserverAttached = false;
             let mermaidLoader: Promise<Mermaid> | null = null;
+            let enhancementGeneration = 0;
+            let postEnhancementsRoot: Element | null = null;
+            let postEnhancementsRun: Promise<void> | null = null;
             const globalWindow = window as Window & {
                 __MERMAID_DEBUG__?: {
                     enabled: boolean;
@@ -1688,17 +1691,41 @@ const hasToc = tocHeadings.length > 0;
                 });
             };
 
-            const initPostEnhancements = async () => {
-                await renderMermaidDiagrams();
-                addMermaidZoomControls();
-                addCopyButtons();
+            const initPostEnhancements = (): Promise<void> => {
+                const prose = document.querySelector(".prose");
+                if (!prose) return Promise.resolve();
+
+                if (
+                    postEnhancementsRoot === prose &&
+                    postEnhancementsRun
+                ) {
+                    return postEnhancementsRun;
+                }
+
+                const generation = ++enhancementGeneration;
+                postEnhancementsRoot = prose;
+                postEnhancementsRun = (async () => {
+                    await renderMermaidDiagrams();
+                    if (
+                        generation !== enhancementGeneration ||
+                        !prose.isConnected
+                    ) {
+                        return;
+                    }
+                    addMermaidZoomControls();
+                    addCopyButtons();
+                })();
+
+                return postEnhancementsRun;
             };
 
-            document.addEventListener("DOMContentLoaded", () => {
-                void initPostEnhancements();
-            });
             document.addEventListener("astro:page-load", () => {
                 void initPostEnhancements();
+            });
+            document.addEventListener("astro:before-swap", () => {
+                enhancementGeneration += 1;
+                postEnhancementsRoot = null;
+                postEnhancementsRun = null;
             });
         </script>
     </body>
