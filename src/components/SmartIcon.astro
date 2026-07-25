@@ -25,21 +25,26 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 <div class="smart-icon" style={`--icon-size: ${size}px;`}>
 	{
 		isAnimated ? (
-			<smart-icon-anim class="animated-icon-wrapper" data-duration={duration}>
-				{iconArray.map((img, index) => (
-					<div 
-						class="frame" 
-						style={`--frame-index: ${index}; --frame-count: ${iconArray.length};`}
-					>
-						<Image 
-							src={img} 
-							alt={`${alt} frame ${index + 1}`}
-							width={size * 2} 
-							height={size * 2}
-							class="icon-img"
-						/>
-					</div>
-				))}
+			<smart-icon-anim
+				class="animated-icon-wrapper"
+				style={`--frame-count: ${iconArray.length}; --animation-duration: ${duration}s;`}
+				role={alt ? "img" : undefined}
+				aria-label={alt || undefined}
+				aria-hidden={alt ? undefined : "true"}
+			>
+				<div class="frame-strip">
+					{iconArray.map((img) => (
+						<div class="frame">
+							<Image
+								src={img}
+								alt=""
+								width={size * 2}
+								height={size * 2}
+								class="icon-img"
+							/>
+						</div>
+					))}
+				</div>
 			</smart-icon-anim>
 		) : isImage ? (
 			<Image 
@@ -92,65 +97,26 @@ const iconArray = isAnimated ? (icon as ImageMetadata[]) : [];
 	.animated-icon-wrapper {
 		width: 100%;
 		height: 100%;
-		position: relative;
+		display: block;
+		overflow: hidden;
+	}
+
+	.frame-strip {
+		display: flex;
+		width: calc(100% * var(--frame-count));
+		height: 100%;
+		animation: smart-icon-frames var(--animation-duration)
+			steps(var(--frame-count), end) infinite;
 	}
 
 	.frame {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
+		flex: 0 0 calc(100% / var(--frame-count));
 		height: 100%;
-		opacity: 0;
-		transition: opacity 0s; /* 瞬间切换，无过渡 */
+	}
+
+	@keyframes smart-icon-frames {
+		to {
+			transform: translateX(-100%);
+		}
 	}
 </style>
-
-<script>
-	class SmartIconAnim extends HTMLElement {
-		intervalId: number | undefined;
-
-		constructor() {
-			super();
-		}
-
-		connectedCallback() {
-			const duration = parseFloat(this.dataset.duration || '1');
-			const frames = this.querySelectorAll('.frame');
-			const count = frames.length;
-			
-			if (count === 0) return;
-
-			const intervalTime = (duration * 800) / count;
-			let current = 0;
-
-			// 显示第一帧
-			const firstFrame = frames[0] as HTMLElement;
-			if (firstFrame) firstFrame.style.opacity = '1';
-
-			this.intervalId = window.setInterval(() => {
-				// 隐藏当前帧
-				const currentFrame = frames[current] as HTMLElement;
-				if (currentFrame) currentFrame.style.opacity = '0';
-				
-				// 计算下一帧
-				current = (current + 1) % count;
-				
-				// 显示下一帧
-				const nextFrame = frames[current] as HTMLElement;
-				if (nextFrame) nextFrame.style.opacity = '1';
-			}, intervalTime);
-		}
-
-		disconnectedCallback() {
-			if (this.intervalId) {
-				clearInterval(this.intervalId);
-				this.intervalId = undefined;
-			}
-		}
-	}
-
-	if (!customElements.get('smart-icon-anim')) {
-		customElements.define('smart-icon-anim', SmartIconAnim);
-	}
-</script>

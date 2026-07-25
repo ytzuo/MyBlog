@@ -205,22 +205,20 @@ const { count = 6 } = Astro.props;
                     );
 
                     // 点击事件：飞走
-                    wrapper.addEventListener("click", () => {
-                        if (wrapper.classList.contains("flying")) {
-                            return;
-                        }
+                    if (!isMobile) {
+                        wrapper.addEventListener("click", () => {
+                            if (wrapper.classList.contains("flying")) {
+                                return;
+                            }
 
-                        wrapper.classList.add("flying");
+                            wrapper.classList.add("flying");
 
-                        // 播放音效
-                        // const audio = new Audio('/sounds/ghost-boo.mp3');
-                        // audio.play();
-
-                        // 动画结束后移除
-                        setTimeout(() => {
-                            wrapper.remove();
-                        }, 800); // 匹配 CSS 过渡持续时间
-                    });
+                            // 动画结束后移除
+                            setTimeout(() => {
+                                wrapper.remove();
+                            }, 800); // 匹配 CSS 过渡持续时间
+                        });
+                    }
 
                     container.appendChild(wrapper);
                 }
@@ -286,6 +284,11 @@ const { count = 6 } = Astro.props;
     document.addEventListener("ghost:reinit", () => {
         initGhosts();
         observeGhostLayout();
+    });
+    document.addEventListener("astro:before-swap", () => {
+        ghostLayoutObserver?.disconnect();
+        ghostLayoutObserver = null;
+        window.clearTimeout(ghostRefreshTimer);
     });
 </script>
 
@@ -380,5 +383,12 @@ const { count = 6 } = Astro.props;
 
     :global(.ghost-wrapper:hover) .ghost-inner {
         transform: scale(1.1);
+    }
+
+    @media (max-width: 720px) {
+        :global(.ghost-wrapper) {
+            pointer-events: none;
+            cursor: default;
+        }
     }
 </style>

@@ -116,6 +116,14 @@ const ghostFrames: ImageMetadata[] = [
         toggle.addEventListener("click", () => {
             const rect = toggle.getBoundingClientRect();
             const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                root.dataset.theme = nextTheme;
+                root.style.colorScheme = nextTheme;
+                localStorage.setItem(storageKey, nextTheme);
+                syncState();
+                return;
+            }
+
             const overlay = document.createElement("div");
             overlay.className = `theme-transition-overlay theme-to-${nextTheme}`;
             overlay.innerHTML = '<div class="theme-transition-backdrop"></div>';
