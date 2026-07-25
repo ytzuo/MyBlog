@@ -952,10 +952,11 @@ const hasToc = tocHeadings.length > 0;
             <Footer />
         </div>
         <script>
-            import mermaid from "mermaid";
+            import type { Mermaid } from "mermaid";
 
             let tocObserver: IntersectionObserver | null = null;
             let themeObserverAttached = false;
+            let mermaidLoader: Promise<Mermaid> | null = null;
             const globalWindow = window as Window & {
                 __MERMAID_DEBUG__?: {
                     enabled: boolean;
@@ -1113,7 +1114,14 @@ const hasToc = tocHeadings.length > 0;
                 return /(^|\s)language-mermaid(\s|$)/.test(codeClassName);
             };
 
-            const initializeMermaid = () => {
+            const loadMermaid = (): Promise<Mermaid> => {
+                mermaidLoader ??= import("mermaid").then(
+                    ({ default: mermaid }) => mermaid,
+                );
+                return mermaidLoader;
+            };
+
+            const initializeMermaid = (mermaid: Mermaid) => {
                 mermaid.initialize({
                     startOnLoad: false,
                     theme: getMermaidTheme(),
@@ -1141,6 +1149,7 @@ const hasToc = tocHeadings.length > 0;
 
             const validateMermaidSource = async (
                 source: string,
+                mermaid: Mermaid,
             ): Promise<{ ok: boolean; message?: string }> => {
                 try {
                     await mermaid.parse(source);
@@ -1159,6 +1168,7 @@ const hasToc = tocHeadings.length > 0;
             const renderMermaidChart = async (
                 container: HTMLElement,
                 index: number,
+                mermaid: Mermaid,
             ): Promise<void> => {
                 const source = container.dataset.mermaidSource;
                 if (!source) return;
@@ -1174,7 +1184,10 @@ const hasToc = tocHeadings.length > 0;
 
                 try {
                     if (MERMAID_DEBUG) {
-                        const validation = await validateMermaidSource(source);
+                        const validation = await validateMermaidSource(
+                            source,
+                            mermaid,
+                        );
                         if (!validation.ok) {
                             throw new Error(
                                 `Pre-parse failed: ${validation.message || "unknown mermaid parse error"}`,
@@ -1244,18 +1257,21 @@ const hasToc = tocHeadings.length > 0;
             };
 
             const renderMermaidDiagrams = async () => {
-                initializeMermaid();
+                const mermaidCodeBlocks = Array.from(
+                    document.querySelectorAll(".prose pre > code"),
+                ).filter((code) =>
+                    isMermaidCodeBlock(code.parentElement, code),
+                );
+                if (mermaidCodeBlocks.length === 0) return;
 
-                const mermaidCodeBlocks =
-                    document.querySelectorAll(".prose pre > code");
+                const mermaid = await loadMermaid();
+                initializeMermaid(mermaid);
                 let index = 0;
 
                 for (const code of mermaidCodeBlocks) {
                     if (!(code instanceof HTMLElement)) continue;
 
                     const pre = code.parentElement;
-                    if (!isMermaidCodeBlock(pre, code)) continue;
-
                     if (!pre) continue;
 
                     if (pre.dataset.mermaidMounted === "true") continue;
@@ -1274,20 +1290,25 @@ const hasToc = tocHeadings.length > 0;
                     pre.dataset.mermaidMounted = "true";
                     pre.replaceWith(wrapper);
 
-                    await renderMermaidChart(chart, index++);
+                    await renderMermaidChart(chart, index++, mermaid);
                 }
             };
 
             const rerenderMermaidDiagrams = async () => {
-                initializeMermaid();
-                const charts = document.querySelectorAll(
-                    ".mermaid-chart[data-mermaid-source]",
+                const charts = Array.from(
+                    document.querySelectorAll(
+                        ".mermaid-chart[data-mermaid-source]",
+                    ),
                 );
+                if (charts.length === 0) return;
+
+                const mermaid = await loadMermaid();
+                initializeMermaid(mermaid);
 
                 let index = 0;
                 for (const chart of charts) {
                     if (!(chart instanceof HTMLElement)) continue;
-                    await renderMermaidChart(chart, index++);
+                    await renderMermaidChart(chart, index++, mermaid);
                 }
             };
 
