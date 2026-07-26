@@ -35,6 +35,7 @@
     --theme-control-bg: rgba(255, 255, 255, 0.55);
     --theme-control-border: rgba(126, 103, 64, 0.14);
     --theme-control-text: rgb(var(--black));
+    --footer-overscroll-bg: #fafafa;
     color-scheme: light;
 }
 
@@ -62,8 +63,14 @@ html[data-theme="dark"] {
     --theme-control-bg: rgba(56, 48, 39, 0.9);
     --theme-control-border: rgba(214, 183, 117, 0.14);
     --theme-control-text: rgb(var(--black));
+    --footer-overscroll-bg: #1e1e1e;
     color-scheme: dark;
 }
+
+html {
+    background-color: var(--footer-overscroll-bg);
+}
+
 @font-face {
     font-family: "Atkinson";
     src: url("/fonts/atkinson-regular.woff") format("woff");
