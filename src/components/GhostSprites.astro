@@ -205,20 +205,18 @@ const { count = 6 } = Astro.props;
                     );
 
                     // 点击事件：飞走
-                    if (!isMobile) {
-                        wrapper.addEventListener("click", () => {
-                            if (wrapper.classList.contains("flying")) {
-                                return;
-                            }
+                    wrapper.addEventListener("click", () => {
+                        if (wrapper.classList.contains("flying")) {
+                            return;
+                        }
 
-                            wrapper.classList.add("flying");
+                        wrapper.classList.add("flying");
 
-                            // 动画结束后移除
-                            setTimeout(() => {
-                                wrapper.remove();
-                            }, 800); // 匹配 CSS 过渡持续时间
-                        });
-                    }
+                        // 动画结束后移除
+                        setTimeout(() => {
+                            wrapper.remove();
+                        }, 800); // 匹配 CSS 过渡持续时间
+                    });
 
                     container.appendChild(wrapper);
                 }
@@ -385,10 +383,4 @@ const { count = 6 } = Astro.props;
         transform: scale(1.1);
     }
 
-    @media (max-width: 720px) {
-        :global(.ghost-wrapper) {
-            pointer-events: none;
-            cursor: default;
-        }
-    }
 </style>
