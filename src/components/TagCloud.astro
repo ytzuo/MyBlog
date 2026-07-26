@@ -262,6 +262,14 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
             padding: 0.45rem 0.75rem;
             font-size: 0.82rem;
         }
+
+        :global(html[data-theme="dark"]) .tag-cloud :global(.tag),
+        :global(html[data-theme="dark"]) .tag-extra-inner :global(.tag) {
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                0 4px 0 #171514,
+                0 7px 12px rgba(0, 0, 0, 0.22);
+        }
     }
 
     /* 暗黑模式 */
@@ -275,5 +283,9 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
     :global(html[data-theme="dark"]) .tag-cloud-toggle-btn:hover {
         background: rgba(212, 176, 103, 0.08);
         border-color: var(--accent);
+    }
+
+    :global(html[data-theme="dark"]) .tag-cloud-toggle-btn:active {
+        background: rgba(212, 176, 103, 0.14);
     }
 </style>

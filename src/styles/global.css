@@ -372,6 +372,23 @@ html[data-theme="dark"] .tag {
         0 6px 0 #171514,
         0 10px 18px rgba(0, 0, 0, 0.24);
 }
+html[data-theme="dark"] .tag:hover {
+    background: linear-gradient(180deg, #3d3935 0%, #292624 100%);
+    border-color: rgba(214, 183, 117, 0.24);
+    color: rgb(var(--black));
+    box-shadow:
+        0 3px 0 #171514,
+        inset 0 3px 6px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 7px 12px rgba(0, 0, 0, 0.22);
+}
+html[data-theme="dark"] .tag:active {
+    background: linear-gradient(180deg, #292624 0%, #1c1a18 100%);
+    box-shadow:
+        0 0 0 rgba(0, 0, 0, 0),
+        inset 0 6px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
 html[data-theme="dark"] .tag-count {
     background: rgba(212, 176, 103, 0.14);
     color: var(--accent);
