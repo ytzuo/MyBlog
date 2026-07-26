@@ -7,7 +7,7 @@ tags: ['Javalin','Kotlin','记录']
 
 # 从一个 Issue 开始：我第一次参与 Javalin 开源社区讨论
 
-最近我在 Javalin 社区参与了第一次开源讨论，提了个 API设计上的问题，然后跟着维护者的反馈一起慢慢梳理，最后把想法整理成了一个相对清晰的 proposal。
+最近我在 Javalin 社区参与了第一次开源讨论，提了个 API 设计上的问题，然后跟着维护者的反馈一起慢慢梳理，最后把想法整理成了一个相对清晰的 proposal。
 
 这次经历主要围绕两个 issue 展开：
 
@@ -125,7 +125,6 @@ requireAuth
 随后，`dzikoysk` 创建了 [#64](https://github.com/javalin/javalin-routing-extensions/issues/64)：
 
 > Support multi-layered path operations in In-Place DSL
-</p>
 
 
 这个 issue 最初关注的是 In-Place DSL 当前只支持 flat routes，能否支持类似 Javalin API Builder 的 nested path operations。

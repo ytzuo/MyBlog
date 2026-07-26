@@ -1,6 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import {
+    SITE_TITLE,
+    SITE_DESCRIPTION,
+    SITE_TITLE_EN,
+    SITE_DESCRIPTION_EN,
+} from "../consts";
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import aboutImage from "../assets/blog-placeholder-about.jpg";
@@ -8,11 +13,19 @@ import TagCloud from "../components/TagCloud.astro";
 import Card from "../components/Cards/Card.astro";
 import PostList from "../components/Cards/PostList.astro";
 import GhostSprites from "../components/GhostSprites.astro";
+import type { Locale } from "../lib/i18n";
 
-const posts = (await getCollection("blog")).sort(
+interface Props {
+    locale?: Locale;
+}
+const { locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
+const posts = (await getCollection("blog"))
+    .filter((post) => post.id.startsWith("en/") === isEnglish)
+    .sort(
     (a, b) =>
         new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
-);
+    );
 
 const latestPosts = posts.slice(0, 5);
 const postCount = posts.length;
@@ -32,15 +45,23 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort(
 const tagCounts = Object.fromEntries(tagFrequency);
 ---
 
-<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<BaseLayout
+    title={isEnglish ? SITE_TITLE_EN : SITE_TITLE}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
+>
     <section class="top-section">
         <div class="intro-image">
             <Image src={aboutImage} alt="Profile" />
         </div>
         <div class="intro-text">
-            <h1>Hi, 我是 Saten! 👋</h1>
+            <h1>{isEnglish ? "Hi, I'm Saten! 👋" : "Hi，我是 Saten！👋"}</h1>
             <p>
-                欢迎来到我的小基地。这里记录了我的技术探索、生活感悟以及一些奇思妙想。
+                {
+                    isEnglish
+                        ? "Welcome to my little base, where I write about software, learning, games, and whatever catches my curiosity."
+                        : "欢迎来到我的小基地。这里记录了我的技术探索、生活感悟以及一些奇思妙想。"
+                }
             </p>
         </div>
     </section>
@@ -49,28 +70,32 @@ const tagCounts = Object.fromEntries(tagFrequency);
         <!-- Sidebar -->
         <aside class="sidebar">
             <Card class="widget">
-                <h3>站点统计</h3>
+                <h3>{isEnglish ? "Site stats" : "站点统计"}</h3>
                 <div class="stats-list">
                     <div class="stat-item">
-                        <span>文章总数</span>
+                        <span>{isEnglish ? "Posts" : "文章总数"}</span>
                         <strong>{postCount}</strong>
                     </div>
                     <div class="stat-item">
-                        <span>标签数量</span>
+                        <span>{isEnglish ? "Tags" : "标签数量"}</span>
                         <strong>{tags.length}</strong>
                     </div>
                 </div>
             </Card>
 
-            <TagCloud tags={tags} tagCounts={tagCounts} />
+            <TagCloud tags={tags} tagCounts={tagCounts} locale={locale} />
         </aside>
 
         <!-- Latest Posts -->
         <section class="latest-posts">
-            <h2 class="section-title">最新博文</h2>
+            <h2 class="section-title">
+                {isEnglish ? "Latest posts" : "最新博文"}
+            </h2>
             <PostList posts={latestPosts} />
             <div class="view-all">
-                <a href="/blog">查看全部博文 &rarr;</a>
+                <a href={isEnglish ? "/en/blog" : "/blog"}>
+                    {isEnglish ? "View all posts" : "查看全部博文"} &rarr;
+                </a>
             </div>
         </section>
     </div>

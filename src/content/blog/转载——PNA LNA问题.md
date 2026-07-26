@@ -22,7 +22,7 @@ reprintTitle: "Private Network Access / Local Network Access 问题"
 
 ### 一周后：部分用户接口全部失败
 
-上线一周之后，有同学反馈自己无论如何刷新系统都不正常，所有接口 Failed to fetch，网络选项卡的请求信息显示 CORS 错误，控制台打印了有关 Private Network Access 的错误信息。这个既然开发的时候做的决策就是跨域部署，后端肯定是给了正确的 CORS 的响应头的。于是我被迫去关注这个我没有听说过的问题，PNA。
+上线一周之后，有同学反馈自己无论如何刷新系统都不正常，所有接口均显示 `Failed to fetch`，网络选项卡的请求信息显示 CORS 错误，控制台也打印了有关 Private Network Access 的错误信息。既然开发时就决定采用跨域部署，后端肯定已经返回了正确的 CORS 响应头。于是我被迫开始关注这个此前从未听说过的问题：PNA。
 
 ## 为什么这个拓扑会触发 PNA
 

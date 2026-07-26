@@ -8,15 +8,19 @@ interface Props {
     title?: string;
     visibleCount?: number;
     mobileVisibleCount?: number;
+    locale?: "zh" | "en";
 }
 
 const {
     tags,
     tagCounts = {},
-    title = "热门标签",
+    title: customTitle,
     visibleCount = 10,
     mobileVisibleCount = 6,
+    locale = Astro.url.pathname.startsWith("/en") ? "en" : "zh",
 } = Astro.props;
+const isEnglish = locale === "en";
+const title = customTitle ?? (isEnglish ? "Popular tags" : "热门标签");
 
 const visibleTags = tags.slice(0, visibleCount);
 const hiddenTags = tags.slice(visibleCount);
@@ -29,7 +33,7 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
     <h3>{title}</h3>
     <div class="tag-scroll-host">
         <div class="tag-cloud">
-            {visibleTags.map((tag) => <Tag tag={tag} count={tagCounts[tag]} />)}
+            {visibleTags.map((tag) => <Tag tag={tag} count={tagCounts[tag]} locale={locale} />)}
         </div>
     </div>
     {
@@ -42,19 +46,24 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
                                 tag={tag}
                                 count={tagCounts[tag]}
                                 class="mobile-only-tag"
+                                locale={locale}
                             />
                         ))}
                         {hiddenTags.map((tag) => (
-                            <Tag tag={tag} count={tagCounts[tag]} />
+                            <Tag tag={tag} count={tagCounts[tag]} locale={locale} />
                         ))}
                     </div>
                 </div>
                 <button
                     class:list={["tag-cloud-toggle-btn", extraButtonClass]}
                     data-total={tags.length}
+                    data-expand-label={isEnglish ? "Show all" : "展开全部"}
+                    data-collapse-label={isEnglish ? "Collapse tags" : "收起标签"}
                     aria-expanded="false"
                 >
-                    <span class="btn-label">展开全部 ({tags.length})</span>
+                    <span class="btn-label">
+                        {isEnglish ? `Show all (${tags.length})` : `展开全部 (${tags.length})`}
+                    </span>
                     <span class="btn-arrow">▾</span>
                 </button>
             </>
@@ -75,8 +84,8 @@ const extraButtonClass = hiddenTags.length === 0 ? "mobile-extra-only" : "";
                     const label = btn.querySelector(".btn-label");
                     if (label) {
                         label.textContent = collapsed
-                            ? "收起标签"
-                            : `展开全部 (${btn.dataset.total})`;
+                            ? btn.dataset.collapseLabel || "收起标签"
+                            : `${btn.dataset.expandLabel || "展开全部"} (${btn.dataset.total})`;
                     }
                 });
             });

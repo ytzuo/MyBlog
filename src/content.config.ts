@@ -18,6 +18,8 @@ const blog = defineCollection({
       reprintAuthor: z.string().optional(),
       reprintUrl: z.string().optional(),
       reprintTitle: z.string().optional(),
+      lang: z.enum(["zh", "en"]).optional(),
+      translationKey: z.string().optional(),
     }),
 });
 

@@ -3,29 +3,44 @@ import BaseHead from '../components/HeaderAndFooter/BaseHead.astro';
 import Header from '../components/HeaderAndFooter/Header.astro';
 import Footer from '../components/HeaderAndFooter/Footer.astro';
 import type { ImageMetadata } from 'astro';
+import { getLocaleFromPath, type Locale } from '../lib/i18n';
 
 interface Props {
     title: string;
     description: string;
     image?: ImageMetadata;
+    locale?: Locale;
+    alternateUrl?: string;
 }
 
-const { title, description, image } = Astro.props;
+const {
+    title,
+    description,
+    image,
+    locale = getLocaleFromPath(Astro.url.pathname),
+    alternateUrl,
+} = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={locale === "en" ? "en" : "zh-CN"}>
     <head>
-        <BaseHead title={title} description={description} image={image} />
+        <BaseHead
+            title={title}
+            description={description}
+            image={image}
+            locale={locale}
+            alternateUrl={alternateUrl}
+        />
         <slot name="head" />
     </head>
     <body>
         <div class="site-wrapper">
-            <Header />
+            <Header locale={locale} alternateUrl={alternateUrl} />
             <main>
                 <slot />
             </main>
-            <Footer />
+            <Footer locale={locale} />
         </div>
     </body>
 </html>

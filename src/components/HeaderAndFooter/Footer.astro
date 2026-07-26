@@ -1,5 +1,12 @@
 ---
 const today = new Date();
+interface Props {
+    locale?: "zh" | "en";
+}
+const {
+    locale = Astro.url.pathname.startsWith("/en") ? "en" : "zh",
+} = Astro.props;
+const isEnglish = locale === "en";
 ---
 
 <footer>
@@ -27,7 +34,7 @@ const today = new Date();
                 rel="noopener noreferrer"
                 class="edit-link"
             >
-                有意见？修改此页面
+                {isEnglish ? "Suggest an edit" : "有意见？修改此页面"}
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"

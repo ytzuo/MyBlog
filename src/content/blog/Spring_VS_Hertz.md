@@ -5,7 +5,7 @@ pubDate: 'May 27 2026'
 tags: ['Spring Boot','Hertz','Go','Java','Kotlin']
 ---
 
-本人，长期 `Spring` 生态和 `Java/Kotlin` 选手，因为和宇宙厂有了些奇妙的关系，来学习学习 `GO` 和 `Hertz`，写篇博客来阐述一下我的想法。
+本人是长期使用 `Spring` 生态的 `Java/Kotlin` 选手，因为和宇宙厂有了些奇妙的关系，来学习一下 `Go` 和 `Hertz`，写篇博客阐述我的想法。
 
 先放一个我总体的感受：`Spring Boot` 更像一个成熟的企业级应用平台；`Hertz` 更像一个轻量、高性能、显式可控的 HTTP 框架。
 
@@ -100,7 +100,7 @@ flowchart LR
 
 这种体验是：**像是在写一个普通方法，框架负责把 HTTP 请求转成方法调用。**
 
-Spring Boot 推荐的是 `Controller - Service - Mapper` 的分层结构，其中 Controller 负责接收 HTTP 请求，Service 负责业务逻辑，Mapper 负责数据访问。分层由框架自动装配，依赖通过 `@Autowired` 或构造器注入隐式传递Mapper 接口由框架在运行期自动生成代理实现。框架隐藏了很多底层细节，开发者只需要关注业务逻辑即可。
+Spring Boot 推荐的是 `Controller - Service - Mapper` 分层结构，其中 Controller 负责接收 HTTP 请求，Service 负责业务逻辑，Mapper 负责数据访问。分层由框架自动装配，依赖通过 `@Autowired` 或构造器注入传递，Mapper 接口则由框架在运行期自动生成代理实现。框架隐藏了很多底层细节，开发者只需要关注业务逻辑即可。
 
 ### Hertz
 

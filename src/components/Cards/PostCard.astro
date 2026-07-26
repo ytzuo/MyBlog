@@ -5,13 +5,16 @@ import FormattedDate from "../FormattedDate.astro";
 import Tag from "../Tag.astro";
 import Card from "./Card.astro";
 import { getReadingStats } from "../../lib/readingStats";
+import { getPostUrl, isEnglishPost } from "../../lib/i18n";
 
 interface Props {
     post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props;
-const readingStats = getReadingStats(post.body ?? "");
+const locale = isEnglishPost(post) ? "en" : "zh";
+const readingStats = getReadingStats(post.body ?? "", locale);
+const postUrl = getPostUrl(post);
 const heroImage = post.data.heroImage;
 const heroAspectRatio = heroImage
     ? heroImage.width / heroImage.height
@@ -24,11 +27,11 @@ const heroOrientation =
           : "square";
 ---
 
-<Card class="post-card" hoverEffect={true} data-post-url={`/blog/${post.id}/`}>
+<Card class="post-card" hoverEffect={true} data-post-url={postUrl}>
     {
         heroImage && (
             <a
-                href={`/blog/${post.id}/`}
+                href={postUrl}
                 class:list={[
                     "image-link",
                     `image-link--${heroOrientation}`,
@@ -41,11 +44,11 @@ const heroOrientation =
     <div class="post-content">
         <!-- 文章标题 -->
         <h3 class="post-title">
-            <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            <a href={postUrl}>{post.data.title}</a>
         </h3>
         <!-- 文章元数据：日期 -->
         <div class="post-meta">
-            <span><FormattedDate date={new Date(post.data.pubDate)} /></span>
+            <span><FormattedDate date={new Date(post.data.pubDate)} locale={locale} /></span>
             <span>{readingStats.wordCountText}</span>
             <span>{readingStats.readingTimeText}</span>
         </div>

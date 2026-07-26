@@ -1,23 +1,45 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import {
+    SITE_TITLE,
+    SITE_DESCRIPTION,
+    SITE_TITLE_EN,
+    SITE_DESCRIPTION_EN,
+} from "../consts";
 import Card from "../components/Cards/Card.astro";
+import { getLocaleFromPath } from "../lib/i18n";
+
+const locale = getLocaleFromPath(Astro.url.pathname);
+const isEnglish = locale === "en";
 ---
 
 <BaseLayout
-    title={`404: 页面未找到 - ${SITE_TITLE}`}
-    description={SITE_DESCRIPTION}
+    title={`404: ${isEnglish ? "Page not found" : "页面未找到"} - ${
+        isEnglish ? SITE_TITLE_EN : SITE_TITLE
+    }`}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
 >
     <div class="center-wrapper">
         <Card class="error-container">
             <img src="/ghost-cat-code.svg" alt="404 Ghost" class="ghost-img" />
             <h1 class="error-code">404</h1>
             <p class="error-message">
-                哎呀！你似乎迷路了，这个页面去探险还没回来。
+                {
+                    isEnglish
+                        ? "You seem to be lost. This page went exploring and has not returned."
+                        : "哎呀！你似乎迷路了，这个页面去探险还没回来。"
+                }
             </p>
-            <a href="/" class="home-button">带我回主页</a>
+            <a href={isEnglish ? "/en/" : "/"} class="home-button">
+                {isEnglish ? "Take me home" : "带我回主页"}
+            </a>
             <p class="back-hint">
-                或者你可以点击上方的导航链接去看看别的博文。
+                {
+                    isEnglish
+                        ? "You can also use the navigation above to explore other posts."
+                        : "或者你可以点击上方的导航链接去看看别的博文。"
+                }
             </p>
         </Card>
     </div>

@@ -1,16 +1,37 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import GhostSprites from "../components/GhostSprites.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import {
+    SITE_DESCRIPTION,
+    SITE_DESCRIPTION_EN,
+    SITE_TITLE,
+    SITE_TITLE_EN,
+} from "../consts";
+import type { Locale } from "../lib/i18n";
+
+interface Props {
+    locale?: Locale;
+}
+
+const { locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
 ---
 
-<BaseLayout title={`站内搜索 - ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout
+    title={`${isEnglish ? "Search" : "站内搜索"} - ${
+        isEnglish ? SITE_TITLE_EN : SITE_TITLE
+    }`}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
+>
     <GhostSprites />
     <section class="search-page">
         <div class="search-hero">
-            <h1>站内搜索</h1>
+            <h1>{isEnglish ? "Search" : "站内搜索"}</h1>
             <form id="search-form" class="search-form" role="search">
-                <label class="sr-only" for="site-search-input">搜索文章</label>
+                <label class="sr-only" for="site-search-input">
+                    {isEnglish ? "Search posts" : "搜索文章"}
+                </label>
                 <div class="search-input-shell">
                     <span class="search-icon" aria-hidden="true">⌕</span>
                     <input
@@ -18,17 +39,23 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
                         type="search"
                         name="q"
                         autocomplete="off"
-                        placeholder="搜索标题、标签、摘要或正文..."
+                        placeholder={
+                            isEnglish
+                                ? "Search titles, tags, summaries, or content..."
+                                : "搜索标题、标签、摘要或正文..."
+                        }
                     />
                     <button class="tag search-submit-btn" type="submit">
-                        <span class="tag-label">搜索</span>
+                        <span class="tag-label">
+                            {isEnglish ? "Search" : "搜索"}
+                        </span>
                     </button>
                 </div>
             </form>
         </div>
 
         <div id="search-status" class="search-status" aria-live="polite">
-            输入关键词开始搜索。
+            {isEnglish ? "Enter a keyword to search." : "输入关键词开始搜索。"}
         </div>
         <div id="search-results" class="search-results"></div>
     </section>
@@ -50,6 +77,41 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
     }
 
     let searchIndexPromise: Promise<SearchIndexItem[]> | null = null;
+    let loadedSearchIndexPath = "";
+
+    const getSearchUi = () => {
+        const isEnglish =
+            document.documentElement.lang.toLowerCase() === "en";
+        return {
+            isEnglish,
+            searchBasePath: isEnglish ? "/en/search" : "/search",
+            searchIndexPath: isEnglish
+                ? "/en/search-index.json"
+                : "/search-index.json",
+            tagBasePath: isEnglish ? "/en/tags" : "/tags",
+            prompt: isEnglish
+                ? "Enter a keyword to search."
+                : "输入关键词开始搜索。",
+            noResults: (query: string) =>
+                isEnglish
+                    ? `No posts found for “${query}”.`
+                    : `没有找到和“${query}”相关的文章。`,
+            emptyTitle: isEnglish ? "No matches" : "没有匹配结果",
+            emptyHint: isEnglish
+                ? "Try another keyword or search for a tag."
+                : "可以换个关键词，或者试试搜索标签名。",
+            resultCount: (count: number) =>
+                isEnglish
+                    ? `${count} relevant ${
+                          count === 1 ? "post" : "posts"
+                      } found.`
+                    : `找到 ${count} 篇相关文章。`,
+            searching: isEnglish ? "Searching..." : "正在搜索...",
+            loadError: isEnglish
+                ? "The search index could not be loaded. Please try again later."
+                : "搜索索引加载失败，请稍后再试。",
+        };
+    };
 
     const normalize = (value: string): string => value.toLocaleLowerCase();
 
@@ -65,8 +127,13 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
         value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const getSearchIndex = async (): Promise<SearchIndexItem[]> => {
+        const { searchIndexPath } = getSearchUi();
+        if (loadedSearchIndexPath !== searchIndexPath) {
+            loadedSearchIndexPath = searchIndexPath;
+            searchIndexPromise = null;
+        }
         if (!searchIndexPromise) {
-            searchIndexPromise = fetch("/search-index.json").then((res) => {
+            searchIndexPromise = fetch(searchIndexPath).then((res) => {
                 if (!res.ok) {
                     throw new Error("Search index failed to load.");
                 }
@@ -136,7 +203,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
     const formatDate = (value: string): string => {
         const date = new Date(value);
         if (Number.isNaN(date.valueOf())) return value;
-        return date.toLocaleDateString("zh-CN", {
+        return date.toLocaleDateString(getSearchUi().isEnglish ? "en-US" : "zh-CN", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -150,24 +217,25 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
         query: string,
         terms: string[],
     ) => {
+        const labels = getSearchUi();
         if (query.trim().length === 0) {
-            status.textContent = "输入关键词开始搜索。";
+            status.textContent = labels.prompt;
             resultsContainer.innerHTML = "";
             return;
         }
 
         if (results.length === 0) {
-            status.textContent = `没有找到和“${query}”相关的文章。`;
+            status.textContent = labels.noResults(query);
             resultsContainer.innerHTML = `
                 <div class="search-empty">
-                    <strong>没有匹配结果</strong>
-                    <p>可以换个关键词，或者试试搜索标签名。</p>
+                    <strong>${labels.emptyTitle}</strong>
+                    <p>${labels.emptyHint}</p>
                 </div>
             `;
             return;
         }
 
-        status.textContent = `找到 ${results.length} 篇相关文章。`;
+        status.textContent = labels.resultCount(results.length);
         resultsContainer.innerHTML = results
             .map(
                 (result) => `
@@ -185,7 +253,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
                                 ? `<div class="result-tags">${result.tags
                                       .map(
                                           (tag) =>
-                                              `<a class="tag result-tag" href="/tags/${encodeURIComponent(tag)}"><span class="tag-label">${escapeHtml(tag)}</span></a>`,
+                                              `<a class="tag result-tag" href="${labels.tagBasePath}/${encodeURIComponent(tag)}"><span class="tag-label">${escapeHtml(tag)}</span></a>`,
                                       )
                                       .join("")}</div>`
                                 : ""
@@ -207,6 +275,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
         status: HTMLElement,
         resultsContainer: HTMLElement,
     ) => {
+        const labels = getSearchUi();
         const query = input.value.trim();
         const terms = getTerms(query);
 
@@ -215,7 +284,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
             return;
         }
 
-        status.textContent = "正在搜索...";
+        status.textContent = labels.searching;
 
         try {
             const index = await getSearchIndex();
@@ -236,7 +305,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
             renderResults(resultsContainer, status, results, query, terms);
         } catch {
-            status.textContent = "搜索索引加载失败，请稍后再试。";
+            status.textContent = labels.loadError;
         }
     };
 
@@ -270,9 +339,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
         form.addEventListener("submit", (event) => {
             event.preventDefault();
             const query = input.value.trim();
+            const { searchBasePath } = getSearchUi();
             const nextUrl = query
-                ? `/search?q=${encodeURIComponent(query)}`
-                : "/search";
+                ? `${searchBasePath}?q=${encodeURIComponent(query)}`
+                : searchBasePath;
             history.replaceState(null, "", nextUrl);
             void runSearch(input, status, resultsContainer);
         });

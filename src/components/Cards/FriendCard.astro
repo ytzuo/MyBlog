@@ -2,12 +2,15 @@
 import Card from "./Card.astro";
 import { Image } from "astro:assets";
 import type { FriendLink } from "../../data/friends";
+import type { Locale } from "../../lib/i18n";
 
 interface Props {
     friend: FriendLink;
+    locale?: Locale;
 }
 
-const { friend } = Astro.props;
+const { friend, locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
 const hostname = new URL(friend.url).hostname.replace(/^www\./, "");
 const initials = friend.name.trim().slice(0, 2).toUpperCase();
 ---
@@ -18,7 +21,9 @@ const initials = friend.name.trim().slice(0, 2).toUpperCase();
         href={friend.url}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`访问 ${friend.name}`}
+        aria-label={
+            isEnglish ? `Visit ${friend.name}` : `访问 ${friend.name}`
+        }
     >
         <div class="friend-avatar" aria-hidden="true">
             {
@@ -36,7 +41,13 @@ const initials = friend.name.trim().slice(0, 2).toUpperCase();
                 <span class="friend-domain">{hostname}</span>
             </div>
 
-            <p>{friend.description}</p>
+            <p>
+                {
+                    isEnglish
+                        ? (friend.descriptionEn ?? friend.description)
+                        : friend.description
+                }
+            </p>
         </div>
 
     </a>

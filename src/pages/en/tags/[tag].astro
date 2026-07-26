@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import TagPage from "../../tags/[tag].astro";
+import { isEnglishPost } from "../../../lib/i18n";
+import {
+    buildTagCounts,
+    buildTagSummaries,
+    getRelatedTagSummaries,
+    sortPostsByDateDesc,
+} from "../../../lib/tags";
+
+export async function getStaticPaths() {
+    const allPosts = sortPostsByDateDesc(
+        (await getCollection("blog")).filter(isEnglishPost),
+    );
+    const tagSummaries = buildTagSummaries(allPosts);
+    const tagCounts = buildTagCounts(tagSummaries);
+
+    return tagSummaries.map((summary) => {
+        const tag = summary.name;
+        const posts = sortPostsByDateDesc(
+            allPosts.filter((post) => post.data.tags?.includes(tag)),
+        );
+
+        return {
+            params: { tag },
+            props: {
+                posts,
+                relatedTagSummaries: getRelatedTagSummaries(
+                    posts,
+                    tag,
+                ).slice(0, 8),
+                siblingTagSummaries: tagSummaries
+                    .filter((item) => item.name !== tag)
+                    .slice(0, 10),
+                tagCounts,
+            },
+        };
+    });
+}
+
+const pageProps = Astro.props;
+---
+
+<TagPage {...pageProps} locale="en" />

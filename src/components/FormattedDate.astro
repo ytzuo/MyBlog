@@ -1,9 +1,10 @@
 ---
 interface Props {
 	date: Date | string;
+	locale?: "zh" | "en";
 }
 
-const { date } = Astro.props;
+const { date, locale = Astro.url.pathname.startsWith("/en") ? "en" : "zh" } = Astro.props;
 const d = new Date(date);
 // 检查日期是否有效
 const isValidDate = !isNaN(d.valueOf());
@@ -12,7 +13,7 @@ const isValidDate = !isNaN(d.valueOf());
 <time datetime={isValidDate ? d.toISOString() : undefined}>
 	{
 		isValidDate
-			? d.toLocaleDateString('zh-CN', {
+			? d.toLocaleDateString(locale === "en" ? "en-US" : "zh-CN", {
 					year: 'numeric',
 					month: 'long',
 					day: 'numeric',

@@ -1,4 +1,5 @@
 import type { CollectionEntry } from "astro:content";
+import { getPostUrl } from "./i18n";
 
 export interface SearchIndexItem {
     title: string;
@@ -34,7 +35,7 @@ export const buildSearchIndexItem = (
 ): SearchIndexItem => ({
     title: post.data.title,
     description: post.data.description,
-    url: `/blog/${post.id}/`,
+    url: getPostUrl(post),
     pubDate: post.data.pubDate,
     tags: post.data.tags ?? [],
     content: stripMarkdown(post.body ?? ""),

@@ -4,17 +4,29 @@ import '../../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import type { ImageMetadata } from 'astro';
 import FallbackImage from '../../assets/blog-placeholder-1.jpg';
-import { SITE_TITLE } from '../../consts';
+import { SITE_TITLE, SITE_TITLE_EN } from '../../consts';
+import { getLocaleFromPath, localizePath, type Locale } from '../../lib/i18n';
 
 interface Props {
 	title: string;
 	description: string;
 	image?: ImageMetadata;
+    locale?: Locale;
+    alternateUrl?: string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = FallbackImage } = Astro.props;
+const {
+    title,
+    description,
+    image = FallbackImage,
+    locale = getLocaleFromPath(Astro.url.pathname),
+    alternateUrl,
+} = Astro.props;
+const otherLocale = locale === "en" ? "zh" : "en";
+const alternatePath =
+    alternateUrl ?? localizePath(Astro.url.pathname, otherLocale);
 ---
 
 <!-- 全局元数据 -->
@@ -26,8 +38,8 @@ const { title, description, image = FallbackImage } = Astro.props;
 <link
 	rel="alternate"
 	type="application/rss+xml"
-	title={SITE_TITLE}
-	href={new URL('rss.xml', Astro.site)}
+	title={locale === "en" ? SITE_TITLE_EN : SITE_TITLE}
+	href={new URL(locale === "en" ? 'en/rss.xml' : 'rss.xml', Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
 
@@ -57,6 +69,17 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <!-- 规范 URL -->
 <link rel="canonical" href={canonicalURL} />
+<link
+    rel="alternate"
+    hreflang={locale === "en" ? "zh-CN" : "en"}
+    href={new URL(alternatePath, Astro.site)}
+/>
+<link
+    rel="alternate"
+    hreflang={locale === "en" ? "en" : "zh-CN"}
+    href={canonicalURL}
+/>
+<link rel="alternate" hreflang="x-default" href={new URL("/", Astro.site)} />
 
 <!-- 主要元标签 -->
 <title>{title}</title>
@@ -65,6 +88,7 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
+<meta property="og:locale" content={locale === "en" ? "en_US" : "zh_CN"} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />

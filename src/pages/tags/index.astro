@@ -4,38 +4,63 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import GhostSprites from "../../components/GhostSprites.astro";
 import Tag from "../../components/Tag.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import {
+    SITE_DESCRIPTION,
+    SITE_TITLE,
+    SITE_DESCRIPTION_EN,
+    SITE_TITLE_EN,
+} from "../../consts";
+import type { Locale } from "../../lib/i18n";
 import {
     buildTagCounts,
     buildTagSummaries,
     sortPostsByDateDesc,
 } from "../../lib/tags";
 
-const posts = sortPostsByDateDesc(await getCollection("blog"));
+interface Props {
+    locale?: Locale;
+}
+const { locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
+const posts = sortPostsByDateDesc(
+    (await getCollection("blog")).filter(
+        (post) => post.id.startsWith("en/") === isEnglish,
+    ),
+);
 const tagSummaries = buildTagSummaries(posts);
 const tagCounts = buildTagCounts(tagSummaries);
 const totalTagUses = tagSummaries.reduce(
     (total, summary) => total + summary.count,
     0,
 );
-const title = `全部标签 - ${SITE_TITLE}`;
+const title = isEnglish
+    ? `All tags - ${SITE_TITLE_EN}`
+    : `全部标签 - ${SITE_TITLE}`;
 ---
 
-<BaseLayout title={title} description={SITE_DESCRIPTION}>
+<BaseLayout
+    title={title}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
+>
     <GhostSprites />
 
     <section class="tags-hero">
         <div>
-            <h1>全部标签</h1>
-            <p>按主题快速翻找文章，也可以从最新关联文章继续读下去。</p>
+            <h1>{isEnglish ? "All tags" : "全部标签"}</h1>
+            <p>
+                {isEnglish
+                    ? "Browse by topic or continue with the latest related post."
+                    : "按主题快速翻找文章，也可以从最新关联文章继续读下去。"}
+            </p>
         </div>
-        <div class="tag-stats" aria-label="标签统计">
+        <div class="tag-stats" aria-label={isEnglish ? "Tag statistics" : "标签统计"}>
             <div class="tag-stat">
-                <span>标签数量</span>
+                <span>{isEnglish ? "Tags" : "标签数量"}</span>
                 <strong>{tagSummaries.length}</strong>
             </div>
             <div class="tag-stat">
-                <span>标记次数</span>
+                <span>{isEnglish ? "Uses" : "标记次数"}</span>
                 <strong>{totalTagUses}</strong>
             </div>
         </div>
@@ -44,26 +69,31 @@ const title = `全部标签 - ${SITE_TITLE}`;
     {
         tagSummaries.length > 0 && (
             <>
-                <section class="tag-cloud-section" aria-label="标签云">
+                <section class="tag-cloud-section" aria-label={isEnglish ? "Tag cloud" : "标签云"}>
                     {tagSummaries.map((summary) => (
                         <Tag
                             tag={summary.name}
                             count={tagCounts[summary.name]}
+                            locale={locale}
                         />
                     ))}
                 </section>
 
-                <section class="tag-index-grid" aria-label="标签索引">
+                <section class="tag-index-grid" aria-label={isEnglish ? "Tag index" : "标签索引"}>
                     {tagSummaries.map((summary) => (
                         <article class="tag-index-card">
                             <div class="tag-index-card-header">
                                 <a
                                     class="tag-index-title"
-                                    href={`/tags/${summary.name}`}
+                                    href={`${isEnglish ? "/en" : ""}/tags/${encodeURIComponent(summary.name)}`}
                                 >
                                     {summary.name}
                                 </a>
-                                <span>{summary.count} 篇</span>
+                                <span>
+                                    {isEnglish
+                                        ? `${summary.count} posts`
+                                        : `${summary.count} 篇`}
+                                </span>
                             </div>
                             <a
                                 class="latest-post-link"
@@ -72,7 +102,7 @@ const title = `全部标签 - ${SITE_TITLE}`;
                                 {summary.latestPostTitle}
                             </a>
                             <div class="latest-post-date">
-                                <FormattedDate date={summary.latestPubDate} />
+                                <FormattedDate date={summary.latestPubDate} locale={locale} />
                             </div>
                         </article>
                     ))}

@@ -1,6 +1,6 @@
 ---
-title: 'Java和Kotlin的混用——一次小翻车'
-description: '关于Java和Kotlin的编译时机'
+title: 'Java 和 Kotlin 的混用——一次小翻车'
+description: '关于 Java 和 Kotlin 的编译时机'
 pubDate: 'Feb 10 2026'
 heroImage: '../../assets/BlogImg/Java vs Kotlin.jpg'
 heroImageScale: 0.4
@@ -10,7 +10,7 @@ tags: ['Java','Kotlin','记录']
 
 ## 先试试 Kotlin 混进 Java 项目
 
-xx校xx中心项目的后端是 **Java** + **Springboot** 开发。
+xx 校 xx 中心项目的后端使用 **Java** + **Spring Boot** 开发。
 
 
 嗯，很常规的技术栈，也很成熟，大家都很熟悉这一套技术栈下的开发流程。直到有一天，有一位开发人员（没错就是我）脑洞大开，说：“既然 Kotlin 可以和 Java 互操作，为什么不在项目中混用它们呢？享受一下现代编程语言的便利”
@@ -32,11 +32,11 @@ class HelloController {
 
 ## 一到服务器就 404
 
-于是我把分支上传到仓库，自动CI/CD结束后，项目被成功部署到服务器，其他成员访问 `http://开发域名/test/hello`，却返回了 `404 Not Found`。于是“差评”飞到群里，要求我马上检查一下。
+于是我把分支上传到仓库。自动 CI/CD 结束后，项目被成功部署到服务器，其他成员访问 `http://开发域名/test/hello`，却返回了 `404 Not Found`。于是“差评”飞到群里，要求我马上检查一下。
 
 ## Maven 包里少了 Kotlin 类
 
-我首先检查CI/CD是否成功，答案是肯定的。但是为什么没有这个 `/hello` 接口呢？我检查项目的CI/CD脚本，发现在脚本中，使用 `./mvnw clean package` 打包项目。我意识到，可能是由于开发环境的不同导致的问题，导致实际上在项目部署到服务器后，并没有正确构建 Kotlin 部分的代码。
+我首先检查 CI/CD 是否成功，答案是肯定的。但是为什么没有这个 `/hello` 接口呢？我检查项目的 CI/CD 脚本，发现在脚本中使用 `./mvnw clean package` 打包项目。我意识到，可能是开发环境不同，导致项目部署到服务器后没有正确构建 Kotlin 部分的代码。
 
 我在本地执行 
 ``` shell
@@ -45,7 +45,7 @@ jar tf target/xxx.jar | grep "HelloController"
 ```
 结果并没有找到 `HelloController` 类！所以这个问题出在 IDEA 构建和 mvn 构建的差异上！
 
-**我没有显示指定 Kotlin 代码的路径！** 这导致 Kotlin 编译器找不到 Kotlin 代码，自然也不会编译它。
+**我没有显式指定 Kotlin 代码的路径！** 这导致 Kotlin 编译器找不到 Kotlin 代码，自然也不会编译它。
 
 ## 混合编译顺序没那么自动
 
@@ -77,9 +77,9 @@ jar tf target/xxx.jar | grep "HelloController"
 
 在一个 Java 和 Kotlin 混合的项目中，可能有这样的依赖情况：
 
-- **场景1**: Kotlin代码 → 引用Java代码
+- **场景 1**：Kotlin 代码 → 引用 Java 代码
 
-- **场景2**: Java代码 → 引用Kotlin代码
+- **场景 2**：Java 代码 → 引用 Kotlin 代码
 
 那么在场景1中，Kotlin 代码引用了 Java 代码，这是没有问题的。因为 Kotlin 编译器可以直接读取和解析 Java 类，而不需要先编译 Java 代码。
 

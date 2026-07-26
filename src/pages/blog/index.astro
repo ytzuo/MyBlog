@@ -2,27 +2,43 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostList from "../../components/Cards/PostList.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import {
+    SITE_DESCRIPTION,
+    SITE_TITLE,
+    SITE_DESCRIPTION_EN,
+    SITE_TITLE_EN,
+} from "../../consts";
 import GhostSprites from "../../components/GhostSprites.astro";
+import type { Locale } from "../../lib/i18n";
 
-// 获取所有博客文章并按发布日期降序排序
-const posts = (await getCollection("blog")).sort(
+interface Props {
+    locale?: Locale;
+}
+const { locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
+const posts = (await getCollection("blog"))
+    .filter((post) => post.id.startsWith("en/") === isEnglish)
+    .sort(
     (a, b) =>
         new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
-);
+    );
 
 ---
 
-<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<BaseLayout
+    title={isEnglish ? SITE_TITLE_EN : SITE_TITLE}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
+>
     <GhostSprites />
     <div class="blog-header">
-        <h2 class="blog-title">所有博客</h2>
+        <h2 class="blog-title">{isEnglish ? "All posts" : "所有博客"}</h2>
         <div class="blog-actions">
-            <a class="blog-action-btn search-link" href="/search">
-                <span class="btn-text">搜索文章</span>
+            <a class="blog-action-btn search-link" href={isEnglish ? "/en/search" : "/search"}>
+                <span class="btn-text">{isEnglish ? "Search" : "搜索文章"}</span>
             </a>
-            <a class="blog-action-btn" href="/tags">
-                <span class="btn-text">全部标签</span>
+            <a class="blog-action-btn" href={isEnglish ? "/en/tags" : "/tags"}>
+                <span class="btn-text">{isEnglish ? "All tags" : "全部标签"}</span>
             </a>
         </div>
     </div>
@@ -31,8 +47,12 @@ const posts = (await getCollection("blog")).sort(
         <PostList posts={posts} centered>
             <div slot="empty" class="empty-state">
                 <div class="empty-icon">📝</div>
-                <h3>暂无博客文章</h3>
-                <p>博主正在努力创作中，敬请期待...</p>
+                <h3>{isEnglish ? "No posts yet" : "暂无博客文章"}</h3>
+                <p>
+                    {isEnglish
+                        ? "New writing is on the way."
+                        : "博主正在努力创作中，敬请期待……"}
+                </p>
             </div>
         </PostList>
     </section>

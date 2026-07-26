@@ -9,12 +9,15 @@ import Header from "../components/HeaderAndFooter/Header.astro";
 import Tag from "../components/Tag.astro";
 import ReadingProgress from "../components/ReadingProgress.astro";
 import ReprintCard from "../components/ReprintCard.astro";
+import { getLocaleFromPath, type Locale } from "../lib/i18n";
 import type { ReadingStats } from "../lib/readingStats";
 
 type Props = CollectionEntry<"blog">["data"] & {
     headings?: MarkdownHeading[];
     readingStats?: ReadingStats;
     showReadingProgress?: boolean;
+    locale?: Locale;
+    alternateUrl?: string;
 };
 
 const {
@@ -31,17 +34,26 @@ const {
     reprintAuthor,
     reprintUrl,
     reprintTitle,
+    locale = getLocaleFromPath(Astro.url.pathname),
+    alternateUrl,
 } = Astro.props;
 
+const isEnglish = locale === "en";
 const tocHeadings = headings.filter(
     (heading) => heading.depth === 2 || heading.depth === 3,
 );
 const hasToc = tocHeadings.length > 0;
 ---
 
-<html lang="zh-CN">
+<html lang={isEnglish ? "en" : "zh-CN"}>
     <head>
-        <BaseHead title={title} description={description} />
+        <BaseHead
+            title={title}
+            description={description}
+            image={heroImage}
+            locale={locale}
+            alternateUrl={alternateUrl}
+        />
         <style>
             .site-wrapper {
                 display: flex;
@@ -857,7 +869,7 @@ const hasToc = tocHeadings.length > 0;
             )
         }
         <div class="site-wrapper">
-            <Header />
+            <Header locale={locale} alternateUrl={alternateUrl} />
             <main>
                 <!-- 顶部大图 -->
                 <div class="hero-image">
@@ -878,7 +890,7 @@ const hasToc = tocHeadings.length > 0;
                         <h1>{title}</h1>
                         <div class="date">
                             <span class="date-item">
-                                <FormattedDate date={pubDate} />
+                                <FormattedDate date={pubDate} locale={locale} />
                             </span>
                             {
                                 readingStats && (
@@ -895,8 +907,13 @@ const hasToc = tocHeadings.length > 0;
                             {
                                 updatedDate && (
                                     <div class="last-updated-on">
-                                        Last updated on{" "}
-                                        <FormattedDate date={updatedDate} />
+                                        {isEnglish
+                                            ? "Last updated on "
+                                            : "最后更新于 "}
+                                        <FormattedDate
+                                            date={updatedDate}
+                                            locale={locale}
+                                        />
                                     </div>
                                 )
                             }
@@ -906,7 +923,7 @@ const hasToc = tocHeadings.length > 0;
                             tags && tags.length > 0 && (
                                 <div class="tags">
                                     {tags.map((tag) => (
-                                        <Tag tag={tag} />
+                                        <Tag tag={tag} locale={locale} />
                                     ))}
                                 </div>
                             )
@@ -920,6 +937,7 @@ const hasToc = tocHeadings.length > 0;
                                 author={reprintAuthor}
                                 url={reprintUrl}
                                 title={reprintTitle}
+                                locale={locale}
                             />
                         )
                     }
@@ -930,10 +948,21 @@ const hasToc = tocHeadings.length > 0;
                         </article>
                         {
                             hasToc && (
-                                <aside class="toc-panel" aria-label="文章目录">
+                                <aside
+                                    class="toc-panel"
+                                    aria-label={
+                                        isEnglish
+                                            ? "Table of contents"
+                                            : "文章目录"
+                                    }
+                                >
                                     <details open>
                                         <summary>
-                                            <span class="toc-title">文章目录</span>
+                                            <span class="toc-title">
+                                                {isEnglish
+                                                    ? "Table of contents"
+                                                    : "文章目录"}
+                                            </span>
                                         </summary>
                                         <nav class="toc-list">
                                             {tocHeadings.map((heading) => (
@@ -957,7 +986,7 @@ const hasToc = tocHeadings.length > 0;
                     </div>
                 </div>
             </main>
-            <Footer />
+            <Footer locale={locale} />
         </div>
         <script>
             import type { Mermaid } from "mermaid";
@@ -968,6 +997,30 @@ const hasToc = tocHeadings.length > 0;
             let enhancementGeneration = 0;
             let postEnhancementsRoot: Element | null = null;
             let postEnhancementsRun: Promise<void> | null = null;
+            const isEnglishPage =
+                document.documentElement.lang.toLowerCase() === "en";
+            const uiText = {
+                cacheReloading: isEnglishPage
+                    ? "The Mermaid module cache appears stale. Reloading the page to try again..."
+                    : "检测到 Mermaid 动态模块缓存失效，正在自动刷新页面重试...",
+                devCacheHint: isEnglishPage
+                    ? "The development module cache may be stale. Try Ctrl+F5 or restart the dev server with pnpm dev -- --force."
+                    : "开发环境模块缓存可能失效，请 Ctrl+F5 强刷，或重启 dev（建议：pnpm dev -- --force）。",
+                renderFailed: isEnglishPage
+                    ? "The Mermaid diagram could not be rendered. Open the console for details."
+                    : "Mermaid 图表渲染失败，请打开控制台查看详细日志。",
+                errorDetails: isEnglishPage ? "Error" : "错误信息",
+                zoomOut: isEnglishPage ? "Zoom out" : "缩小",
+                reset: isEnglishPage ? "Reset" : "重置",
+                zoomIn: isEnglishPage ? "Zoom in" : "放大",
+                close: isEnglishPage ? "Close" : "关闭",
+                openDiagram: isEnglishPage
+                    ? "Open enlarged diagram"
+                    : "放大查看图表",
+                copy: isEnglishPage ? "Copy" : "复制",
+                copied: isEnglishPage ? "Copied!" : "已复制！",
+                copyError: isEnglishPage ? "Error" : "复制失败",
+            };
             const globalWindow = window as Window & {
                 __MERMAID_DEBUG__?: {
                     enabled: boolean;
@@ -1232,8 +1285,7 @@ const hasToc = tocHeadings.length > 0;
                         tryDevAutoReload()
                     ) {
                         container.classList.add("mermaid-error");
-                        container.innerHTML =
-                            "<p>检测到 Mermaid 动态模块缓存失效，正在自动刷新页面重试...</p>";
+                        container.innerHTML = `<p>${uiText.cacheReloading}</p>`;
                         return;
                     }
 
@@ -1256,11 +1308,11 @@ const hasToc = tocHeadings.length > 0;
 
                     container.classList.add("mermaid-error");
                     const extraHint = isDynamicImportFetchError(message)
-                        ? "开发环境模块缓存可能失效，请 Ctrl+F5 强刷，或重启 dev（建议: pnpm dev -- --force）。"
+                        ? uiText.devCacheHint
                         : "";
                     container.innerHTML = `
-						<p>Mermaid 图表渲染失败，请打开控制台查看详细日志。</p>
-						<p>错误信息: ${escapeHtml(message)}</p>
+						<p>${uiText.renderFailed}</p>
+						<p>${uiText.errorDetails}: ${escapeHtml(message)}</p>
 						${extraHint ? `<p>${escapeHtml(extraHint)}</p>` : ""}
 						<pre>${escapeHtml(sourceMeta.preview)}</pre>
 					`;
@@ -1334,10 +1386,10 @@ const hasToc = tocHeadings.length > 0;
                 modal.setAttribute("aria-hidden", "true");
                 modal.innerHTML = `
                     <div class="mermaid-zoom-toolbar">
-                        <button class="mermaid-zoom-action" data-action="zoom-out" aria-label="缩小">-</button>
-                        <button class="mermaid-zoom-action" data-action="reset" aria-label="重置">1:1</button>
-                        <button class="mermaid-zoom-action" data-action="zoom-in" aria-label="放大">+</button>
-                        <button class="mermaid-zoom-action" data-action="close" aria-label="关闭">×</button>
+                        <button class="mermaid-zoom-action" data-action="zoom-out" aria-label="${uiText.zoomOut}">-</button>
+                        <button class="mermaid-zoom-action" data-action="reset" aria-label="${uiText.reset}">1:1</button>
+                        <button class="mermaid-zoom-action" data-action="zoom-in" aria-label="${uiText.zoomIn}">+</button>
+                        <button class="mermaid-zoom-action" data-action="close" aria-label="${uiText.close}">×</button>
                     </div>
                     <div class="mermaid-zoom-viewport">
                         <div class="mermaid-zoom-content"></div>
@@ -1534,7 +1586,7 @@ const hasToc = tocHeadings.length > 0;
                         const button = document.createElement("button");
                         button.className = "mermaid-zoom-btn";
                         button.type = "button";
-                        button.setAttribute("aria-label", "放大查看图表");
+                        button.setAttribute("aria-label", uiText.openDiagram);
                         button.innerHTML = `
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M10.5 4a6.5 6.5 0 0 1 5.15 10.46l4.45 4.44-1.2 1.2-4.44-4.45A6.5 6.5 0 1 1 10.5 4Zm0 1.7a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6Zm.85 2.1v1.85h1.85v1.7h-1.85v1.85h-1.7v-1.85H7.8v-1.7h1.85V7.8h1.7Z" fill="currentColor"/>
@@ -1666,14 +1718,14 @@ const hasToc = tocHeadings.length > 0;
                     // 复制按钮（右侧）
                     const button = document.createElement("button");
                     button.className = "copy-code-btn";
-                    button.textContent = "Copy";
+                    button.textContent = uiText.copy;
                     button.addEventListener("click", async () => {
                         try {
                             await navigator.clipboard.writeText(
                                 code.textContent || "",
                             );
                             const orig = button.textContent;
-                            button.textContent = "Copied!";
+                            button.textContent = uiText.copied;
                             button.classList.add("copied");
                             setTimeout(() => {
                                 button.textContent = orig;
@@ -1681,7 +1733,7 @@ const hasToc = tocHeadings.length > 0;
                             }, 2000);
                         } catch (err) {
                             console.error("Failed to copy:", err);
-                            button.textContent = "Error";
+                            button.textContent = uiText.copyError;
                         }
                     });
                     header.appendChild(button);

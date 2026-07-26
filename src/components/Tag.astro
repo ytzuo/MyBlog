@@ -3,13 +3,22 @@ interface Props {
     tag: string;
     count?: number;
     class?: string;
+    locale?: "zh" | "en";
 }
 
-const { tag, count, class: className } = Astro.props;
+const {
+    tag,
+    count,
+    class: className,
+    locale = Astro.url.pathname.startsWith("/en") ? "en" : "zh",
+} = Astro.props;
 const showCount = count !== undefined;
+const encodedTag = encodeURIComponent(tag);
+const tagPath =
+    locale === "en" ? `/en/tags/${encodedTag}` : `/tags/${encodedTag}`;
 ---
 
-<a href={`/tags/${tag}`} class:list={["tag", className]}>
+<a href={tagPath} class:list={["tag", className]}>
     <span class="tag-label">{tag}</span>
     {showCount && <span class="tag-count">{count}</span>}
 </a>

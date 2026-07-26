@@ -17,14 +17,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import TechCard from '../components/Cards/TechCard.astro';
 import FriendCard from '../components/Cards/FriendCard.astro';
 import GhostSprites from '../components/GhostSprites.astro';
-import { SITE_TITLE } from '../consts';
+import { SITE_TITLE, SITE_TITLE_EN } from '../consts';
 import { friendLinks } from '../data/friends';
+import type { Locale } from '../lib/i18n';
+
+interface Props {
+    locale?: Locale;
+}
+const { locale = "zh" } = Astro.props;
+const isEnglish = locale === "en";
 
 // 定义兴趣列表数据
 // 包含分类和具体的项目（名称和图标）
 const interests = [
 	{
-		category: "前端技术",
+		category: isEnglish ? "Frontend" : "前端技术",
 		items: [
 			{ name: "HTML", icon: htmlIcon },
 			{ name: "CSS", icon: cssIcon },
@@ -36,10 +43,10 @@ const interests = [
 		]
 	},
 	{
-		category: "后端技术",
+		category: isEnglish ? "Backend" : "后端技术",
 		items: [
 			{ name:"Java",icon: javaIcon },
-			{ name:"kotlin",icon: kotlinIcon },
+			{ name:"Kotlin",icon: kotlinIcon },
 			{ name: "Go", icon: goIcon },
 			{ name: "C/C++", icon: cppIcon },
 			{ name: "C#", icon: cSharpIcon },
@@ -48,15 +55,15 @@ const interests = [
 		]
 	},
 	{
-		category: "游戏",
+		category: isEnglish ? "Games" : "游戏",
 		items: [
 			{ name: "RPG", icon: "⚔️" },
 			{ name: "FPS", icon: "🔫" },
-			{ name: "RougeLike", icon: "🎮" },
+			{ name: "Roguelike", icon: "🎮" },
 		]
 	},
 	{
-		category: "其他",
+		category: isEnglish ? "Other" : "其他",
 		items: [
 			{ name: "Music", icon: "🎵" },
 			{ name: "Reading", icon: "📚" },
@@ -66,20 +73,34 @@ const interests = [
 ];
 ---
 
-<BaseLayout title={`关于我 - ${SITE_TITLE}`} description="关于我自己">
+<BaseLayout
+    title={isEnglish ? `About - ${SITE_TITLE_EN}` : `关于我 - ${SITE_TITLE}`}
+    description={isEnglish ? "About Saten" : "关于我自己"}
+    locale={locale}
+>
 	<GhostSprites />
 
 	<section class="about-page">
 		<header class="about-hero">
-			<h1>关于我</h1>
+			<h1>{isEnglish ? "About me" : "关于我"}</h1>
 			<div class="about-intro">
-				<div>软件工程大三在读，喜欢打打游戏听听歌。</div>
-				<div>全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。</div>
+				<div>
+                    {isEnglish
+                        ? "A junior software engineering student who enjoys games and music."
+                        : "软件工程大三在读，喜欢打打游戏听听歌。"}
+                </div>
+				<div>
+                    {isEnglish
+                        ? "I am exploring in every direction and share whatever feels worth writing about."
+                        : "全方位探索中，如果有想分享的东西，就在这里拿出来给大家看看。"}
+                </div>
 			</div>
 		</header>
 
 		<section class="interests-section" aria-labelledby="interests-title">
-			<h2 id="interests-title" class="section-title">本站可能包含</h2>
+			<h2 id="interests-title" class="section-title">
+                {isEnglish ? "What you may find here" : "本站可能包含"}
+            </h2>
 
 			<div class="interests-grid">
 				{interests.map((section) => (
@@ -97,13 +118,19 @@ const interests = [
 
 		<section class="friends-section" aria-labelledby="friends-title">
 			<div class="section-heading">
-				<h2 id="friends-title" class="section-title">友情链接</h2>
-				<p>一些可以顺手串门的站点。</p>
+				<h2 id="friends-title" class="section-title">
+                    {isEnglish ? "Friends" : "友情链接"}
+                </h2>
+				<p>
+                    {isEnglish
+                        ? "A few sites worth dropping by."
+                        : "一些可以顺手串门的站点。"}
+                </p>
 			</div>
 
-			<div class="friends-grid" aria-label="友情链接列表">
+			<div class="friends-grid" aria-label={isEnglish ? "Friend links" : "友情链接列表"}>
 				{friendLinks.map((friend) => (
-					<FriendCard friend={friend} />
+					<FriendCard friend={friend} locale={locale} />
 				))}
 			</div>
 		</section>

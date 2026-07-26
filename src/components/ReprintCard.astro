@@ -1,28 +1,47 @@
 ---
+import { getLocaleFromPath, type Locale } from "../lib/i18n";
+
 interface Props {
     author: string;
     url: string;
     platform?: string;
     title?: string;
+    locale?: Locale;
 }
 
-const { author, url, platform, title } = Astro.props;
+const {
+    author,
+    url,
+    platform,
+    title,
+    locale = getLocaleFromPath(Astro.url.pathname),
+} = Astro.props;
+const isEnglish = locale === "en";
 ---
 
-<aside class="reprint-card" aria-label="转载声明">
+<aside
+    class="reprint-card"
+    aria-label={isEnglish ? "Repost attribution" : "转载声明"}
+>
     <div class="reprint-accent-bar"></div>
     <div class="reprint-body">
         <div class="reprint-top">
-            <span class="reprint-stamp">转&thinsp;载</span>
+            <span class="reprint-stamp">{isEnglish ? "REPOST" : "转　载"}</span>
             <span class="reprint-notice"
-                >本文内容转载自第三方，版权归原作者所有</span
+                >{
+                    isEnglish
+                        ? "This article is republished from a third party. Copyright belongs to the original author."
+                        : "本文内容转载自第三方，版权归原作者所有"
+                }</span
             >
         </div>
         <div class="reprint-bottom">
             <div class="reprint-info-col">
                 <div class="reprint-author-row">
                     <span class="reprint-icon" aria-hidden="true">✍️</span>
-                    <span class="reprint-author-label">原文作者</span>
+                    <span class="reprint-author-label">
+                        {isEnglish ? "Original author" : "原文作者"}
+                    </span>
                     <span class="reprint-author-name">{author}</span>
                     {
                         platform && (
@@ -38,7 +57,9 @@ const { author, url, platform, title } = Astro.props;
                             <span class="reprint-icon" aria-hidden="true">
                                 📄
                             </span>
-                            <span class="reprint-author-label">原文标题</span>
+                            <span class="reprint-author-label">
+                                {isEnglish ? "Original title" : "原文标题"}
+                            </span>
                             <span class="reprint-title-name">{title}</span>
                         </div>
                     )
@@ -50,7 +71,7 @@ const { author, url, platform, title } = Astro.props;
                 rel="noopener noreferrer"
                 class="reprint-link-btn"
             >
-                访问原文
+                {isEnglish ? "View original" : "访问原文"}
                 <span class="reprint-arrow" aria-hidden="true">↗</span>
             </a>
         </div>

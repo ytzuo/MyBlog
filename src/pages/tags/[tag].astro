@@ -1,10 +1,20 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
-import { getCollection } from "astro:content";
+import {
+    SITE_DESCRIPTION,
+    SITE_DESCRIPTION_EN,
+    SITE_TITLE,
+    SITE_TITLE_EN,
+} from "../../consts";
+import { getCollection, type CollectionEntry } from "astro:content";
 import GhostSprites from "../../components/GhostSprites.astro";
 import PostList from "../../components/Cards/PostList.astro";
 import Tag from "../../components/Tag.astro";
+import {
+    isEnglishPost,
+    translateTag,
+    type Locale,
+} from "../../lib/i18n";
 import {
     buildTagCounts,
     buildTagSummaries,
@@ -13,7 +23,11 @@ import {
 } from "../../lib/tags";
 
 export async function getStaticPaths() {
-    const allPosts = sortPostsByDateDesc(await getCollection("blog"));
+    const allPosts = sortPostsByDateDesc(
+        (await getCollection("blog")).filter(
+            (post) => !isEnglishPost(post),
+        ),
+    );
     const tagSummaries = buildTagSummaries(allPosts);
     const tagCounts = buildTagCounts(tagSummaries);
 
@@ -43,34 +57,83 @@ export async function getStaticPaths() {
 }
 
 const { tag = "" } = Astro.params;
-const { posts, relatedTagSummaries, siblingTagSummaries, tagCounts } =
-    Astro.props;
-const title = `标签：${tag} - ${SITE_TITLE}`;
+interface Props {
+    posts: CollectionEntry<"blog">[];
+    relatedTagSummaries: Array<{ name: string; count: number }>;
+    siblingTagSummaries: Array<{ name: string; count: number }>;
+    tagCounts: Record<string, number>;
+    locale?: Locale;
+}
+
+const {
+    posts,
+    relatedTagSummaries,
+    siblingTagSummaries,
+    tagCounts,
+    locale = "zh",
+} = Astro.props;
+const isEnglish = locale === "en";
+const title = isEnglish
+    ? `Tag: ${tag} - ${SITE_TITLE_EN}`
+    : `标签：${tag} - ${SITE_TITLE}`;
 const tagCount = tagCounts[tag] ?? posts.length;
+const translatedTag = translateTag(tag, isEnglish ? "zh" : "en");
+const alternateUrl = `${isEnglish ? "/tags" : "/en/tags"}/${encodeURIComponent(
+    translatedTag,
+)}`;
 ---
 
-<BaseLayout title={title} description={SITE_DESCRIPTION}>
+<BaseLayout
+    title={title}
+    description={isEnglish ? SITE_DESCRIPTION_EN : SITE_DESCRIPTION}
+    locale={locale}
+    alternateUrl={alternateUrl}
+>
     <GhostSprites />
 
     <section class="tag-page-hero">
         <div>
-            <a class="back-link" href="/tags">全部标签</a>
+            <a
+                class="back-link"
+                href={isEnglish ? "/en/tags" : "/tags"}
+            >
+                {isEnglish ? "All tags" : "全部标签"}
+            </a>
             <h1>#{tag}</h1>
-            <p>这个标签下共有 {tagCount} 篇文章。</p>
+            <p>
+                {
+                    isEnglish
+                        ? `${tagCount} ${
+                              tagCount === 1 ? "post" : "posts"
+                          } with this tag.`
+                        : `这个标签下共有 ${tagCount} 篇文章。`
+                }
+            </p>
         </div>
-        <div class="tag-page-stat" aria-label="当前标签文章数量">
+        <div
+            class="tag-page-stat"
+            aria-label={
+                isEnglish ? "Number of posts with this tag" : "当前标签文章数量"
+            }
+        >
             <strong>{tagCount}</strong>
-            <span>篇文章</span>
+            <span>
+                {isEnglish ? (tagCount === 1 ? "post" : "posts") : "篇文章"}
+            </span>
         </div>
     </section>
 
     {
         relatedTagSummaries.length > 0 && (
             <section class="tag-related-section">
-                <h2>常一起出现</h2>
+                <h2>{isEnglish ? "Often paired with" : "常一起出现"}</h2>
                 <div class="tag-related-list">
                     {relatedTagSummaries.map((summary) => (
-                        <Tag tag={summary.name} count={summary.count} />
+                        <Tag
+                            tag={summary.name}
+                            count={summary.count}
+                            locale={locale}
+                        />
                     ))}
                 </div>
             </section>
@@ -80,12 +143,13 @@ const tagCount = tagCounts[tag] ?? posts.length;
     {
         relatedTagSummaries.length === 0 && siblingTagSummaries.length > 0 && (
             <section class="tag-related-section">
-                <h2>其他标签</h2>
+                <h2>{isEnglish ? "Other tags" : "其他标签"}</h2>
                 <div class="tag-related-list">
                     {siblingTagSummaries.map((summary) => (
                         <Tag
                             tag={summary.name}
                             count={tagCounts[summary.name]}
+                            locale={locale}
                         />
                     ))}
                 </div>

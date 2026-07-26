@@ -1,0 +1,26 @@
+import rss from "@astrojs/rss";
+import { getCollection } from "astro:content";
+import type { APIRoute } from "astro";
+import { SITE_DESCRIPTION_EN, SITE_TITLE_EN } from "../../consts";
+import { getPostUrl, isEnglishPost } from "../../lib/i18n";
+
+export const GET: APIRoute = async (context) => {
+    const posts = (await getCollection("blog"))
+        .filter(isEnglishPost)
+        .sort(
+            (a, b) =>
+                new Date(b.data.pubDate).valueOf() -
+                new Date(a.data.pubDate).valueOf(),
+        );
+
+    return rss({
+        title: SITE_TITLE_EN,
+        description: SITE_DESCRIPTION_EN,
+        site: context.site,
+        items: posts.map((post) => ({
+            ...post.data,
+            pubDate: new Date(post.data.pubDate),
+            link: getPostUrl(post),
+        })),
+    });
+};

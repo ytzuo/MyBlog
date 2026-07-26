@@ -1,5 +1,10 @@
 ---
-import { SITE_TITLE } from "../../consts";
+import { SITE_TITLE, SITE_TITLE_EN } from "../../consts";
+import {
+    getLocaleFromPath,
+    localizePath,
+    type Locale,
+} from "../../lib/i18n";
 import HeaderLink from "./HeaderLink.astro";
 import SmartIcon from "../SmartIcon.astro";
 import ghostFrame1 from "../../assets/lost/lost1.png";
@@ -15,33 +20,55 @@ const ghostFrames: ImageMetadata[] = [
     ghostFrame4,
     ghostFrame5,
 ];
+
+interface Props {
+    locale?: Locale;
+    alternateUrl?: string;
+}
+
+const {
+    locale = getLocaleFromPath(Astro.url.pathname),
+    alternateUrl,
+} = Astro.props;
+const isEnglish = locale === "en";
+const languageHref =
+    alternateUrl ??
+    (isEnglish
+        ? localizePath(Astro.url.pathname, "zh")
+        : localizePath(Astro.url.pathname, "en"));
 ---
 
 <header>
     <nav>
         <h2>
-            <a href="/" class="site-logo">
+            <a href={localizePath("/", locale)} class="site-logo">
                 <img
                     src="/ghost-cat-code.svg"
                     alt="Blog Logo"
                     width="32"
                     height="32"
                 />
-                {SITE_TITLE}
+                {isEnglish ? SITE_TITLE_EN : SITE_TITLE}
             </a>
         </h2>
         <div class="nav-right">
             <div class="internal-links">
-                <HeaderLink href="/">首页</HeaderLink>
-                <HeaderLink href="/blog">博文</HeaderLink>
-                <HeaderLink href="/about">关于我</HeaderLink>
+                <HeaderLink href={localizePath("/", locale)}>
+                    {isEnglish ? "Home" : "首页"}
+                </HeaderLink>
+                <HeaderLink href={localizePath("/blog", locale)}>
+                    {isEnglish ? "Blog" : "博文"}
+                </HeaderLink>
+                <HeaderLink href={localizePath("/about", locale)}>
+                    {isEnglish ? "About" : "关于我"}
+                </HeaderLink>
             </div>
             <button
                 id="ghost-toggle-btn"
                 class="ghost-toggle-btn"
                 type="button"
-                aria-label="幽灵特效开关"
-                title="幽灵特效"
+                aria-label={isEnglish ? "Toggle ghost effects" : "幽灵特效开关"}
+                title={isEnglish ? "Ghost effects" : "幽灵特效"}
                 data-enabled="true"
             >
                 <SmartIcon icon={ghostFrames} duration={0.8} size={22} />
@@ -49,8 +76,10 @@ const ghostFrames: ImageMetadata[] = [
             <button
                 class="theme-toggle"
                 type="button"
-                aria-label="切换黑夜模式"
-                title="切换黑夜模式"
+                aria-label={isEnglish ? "Switch to dark mode" : "切换黑夜模式"}
+                title={isEnglish ? "Switch to dark mode" : "切换黑夜模式"}
+                data-light-label={isEnglish ? "Switch to light mode" : "切换到浅色模式"}
+                data-dark-label={isEnglish ? "Switch to dark mode" : "切换到黑夜模式"}
             >
                 <span class="theme-toggle-track" aria-hidden="true">
                     <span class="theme-toggle-knob">
@@ -59,13 +88,25 @@ const ghostFrames: ImageMetadata[] = [
                     </span>
                 </span>
             </button>
+            <a
+                class="language-toggle"
+                href={languageHref}
+                lang={isEnglish ? "zh-CN" : "en"}
+                hreflang={isEnglish ? "zh-CN" : "en"}
+                aria-label={isEnglish ? "切换到中文" : "Switch to English"}
+                title={isEnglish ? "切换到中文" : "Switch to English"}
+            >
+                {isEnglish ? "中" : "EN"}
+            </a>
             <div class="social-links">
                 <a
                     href="https://github.com/ytzuo"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <span class="sr-only">Go to My GitHub</span>
+                    <span class="sr-only">
+                        {isEnglish ? "Visit my GitHub" : "访问我的 GitHub"}
+                    </span>
                     <svg
                         viewBox="0 0 16 16"
                         aria-hidden="true"
@@ -104,14 +145,13 @@ const ghostFrames: ImageMetadata[] = [
         const syncState = () => {
             const isDark = root.dataset.theme === "dark";
             toggle.setAttribute("aria-pressed", String(isDark));
-            toggle.setAttribute(
-                "title",
-                isDark ? "切换到浅色模式" : "切换到黑夜模式",
-            );
-            toggle.setAttribute(
-                "aria-label",
-                isDark ? "切换到浅色模式" : "切换到黑夜模式",
-            );
+            const label = isDark
+                ? toggle.dataset.lightLabel
+                : toggle.dataset.darkLabel;
+            if (label) {
+                toggle.setAttribute("title", label);
+                toggle.setAttribute("aria-label", label);
+            }
         };
 
         toggle.dataset.ready = "true";
@@ -411,6 +451,7 @@ const ghostFrames: ImageMetadata[] = [
     .internal-links a.active::after {
         transform: scaleX(1);
     }
+    .language-toggle,
     .social-links,
     .social-links a {
         display: flex;
@@ -612,6 +653,7 @@ const ghostFrames: ImageMetadata[] = [
         opacity: 1;
         transform: scale(1);
     }
+    .language-toggle,
     .social-links a {
         align-items: center;
         justify-content: center;
@@ -632,10 +674,19 @@ const ghostFrames: ImageMetadata[] = [
         position: relative;
         z-index: 1;
     }
+    .language-toggle {
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1;
+        text-decoration: none;
+    }
     .social-links a svg {
         width: 1.1rem;
         height: 1.1rem;
     }
+    .language-toggle:hover,
     .social-links a:hover {
         transform: translateY(-1px);
         background: rgba(255, 252, 246, 0.82);
@@ -643,13 +694,14 @@ const ghostFrames: ImageMetadata[] = [
             inset 0 1px 0 rgba(255, 255, 255, 0.9),
             0 9px 16px rgba(84, 70, 39, 0.1);
     }
+    .language-toggle:active,
     .social-links a:active {
         transform: translateY(3px) scale(0.98);
         box-shadow:
             inset 0 5px 8px rgba(84, 70, 39, 0.16),
             inset 0 1px 1px rgba(255, 255, 255, 0.2);
     }
-    /* 暗黑模式：导航栏、内部链接、社交按鈕 */
+    /* 暗黑模式：导航栏、内部链接、社交按钮 */
     :global(html[data-theme="dark"]) nav {
         background: transparent;
         border-color: transparent;
@@ -674,6 +726,7 @@ const ghostFrames: ImageMetadata[] = [
         background: rgba(214, 183, 117, 0.1);
     }
     :global(html[data-theme="dark"]) .ghost-toggle-btn:hover,
+    :global(html[data-theme="dark"]) .language-toggle:hover,
     :global(html[data-theme="dark"]) .social-links a:hover {
         background: rgba(70, 58, 45, 0.62);
         box-shadow:
@@ -690,6 +743,7 @@ const ghostFrames: ImageMetadata[] = [
             inset 0 1px 0 rgba(255, 255, 255, 0.07),
             0 8px 14px rgba(0, 0, 0, 0.22);
     }
+    :global(html[data-theme="dark"]) .language-toggle,
     :global(html[data-theme="dark"]) .social-links a {
         background: var(--theme-control-bg);
         border-color: var(--theme-control-border);

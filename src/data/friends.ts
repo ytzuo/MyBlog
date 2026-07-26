@@ -5,6 +5,7 @@ export interface FriendLink {
     titleSuffix?: string;
     url: string;
     description: string;
+    descriptionEn?: string;
     avatar?: ImageMetadata;
 }
 
@@ -14,6 +15,7 @@ export const friendLinks: FriendLink[] = [
         titleSuffix: "'s Garden",
         url: "https://elecmonkey.com",
         description: "来自 elecmonkey.com 的友情链接。",
+        descriptionEn: "A friend of this site from elecmonkey.com.",
         avatar: elecmonkeyAvatar,
     },
 ];

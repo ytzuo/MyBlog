@@ -1,4 +1,5 @@
 import type { CollectionEntry } from "astro:content";
+import { getPostUrl } from "./i18n";
 
 type BlogPost = CollectionEntry<"blog">;
 
@@ -32,7 +33,7 @@ export const buildTagSummaries = (posts: BlogPost[]): TagSummary[] => {
                 name: tag,
                 count: 1,
                 latestPostTitle: post.data.title,
-                latestPostUrl: `/blog/${post.id}/`,
+                latestPostUrl: getPostUrl(post),
                 latestPubDate: post.data.pubDate,
             });
         });
