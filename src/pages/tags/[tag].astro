@@ -81,7 +81,7 @@ const tagCount = tagCounts[tag] ?? posts.length;
 const translatedTag = translateTag(tag, isEnglish ? "zh" : "en");
 const alternateUrl = `${isEnglish ? "/tags" : "/en/tags"}/${encodeURIComponent(
     translatedTag,
-)}`;
+)}/`;
 ---
 
 <BaseLayout
