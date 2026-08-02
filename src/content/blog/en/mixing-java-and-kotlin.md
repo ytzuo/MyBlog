@@ -8,7 +8,7 @@ heroImageAlt: "Java and Kotlin mixed-compilation illustration"
 heroImageScale: 0.4
 tags: ["Java", "Kotlin", "Notes"]
 lang: "en"
-translationKey: "java和kotlin的混用一次小翻车"
+translationKey: "mixing-java-and-kotlin"
 ---
 
 ## Trying Kotlin in a Java project

@@ -2,6 +2,7 @@
 title: '让无外网的 RHEL 7 用上新版中间件'
 description: '在本地 Docker 中启动 CentOS 7 完成编译'
 slug: '让无外网的rhel7用上新版中间件'
+translationKey: 'modern-middleware-offline-rhel7'
 pubDate: '2026-04-29'
 tags: ['Docker','Linux运维','记录','数据库','Redis']
 ---

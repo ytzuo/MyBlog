@@ -44,7 +44,7 @@ const blog = defineCollection({
         reprintUrl: z.string().url().optional(),
         reprintTitle: z.string().optional(),
         lang: z.enum(["zh", "en"]).default("zh"),
-        translationKey: slugSchema.optional(),
+        translationKey: slugSchema,
       })
       .superRefine((data, context) => {
         if (data.heroImage && !data.heroImageAlt) {

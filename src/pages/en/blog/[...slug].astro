@@ -4,12 +4,15 @@ import BlogPost from "../../../layouts/BlogPost.astro";
 import { getPostUrl, isEnglishPost } from "../../../lib/i18n";
 import {
     assertUniquePostSlugs,
+    assertValidTranslationPairs,
     isVisiblePost,
 } from "../../../lib/posts";
 import { getReadingStats } from "../../../lib/readingStats";
 
 export async function getStaticPaths() {
-    const posts = (await getCollection("blog")).filter(
+    const allPosts = await getCollection("blog");
+    assertValidTranslationPairs(allPosts);
+    const posts = allPosts.filter(
         (post) => isVisiblePost(post) && isEnglishPost(post),
     );
     assertUniquePostSlugs(posts, "English");
@@ -28,7 +31,7 @@ const chineseTranslation = (await getCollection("blog")).find(
     (candidate) =>
         isVisiblePost(candidate) &&
         !isEnglishPost(candidate) &&
-        candidate.data.slug === post.data.translationKey,
+        candidate.data.translationKey === post.data.translationKey,
 );
 const alternateUrl = chineseTranslation
     ? getPostUrl(chineseTranslation)

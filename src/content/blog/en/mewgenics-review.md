@@ -7,7 +7,7 @@ heroImage: "../../../assets/BlogImg/MEWGENICS.jpg"
 heroImageAlt: "Cover for the MEWGENICS game review"
 tags: ["Games", "Roguelike", "Notes"]
 lang: "en"
-translationKey: "宝宝这是略猫游戏喵喵的结合体验"
+translationKey: "mewgenics-review"
 ---
 
 ## From Isaac to MEWGENICS

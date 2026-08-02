@@ -2,6 +2,7 @@
 title: 'AFTER_COMMIT 事件嵌套 Bug'
 description: 'AI Coding 带来的隐秘 Bug'
 slug: 'after_commit事件嵌套ai-coding带来的隐秘bug'
+translationKey: 'after-commit-event-nesting'
 pubDate: '2026-04-14'
 heroImage: '../../assets/BlogImg/EventListener.jpg'
 heroImageAlt: 'Spring 事务事件监听示意图'

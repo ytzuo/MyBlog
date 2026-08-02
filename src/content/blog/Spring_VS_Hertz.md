@@ -2,6 +2,7 @@
 title: 'Spring Boot VS Hertz：框架托管复杂性 vs 开发者显式组织复杂性'
 description: '同样是 Web 框架，Spring Boot 和 Hertz 背后的设计理念完全不同'
 slug: 'spring_vs_hertz'
+translationKey: 'spring-boot-vs-hertz'
 pubDate: '2026-05-27'
 tags: ['Spring Boot','Hertz','Go','Java','Kotlin']
 ---

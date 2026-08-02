@@ -7,7 +7,7 @@ heroImage: "../../../assets/blog-placeholder-1.jpg"
 heroImageAlt: "Cover for the first version of this blog"
 tags: ["Astro", "Notes"]
 lang: "en"
-translationKey: "初期施工完成"
+translationKey: "building-this-blog"
 ---
 
 After a stretch of intense vibe coding, the first version of my personal blog is finally ready. 🎉

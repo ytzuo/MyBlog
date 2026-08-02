@@ -2,6 +2,7 @@
 title: 'Javalin 贡献记'
 description: '人生第一次给开源项目做贡献'
 slug: 'javalin贡献记'
+translationKey: 'javalin-contribution'
 pubDate: '2026-06-08'
 tags: ['Javalin','Kotlin','记录']
 ---

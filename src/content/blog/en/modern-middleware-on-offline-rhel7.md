@@ -5,7 +5,7 @@ slug: "modern-middleware-on-offline-rhel7"
 pubDate: "2026-04-29"
 tags: ["Docker", "Linux Operations", "Notes", "Databases", "Redis"]
 lang: "en"
-translationKey: "让无外网的rhel7用上新版中间件"
+translationKey: "modern-middleware-offline-rhel7"
 ---
 
 ## The old server

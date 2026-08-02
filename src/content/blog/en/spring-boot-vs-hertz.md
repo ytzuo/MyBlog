@@ -5,7 +5,7 @@ slug: "spring-boot-vs-hertz"
 pubDate: "2026-05-27"
 tags: ["Spring Boot", "Hertz", "Go", "Java", "Kotlin"]
 lang: "en"
-translationKey: "spring_vs_hertz"
+translationKey: "spring-boot-vs-hertz"
 ---
 
 I have spent years in the Spring ecosystem as a Java and Kotlin developer. A new connection with ByteDance gave me a reason to learn Go and Hertz, so I wrote down my first comparison.

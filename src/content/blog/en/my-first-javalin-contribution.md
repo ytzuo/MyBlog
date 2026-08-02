@@ -5,7 +5,7 @@ slug: "my-first-javalin-contribution"
 pubDate: "2026-06-08"
 tags: ["Javalin", "Kotlin", "Notes"]
 lang: "en"
-translationKey: "javalin贡献记"
+translationKey: "javalin-contribution"
 ---
 
 # From an issue to my first Javalin community discussion

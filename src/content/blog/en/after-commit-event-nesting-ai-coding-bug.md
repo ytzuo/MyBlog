@@ -8,7 +8,7 @@ heroImageAlt: "Spring transaction event-listener flow"
 heroImageScale: 0.3
 tags: ["Spring", "Java", "Transactions", "Databases"]
 lang: "en"
-translationKey: "after_commit事件嵌套ai-coding带来的隐秘bug"
+translationKey: "after-commit-event-nesting"
 ---
 
 ## Notifications should not slow down the main request

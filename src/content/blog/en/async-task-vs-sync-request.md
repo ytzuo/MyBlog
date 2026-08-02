@@ -8,7 +8,7 @@ heroImageAlt: "Redis cache and asynchronous task illustration"
 heroImageScale: 0.3
 tags: ["Redis", "Caching", "Notes"]
 lang: "en"
-translationKey: "异步任务我追不上你的同步请求"
+translationKey: "async-task-vs-sync-request"
 ---
 
 ## The like cache

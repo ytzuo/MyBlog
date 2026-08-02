@@ -5,7 +5,7 @@ slug: "private-network-access-local-network-access"
 pubDate: "2026-04-20"
 tags: ["Chrome", "CORS", "Web Security", "Repost"]
 lang: "en"
-translationKey: "转载pna-lna问题"
+translationKey: "private-network-access"
 reprintAuthor: "Elecmonkey"
 reprintUrl: "https://elecmonkey.com/blog/private-network-access"
 reprintTitle: "Private Network Access / Local Network Access 问题"

@@ -5,7 +5,7 @@ slug: "reverse-proxy-production-incident"
 pubDate: "2026-03-13"
 tags: ["Java", "Linux Operations", "Notes"]
 lang: "en"
-translationKey: "微服务反向代理配置错了有点丢脸"
+translationKey: "reverse-proxy-incident"
 ---
 
 ## Three services on one server
