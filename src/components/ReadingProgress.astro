@@ -3,21 +3,19 @@
 interface Props {
   height?: number; // 进度条高度，默认 3px
   color?: string;  // 进度条颜色，默认使用 CSS 变量
-  throttleDelay?: number; // 节流延迟，默认 16ms (约60fps)
   showPercentage?: boolean; // 是否显示百分比数字，默认 true
 }
 
 const {
   height = 3,
   color = 'var(--accent)',
-  throttleDelay = 16,
   showPercentage = true
 } = Astro.props;
 
 ---
 
 <div class="reading-progress-container">
-  <div id="reading-progress-bar" class="reading-progress" data-height={height} style={`--progress-height: ${height}px`}></div>
+  <div id="reading-progress-bar" class="reading-progress" style={`--progress-height: ${height}px; --progress-color: ${color}`}></div>
   {showPercentage && (
     <div id="reading-progress-text" class="reading-progress-text" data-height={height}>0%</div>
   )}
@@ -38,8 +36,8 @@ const {
   .reading-progress {
     width: 0%;
     height: var(--progress-height, 3px);
-    background: linear-gradient(90deg, 
-      var(--accent, #705717) 0%, 
+    background: linear-gradient(90deg,
+      var(--progress-color, var(--accent, #705717)) 0%,
       var(--accent-dark, #4f440e) 100%);
     transition: width 0.1s ease-out;
     box-shadow: 0 0 8px rgba(112, 87, 23, 0.3);
@@ -105,16 +103,9 @@ const {
     private progressText: HTMLElement | null = null;
     private container: HTMLElement | null = null;
     private isScrolling: boolean = false;
-    private scrollTimeout: number | null = null;
-    private readonly THROTTLE_DELAY: number;
     private readonly PROGRESS_BAR_ID: string = 'reading-progress-bar';
     private readonly PROGRESS_TEXT_ID: string = 'reading-progress-text';
-    private hideTextTimeout: number | null = null;
     private listeners: AbortController | null = null;
-
-    constructor(throttleDelay: number = 16) {
-      this.THROTTLE_DELAY = throttleDelay;
-    }
 
     setup(): void {
       this.destroy();
@@ -146,10 +137,6 @@ const {
     destroy(): void {
       this.listeners?.abort();
       this.listeners = null;
-      if (this.hideTextTimeout) {
-        window.clearTimeout(this.hideTextTimeout);
-        this.hideTextTimeout = null;
-      }
       this.progressBar = null;
       this.progressText = null;
       this.container = null;
@@ -261,12 +248,7 @@ const {
     }
 
     try {
-      const height = progressBar.dataset.height
-        ? parseInt(progressBar.dataset.height)
-        : 3;
-      const throttleDelay =
-        height === 3 ? 16 : Math.max(10, Math.min(50, height));
-      readingProgress ??= new ReadingProgress(throttleDelay);
+      readingProgress ??= new ReadingProgress();
       readingProgress.setup();
     } catch (error) {
       console.error('Failed to initialize reading progress:', error);

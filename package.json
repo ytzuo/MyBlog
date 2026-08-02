@@ -4,7 +4,12 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "check": "astro check",
+    "check:content": "node scripts/check-content.mjs",
+    "check:links": "node scripts/check-markdown-links.mjs",
+    "test": "node --test",
     "build": "astro build",
+    "quality": "pnpm run check && pnpm run check:content && pnpm run test && pnpm run build && pnpm run check:links",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -17,5 +22,8 @@
     "sharp": "^0.34.3"
   },
   "packageManager": "pnpm@11.1.0",
-  "devDependencies": {}
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
+  }
 }

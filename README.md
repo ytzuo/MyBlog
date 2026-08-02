@@ -18,7 +18,7 @@
 
 | 类别 | 技术 |
 | :--- | :--- |
-| 框架 | [Astro 6](https://astro.build) |
+| 框架 | [Astro 7](https://astro.build) |
 | 语言 | TypeScript |
 | 内容 | Markdown / MDX |
 | 图表 | [Mermaid](https://mermaid.js.org) |

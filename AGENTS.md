@@ -3,7 +3,7 @@
 本文件为 AI 大模型提供项目的编码规范、架构模式及开发偏好，以确保生成的代码与现有 codebase 保持高度一致。
 
 ## 1. 技术栈偏好
-- **框架**: Astro 5 (使用 [astro.config.ts](file:///c:/Users/zz/Desktop/Code/MyBlog/astro.config.ts))。
+- **框架**: Astro 7 (使用 [astro.config.ts](file:///c:/Users/zz/Desktop/Code/MyBlog/astro.config.ts))。
 - **语言**: 严格使用 TypeScript。
 - **样式**: 
   - 优先使用 [global.css](file:///c:/Users/zz/Desktop/Code/MyBlog/src/styles/global.css) 中定义的全局变量（如 `--accent`, `--gray`, `--box-shadow`）。

@@ -6,6 +6,9 @@ import { getPostUrl, isEnglishPost } from "../../lib/i18n";
 import { isVisiblePost } from "../../lib/posts";
 
 export const GET: APIRoute = async (context) => {
+    if (!context.site) {
+        throw new Error("Astro site URL is required to generate the RSS feed.");
+    }
     const posts = (await getCollection("blog"))
         .filter((post) => isVisiblePost(post) && isEnglishPost(post))
         .sort(

@@ -22,10 +22,12 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
-      - name: Build
+      - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
-          pnpm run build
+
+      - name: Quality gate
+        run: pnpm run quality
 
       - name: Deploy to server
         uses: appleboy/scp-action@v0.1.7

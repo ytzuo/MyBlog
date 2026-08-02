@@ -1,5 +1,6 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 const dateSchema = z
   .string()
@@ -41,7 +42,7 @@ const blog = defineCollection({
         heroImageScale: z.number().optional(),
         tags: z.array(z.string()).optional(),
         reprintAuthor: z.string().optional(),
-        reprintUrl: z.string().url().optional(),
+        reprintUrl: z.url().optional(),
         reprintTitle: z.string().optional(),
         lang: z.enum(["zh", "en"]).default("zh"),
         translationKey: slugSchema,

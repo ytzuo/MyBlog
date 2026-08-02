@@ -865,7 +865,6 @@ const hasToc = tocHeadings.length > 0;
             showReadingProgress && (
                 <ReadingProgress
                     height={5}
-                    throttleDelay={16}
                     showPercentage={true}
                 />
             )
@@ -994,7 +993,6 @@ const hasToc = tocHeadings.length > 0;
             import type { Mermaid } from "mermaid";
 
             let tocObserver: IntersectionObserver | null = null;
-            let themeObserverAttached = false;
             let mermaidLoader: Promise<Mermaid> | null = null;
             let enhancementGeneration = 0;
             let postEnhancementsRoot: Element | null = null;
@@ -1359,24 +1357,6 @@ const hasToc = tocHeadings.length > 0;
                 }
             };
 
-            const rerenderMermaidDiagrams = async () => {
-                const charts = Array.from(
-                    document.querySelectorAll(
-                        ".mermaid-chart[data-mermaid-source]",
-                    ),
-                );
-                if (charts.length === 0) return;
-
-                const mermaid = await loadMermaid();
-                initializeMermaid(mermaid);
-
-                let index = 0;
-                for (const chart of charts) {
-                    if (!(chart instanceof HTMLElement)) continue;
-                    await renderMermaidChart(chart, index++, mermaid);
-                }
-            };
-
             const createMermaidZoomModal = (): HTMLElement => {
                 const existing = document.querySelector(
                     ".mermaid-zoom-modal",
@@ -1599,28 +1579,6 @@ const hasToc = tocHeadings.length > 0;
                         );
                         container.appendChild(button);
                     });
-            };
-
-            const observeThemeChanges = () => {
-                if (themeObserverAttached) return;
-                themeObserverAttached = true;
-
-                const observer = new MutationObserver((mutations) => {
-                    for (const mutation of mutations) {
-                        if (
-                            mutation.type === "attributes" &&
-                            mutation.attributeName === "data-theme"
-                        ) {
-                            void rerenderMermaidDiagrams();
-                            break;
-                        }
-                    }
-                });
-
-                observer.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ["data-theme"],
-                });
             };
 
             // 从 pre/code 元素提取语言标识

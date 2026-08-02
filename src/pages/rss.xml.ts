@@ -7,6 +7,9 @@ import { isVisiblePost } from '../lib/posts';
 
 // 生成 RSS feed，包含所有博客文章
 export const GET: APIRoute = async (context) => {
+	if (!context.site) {
+		throw new Error('Astro site URL is required to generate the RSS feed.');
+	}
 	const posts = (await getCollection('blog'))
 		.filter((post) => isVisiblePost(post) && !isEnglishPost(post))
 		.sort(
