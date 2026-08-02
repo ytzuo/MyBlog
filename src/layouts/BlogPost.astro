@@ -91,7 +91,7 @@ const hasToc = tocHeadings.length > 0;
                 max-width: 100%;
             }
             .prose {
-                width: min(1240px, 100%);
+                width: min(1100px, 100%);
                 margin: 0 auto;
                 padding: 0;
                 color: rgb(var(--gray-dark));
@@ -157,18 +157,25 @@ const hasToc = tocHeadings.length > 0;
                 gap: 0.5em;
                 margin-top: 1em;
             }
-            /* 正文段落自动首行缩进 */
-            .prose :global(p) {
+            /* 中文正文段落自动首行缩进 */
+            .article-body :global(p) {
                 text-indent: 2em;
                 margin-bottom: 1em;
                 line-height: 1.8;
             }
+            /* 英文正文不缩进，并用更大的段间距分隔段落 */
+            :global(html[lang="en"]) .article-body :global(p) {
+                text-indent: 0;
+            }
+            :global(html[lang="en"]) .article-body > :global(p) {
+                margin-bottom: 1.35em;
+            }
             /* 引用块内不缩进 */
-            .prose :global(blockquote p) {
+            .article-body :global(blockquote p) {
                 text-indent: 0;
             }
             /* 列表内不缩进 */
-            .prose :global(li p) {
+            .article-body :global(li p) {
                 text-indent: 0;
             }
             /* 图片：block 居中，等比缩小，不拉伸 */
@@ -199,6 +206,12 @@ const hasToc = tocHeadings.length > 0;
 
             .article-content {
                 min-width: 0;
+                container-type: inline-size;
+            }
+
+            .article-body {
+                width: min(76ch, 100%);
+                margin-inline: auto;
             }
 
             .post-navigation {
@@ -815,6 +828,19 @@ const hasToc = tocHeadings.length > 0;
                 background-color: rgba(212, 176, 103, 0.12);
             }
 
+            /* 阅读栏保持舒适行长，复杂内容使用完整文章列宽。 */
+            .article-body > :global(.code-container),
+            .article-body > :global(.mermaid-container),
+            .article-body > :global(pre),
+            .article-body > :global(table) {
+                position: relative;
+                left: 50%;
+                width: 100cqw;
+                max-width: 100cqw;
+                transform: translateX(-50%);
+                box-sizing: border-box;
+            }
+
             @media (max-width: 720px) {
                 main {
                     width: 100%;
@@ -877,6 +903,20 @@ const hasToc = tocHeadings.length > 0;
                     overflow-wrap: anywhere;
                 }
 
+                .article-body {
+                    width: 100%;
+                }
+
+                .article-body > :global(.code-container),
+                .article-body > :global(.mermaid-container),
+                .article-body > :global(pre),
+                .article-body > :global(table) {
+                    left: auto;
+                    width: 100%;
+                    max-width: 100%;
+                    transform: none;
+                }
+
                 .post-navigation {
                     grid-template-columns: minmax(0, 1fr);
                     gap: 0.75rem;
@@ -891,7 +931,7 @@ const hasToc = tocHeadings.length > 0;
                     padding: 0.9rem 1rem;
                 }
 
-                .prose :global(p) {
+                .article-body :global(p) {
                     margin-bottom: 1.15rem;
                     text-indent: 0;
                     line-height: 1.75;
@@ -1034,7 +1074,9 @@ const hasToc = tocHeadings.length > 0;
                     <div class:list={["article-shell", { "has-toc": hasToc }]}>
                         <article class="article-content">
                             <!-- 文章内容插槽 -->
-                            <slot />
+                            <div class="article-body">
+                                <slot />
+                            </div>
                             {
                                 (previousPost || nextPost) && (
                                     <nav

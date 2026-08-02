@@ -7,7 +7,7 @@ pubDate: '2026-06-08'
 tags: ['Javalin','Kotlin','记录']
 ---
 
-# 从一个 Issue 开始：我第一次参与 Javalin 开源社区讨论
+## 从一个 Issue 开始：我第一次参与 Javalin 开源社区讨论
 
 最近我在 Javalin 社区参与了第一次开源讨论，提了个 API 设计上的问题，然后跟着维护者的反馈一起慢慢梳理，最后把想法整理成了一个相对清晰的 proposal。
 

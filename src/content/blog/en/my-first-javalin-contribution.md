@@ -8,7 +8,7 @@ lang: "en"
 translationKey: "javalin-contribution"
 ---
 
-# From an issue to my first Javalin community discussion
+## From an issue to my first Javalin community discussion
 
 I recently joined my first open-source design discussion in the Javalin community. What began as a question about API design gradually became a more structured proposal.
 
