@@ -6,20 +6,7 @@ import {
     type Locale,
 } from "../../lib/i18n";
 import HeaderLink from "./HeaderLink.astro";
-import SmartIcon from "../SmartIcon.astro";
-import ghostFrame1 from "../../assets/lost/lost1.png";
-import ghostFrame2 from "../../assets/lost/lost2.png";
-import ghostFrame3 from "../../assets/lost/lost3.png";
-import ghostFrame4 from "../../assets/lost/lost4.png";
-import ghostFrame5 from "../../assets/lost/lost5.png";
-
-const ghostFrames: ImageMetadata[] = [
-    ghostFrame1,
-    ghostFrame2,
-    ghostFrame3,
-    ghostFrame4,
-    ghostFrame5,
-];
+import GhostSpriteIcon from "../GhostSpriteIcon.astro";
 
 interface Props {
     locale?: Locale;
@@ -71,7 +58,7 @@ const languageHref =
                 title={isEnglish ? "Ghost effects" : "幽灵特效"}
                 data-enabled="true"
             >
-                <SmartIcon icon={ghostFrames} duration={0.8} size={22} />
+                <GhostSpriteIcon duration={0.8} size={22} />
             </button>
             <button
                 class="theme-toggle"
@@ -201,7 +188,12 @@ const languageHref =
     document.addEventListener("astro:page-load", initThemeToggle);
 
     // 幽灵特效开关（仅在首页有效）
+    let ghostToggleController: AbortController | null = null;
+
     const initGhostToggle = () => {
+        ghostToggleController?.abort();
+        ghostToggleController = null;
+
         const GHOST_KEY = "ghost-effect-enabled";
         const btn = document.getElementById(
             "ghost-toggle-btn",
@@ -218,22 +210,50 @@ const languageHref =
         ) as HTMLElement | null;
         if (!container) return;
 
-        btn.style.display = "flex";
-
-        btn.addEventListener("click", () => {
-            const isEnabled = btn.dataset.enabled !== "false";
-            const next = !isEnabled;
-            btn.dataset.enabled = String(next);
-            localStorage.setItem(GHOST_KEY, String(next));
-
-            if (next) {
-                container.style.display = "";
-                document.dispatchEvent(new Event("ghost:reinit"));
-            } else {
-                container.style.display = "none";
+        ghostToggleController = new AbortController();
+        const { signal } = ghostToggleController;
+        const reducedMotionQuery = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        );
+        const syncMotionPreference = () => {
+            if (reducedMotionQuery.matches) {
+                btn.style.display = "none";
+                btn.dataset.enabled = "false";
                 container.innerHTML = "";
+                container.style.display = "none";
+                return;
             }
-        });
+
+            const isEnabled = localStorage.getItem(GHOST_KEY) !== "false";
+            btn.style.display = "flex";
+            btn.dataset.enabled = String(isEnabled);
+        };
+
+        syncMotionPreference();
+        reducedMotionQuery.addEventListener(
+            "change",
+            syncMotionPreference,
+            { signal },
+        );
+
+        btn.addEventListener(
+            "click",
+            () => {
+                const isEnabled = btn.dataset.enabled !== "false";
+                const next = !isEnabled;
+                btn.dataset.enabled = String(next);
+                localStorage.setItem(GHOST_KEY, String(next));
+
+                if (next) {
+                    container.style.display = "";
+                    document.dispatchEvent(new Event("ghost:reinit"));
+                } else {
+                    container.style.display = "none";
+                    container.innerHTML = "";
+                }
+            },
+            { signal },
+        );
     };
 
     document.addEventListener("astro:page-load", initGhostToggle);
@@ -316,6 +336,8 @@ const languageHref =
 
     document.addEventListener("astro:page-load", initHeaderStickyMetrics);
     document.addEventListener("astro:before-swap", () => {
+        ghostToggleController?.abort();
+        ghostToggleController = null;
         headerMetricsController?.abort();
         headerMetricsController = null;
         if (headerScrollFrame !== null) {

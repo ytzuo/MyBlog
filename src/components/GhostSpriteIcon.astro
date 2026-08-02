@@ -1,0 +1,45 @@
+---
+import ghostSprite from "../assets/lost/ghost-sprite.png";
+
+interface Props {
+    size?: number;
+    duration?: number;
+}
+
+const { size = 32, duration = 0.8 } = Astro.props;
+---
+
+<span
+    class="ghost-sprite-icon"
+    style={`--ghost-icon-size: ${size}px; --ghost-frame-duration: ${duration}s; --ghost-sprite-url: url("${ghostSprite.src}");`}
+    aria-hidden="true"
+></span>
+
+<style>
+    .ghost-sprite-icon {
+        display: block;
+        width: var(--ghost-icon-size);
+        height: var(--ghost-icon-size);
+        flex: 0 0 auto;
+        background-image: var(--ghost-sprite-url);
+        background-repeat: no-repeat;
+        background-position: 0 0;
+        background-size:
+            calc(var(--ghost-icon-size) * 5)
+            var(--ghost-icon-size);
+        animation: ghost-sprite-frames var(--ghost-frame-duration) steps(5)
+            infinite;
+    }
+
+    @keyframes ghost-sprite-frames {
+        to {
+            background-position-x: calc(var(--ghost-icon-size) * -5);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ghost-sprite-icon {
+            animation: none;
+        }
+    }
+</style>

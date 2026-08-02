@@ -1,16 +1,5 @@
 ---
-import SmartIcon from "./SmartIcon.astro";
-import lost1 from "../assets/lost/lost1.png";
-import lost2 from "../assets/lost/lost2.png";
-import lost3 from "../assets/lost/lost3.png";
-import lost4 from "../assets/lost/lost4.png";
-import lost5 from "../assets/lost/lost5.png";
-
-// 幽灵帧数组
-const ghostFrames: ImageMetadata[] = [lost1, lost2, lost3, lost4, lost5];
-
-// 如果没有提供图片的默认回退
-const fallbackIcon = "👻";
+import GhostSpriteIcon from "./GhostSpriteIcon.astro";
 
 interface Props {
     count?: number;
@@ -28,17 +17,7 @@ const { count = 6 } = Astro.props;
     <div class="ghost-wrapper">
         <div class="ghost-float">
             <div class="ghost-inner">
-                {
-                    ghostFrames.length > 0 ? (
-                        <SmartIcon
-                            icon={ghostFrames}
-                            duration={0.8}
-                            size={54}
-                        />
-                    ) : (
-                        <SmartIcon icon={fallbackIcon} size={54} />
-                    )
-                }
+                <GhostSpriteIcon duration={0.8} size={54} />
             </div>
         </div>
     </div>
@@ -49,6 +28,9 @@ const { count = 6 } = Astro.props;
     const MOBILE_GHOST_SPACING = 900;
     const MIN_MOBILE_GHOSTS = 2;
     const MAX_MOBILE_GHOSTS = 12;
+    const reducedMotionQuery = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+    );
 
     let ghostLayoutObserver: ResizeObserver | null = null;
     let ghostRefreshTimer: number | undefined;
@@ -81,6 +63,15 @@ const { count = 6 } = Astro.props;
         const template = document.getElementById(
             "ghost-template",
         ) as HTMLTemplateElement;
+
+        if (reducedMotionQuery.matches) {
+            if (container) {
+                container.innerHTML = "";
+                container.style.display = "none";
+            }
+            ghostLayoutObserver?.disconnect();
+            return;
+        }
 
         if (container && template) {
             // Clear existing ghosts to prevent duplicates if function runs multiple times
@@ -262,7 +253,11 @@ const { count = 6 } = Astro.props;
         const container = document.getElementById("ghost-container");
         if (!container) return;
 
-        if (localStorage.getItem(GHOST_KEY) === "false") {
+        if (
+            reducedMotionQuery.matches ||
+            localStorage.getItem(GHOST_KEY) === "false"
+        ) {
+            container.innerHTML = "";
             container.style.display = "none";
             ghostLayoutObserver?.disconnect();
             return;
@@ -280,9 +275,9 @@ const { count = 6 } = Astro.props;
     });
     // 由幽灵开关按钮触发，用于动态重新初始化
     document.addEventListener("ghost:reinit", () => {
-        initGhosts();
-        observeGhostLayout();
+        maybeInitGhosts();
     });
+    reducedMotionQuery.addEventListener("change", maybeInitGhosts);
     document.addEventListener("astro:before-swap", () => {
         ghostLayoutObserver?.disconnect();
         ghostLayoutObserver = null;
@@ -364,23 +359,20 @@ const { count = 6 } = Astro.props;
         user-select: none;
     }
 
-    :global(.ghost-wrapper .smart-icon),
-    :global(.ghost-wrapper smart-icon-anim),
-    :global(.ghost-wrapper .frame),
-    :global(.ghost-wrapper img) {
+    :global(.ghost-wrapper .ghost-sprite-icon) {
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
         user-select: none;
     }
 
-    :global(.ghost-wrapper img) {
-        -webkit-user-drag: none;
-        user-drag: none;
-        pointer-events: none;
-    }
-
     :global(.ghost-wrapper:hover) .ghost-inner {
         transform: scale(1.1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #ghost-container {
+            display: none;
+        }
     }
 
 </style>
