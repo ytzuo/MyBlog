@@ -34,9 +34,12 @@
 ```yaml
 title: string
 description: string
+slug: string (必填；发布后保持稳定，只能包含字母、数字、下划线和连字符)
 pubDate: string (格式: 'YYYY-MM-DD')
 updatedDate: string (可选)
+draft: boolean (可选，默认 false；开发环境可预览，生产环境不会发布)
 heroImage: Image (可选)
+heroImageAlt: string (配置 heroImage 时必填)
 heroImageScale: number (可选)
 tags: string[] (可选)
 ```

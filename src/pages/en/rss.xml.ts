@@ -3,10 +3,11 @@ import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
 import { SITE_DESCRIPTION_EN, SITE_TITLE_EN } from "../../consts";
 import { getPostUrl, isEnglishPost } from "../../lib/i18n";
+import { isVisiblePost } from "../../lib/posts";
 
 export const GET: APIRoute = async (context) => {
     const posts = (await getCollection("blog"))
-        .filter(isEnglishPost)
+        .filter((post) => isVisiblePost(post) && isEnglishPost(post))
         .sort(
             (a, b) =>
                 new Date(b.data.pubDate).valueOf() -

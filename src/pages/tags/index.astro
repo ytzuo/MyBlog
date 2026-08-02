@@ -10,7 +10,8 @@ import {
     SITE_DESCRIPTION_EN,
     SITE_TITLE_EN,
 } from "../../consts";
-import type { Locale } from "../../lib/i18n";
+import { isEnglishPost, type Locale } from "../../lib/i18n";
+import { isVisiblePost } from "../../lib/posts";
 import {
     buildTagCounts,
     buildTagSummaries,
@@ -24,7 +25,9 @@ const { locale = "zh" } = Astro.props;
 const isEnglish = locale === "en";
 const posts = sortPostsByDateDesc(
     (await getCollection("blog")).filter(
-        (post) => post.id.startsWith("en/") === isEnglish,
+        (post) =>
+            isVisiblePost(post) &&
+            isEnglishPost(post) === isEnglish,
     ),
 );
 const tagSummaries = buildTagSummaries(posts);

@@ -1,6 +1,7 @@
 ---
 title: "Repost — Private Network Access / Local Network Access"
 description: "How Google Chrome's security model reshaped a cross-network deployment"
+slug: "private-network-access-local-network-access"
 pubDate: "2026-04-20"
 tags: ["Chrome", "CORS", "Web Security", "Repost"]
 lang: "en"

@@ -1,8 +1,10 @@
 ---
 title: "The First Version of This Blog Is Done"
 description: "A quick note about the initial build"
-pubDate: "Feb 09 2026"
+slug: "building-this-blog"
+pubDate: "2026-02-09"
 heroImage: "../../../assets/blog-placeholder-1.jpg"
+heroImageAlt: "Cover for the first version of this blog"
 tags: ["Astro", "Notes"]
 lang: "en"
 translationKey: "初期施工完成"

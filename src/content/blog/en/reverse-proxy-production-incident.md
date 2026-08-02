@@ -1,7 +1,8 @@
 ---
 title: "A Slightly Embarrassing Reverse-Proxy Incident"
 description: "A production incident that ended without serious damage"
-pubDate: "Mar 13 2026"
+slug: "reverse-proxy-production-incident"
+pubDate: "2026-03-13"
 tags: ["Java", "Linux Operations", "Notes"]
 lang: "en"
 translationKey: "微服务反向代理配置错了有点丢脸"

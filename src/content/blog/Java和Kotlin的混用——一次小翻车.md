@@ -1,8 +1,10 @@
 ---
 title: 'Java 和 Kotlin 的混用——一次小翻车'
 description: '关于 Java 和 Kotlin 的编译时机'
-pubDate: 'Feb 10 2026'
+slug: 'java和kotlin的混用一次小翻车'
+pubDate: '2026-02-10'
 heroImage: '../../assets/BlogImg/Java vs Kotlin.jpg'
+heroImageAlt: 'Java 与 Kotlin 混合编译示意图'
 heroImageScale: 0.4
 tags: ['Java','Kotlin','记录']
 ---

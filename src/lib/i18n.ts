@@ -17,12 +17,12 @@ export const localizePath = (path: string, locale: Locale): string => {
 
 export const isEnglishPost = (
     post: CollectionEntry<"blog">,
-): boolean => post.id.startsWith("en/");
+): boolean => post.data.lang === "en";
 
 export const getPostUrl = (post: CollectionEntry<"blog">): string =>
     isEnglishPost(post)
-        ? `/en/blog/${post.id.replace(/^en\//, "")}/`
-        : `/blog/${post.id}/`;
+        ? `/en/blog/${post.data.slug}/`
+        : `/blog/${post.data.slug}/`;
 
 export const getLocaleLabel = (locale: Locale): string =>
     locale === "en" ? "English" : "中文";

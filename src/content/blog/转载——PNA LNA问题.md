@@ -1,7 +1,8 @@
 ---
 title: "转载 — Private Network Access / Local Network Access 问题"
-pubDate: "2026-04-20"
 description: "Google Chrome 的安全模型牵着整个 Web 社区的鼻子走"
+slug: "转载pna-lna问题"
+pubDate: "2026-04-20"
 tags: ["Chrome", "CORS", "Web 安全", "转载"]
 reprintAuthor: "Elecmonkey"
 reprintUrl: "https://elecmonkey.com/blog/private-network-access"

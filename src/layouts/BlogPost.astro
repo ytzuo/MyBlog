@@ -26,6 +26,7 @@ const {
     pubDate,
     updatedDate,
     heroImage,
+    heroImageAlt = "",
     heroImageScale = 1,
     tags,
     headings = [],
@@ -51,6 +52,7 @@ const hasToc = tocHeadings.length > 0;
             title={title}
             description={description}
             image={heroImage}
+            imageAlt={heroImageAlt}
             locale={locale}
             alternateUrl={alternateUrl}
         />
@@ -878,7 +880,7 @@ const hasToc = tocHeadings.length > 0;
                             <Image
                                 width={1020}
                                 src={heroImage}
-                                alt=""
+                                alt={heroImageAlt}
                                 style={`width: ${heroImageScale * 100}%; height: auto;`}
                             />
                         )

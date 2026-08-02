@@ -11,6 +11,7 @@ interface Props {
 	title: string;
 	description: string;
 	image?: ImageMetadata;
+    imageAlt?: string;
     locale?: Locale;
     alternateUrl?: string;
 }
@@ -21,6 +22,7 @@ const {
     title,
     description,
     image = FallbackImage,
+    imageAlt,
     locale = getLocaleFromPath(Astro.url.pathname),
     alternateUrl,
 } = Astro.props;
@@ -93,6 +95,7 @@ const alternatePath =
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image.src, Astro.url)} />
+{imageAlt && <meta property="og:image:alt" content={imageAlt} />}
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
@@ -100,3 +103,4 @@ const alternatePath =
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+{imageAlt && <meta property="twitter:image:alt" content={imageAlt} />}

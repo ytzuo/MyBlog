@@ -1,8 +1,10 @@
 ---
 title: "Mixing Java and Kotlin: A Small Build Failure"
 description: "A lesson about Java and Kotlin compilation order in Maven"
-pubDate: "Feb 10 2026"
+slug: "mixing-java-and-kotlin"
+pubDate: "2026-02-10"
 heroImage: "../../../assets/BlogImg/Java vs Kotlin.jpg"
+heroImageAlt: "Java and Kotlin mixed-compilation illustration"
 heroImageScale: 0.4
 tags: ["Java", "Kotlin", "Notes"]
 lang: "en"

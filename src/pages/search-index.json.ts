@@ -1,10 +1,11 @@
 import { getCollection } from "astro:content";
 import { isEnglishPost } from "../lib/i18n";
+import { isVisiblePost } from "../lib/posts";
 import { buildSearchIndexItem } from "../lib/search";
 
 export async function GET() {
     const posts = (await getCollection("blog"))
-        .filter((post) => !isEnglishPost(post))
+        .filter((post) => isVisiblePost(post) && !isEnglishPost(post))
         .sort(
             (a, b) =>
                 new Date(b.data.pubDate).valueOf() -

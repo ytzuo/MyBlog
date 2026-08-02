@@ -1,7 +1,8 @@
 ---
 title: "Spring Boot vs Hertz: Framework-Managed vs Explicit Complexity"
 description: "Two Web frameworks built around very different design philosophies"
-pubDate: "May 27 2026"
+slug: "spring-boot-vs-hertz"
+pubDate: "2026-05-27"
 tags: ["Spring Boot", "Hertz", "Go", "Java", "Kotlin"]
 lang: "en"
 translationKey: "spring_vs_hertz"

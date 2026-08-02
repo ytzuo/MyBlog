@@ -1,8 +1,10 @@
 ---
 title: "A Hidden AFTER_COMMIT Event-Nesting Bug"
 description: "A subtle transaction-event bug introduced during an AI-assisted refactor"
-pubDate: "Apr 14 2026"
+slug: "after-commit-event-nesting-ai-coding-bug"
+pubDate: "2026-04-14"
 heroImage: "../../../assets/BlogImg/EventListener.jpg"
+heroImageAlt: "Spring transaction event-listener flow"
 heroImageScale: 0.3
 tags: ["Spring", "Java", "Transactions", "Databases"]
 lang: "en"

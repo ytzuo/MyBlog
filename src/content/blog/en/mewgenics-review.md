@@ -1,8 +1,10 @@
 ---
 title: "This Is a Roguelike, Baby: My Time with MEWGENICS"
 description: "Can Edmund McMillen's new game recapture the magic of Isaac?"
-pubDate: "Feb 12 2026"
+slug: "mewgenics-review"
+pubDate: "2026-02-12"
 heroImage: "../../../assets/BlogImg/MEWGENICS.jpg"
+heroImageAlt: "Cover for the MEWGENICS game review"
 tags: ["Games", "Roguelike", "Notes"]
 lang: "en"
 translationKey: "宝宝这是略猫游戏喵喵的结合体验"

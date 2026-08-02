@@ -1,8 +1,10 @@
 ---
 title: "When an Async Task Cannot Catch a Synchronous Request"
 description: "Why an empty Redis set needs a sentinel"
-pubDate: "Mar 30 2026"
+slug: "async-task-vs-sync-request"
+pubDate: "2026-03-30"
 heroImage: "../../../assets/BlogImg/redisComplain.jpg"
+heroImageAlt: "Redis cache and asynchronous task illustration"
 heroImageScale: 0.3
 tags: ["Redis", "Caching", "Notes"]
 lang: "en"

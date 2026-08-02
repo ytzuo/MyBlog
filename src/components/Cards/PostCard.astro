@@ -37,7 +37,11 @@ const heroOrientation =
                     `image-link--${heroOrientation}`,
                 ]}
             >
-                <Image width={440} src={heroImage} alt="" />
+                <Image
+                    width={440}
+                    src={heroImage}
+                    alt={post.data.heroImageAlt ?? ""}
+                />
             </a>
         )
     }

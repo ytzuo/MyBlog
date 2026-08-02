@@ -1,6 +1,7 @@
 ---
 title: "Running Modern Middleware on an Offline RHEL 7 Server"
 description: "Building PostgreSQL and Redis in a local CentOS 7 container"
+slug: "modern-middleware-on-offline-rhel7"
 pubDate: "2026-04-29"
 tags: ["Docker", "Linux Operations", "Notes", "Databases", "Redis"]
 lang: "en"

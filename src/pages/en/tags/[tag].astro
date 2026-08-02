@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import TagPage from "../../tags/[tag].astro";
 import { isEnglishPost } from "../../../lib/i18n";
+import { isVisiblePost } from "../../../lib/posts";
 import {
     buildTagCounts,
     buildTagSummaries,
@@ -11,7 +12,9 @@ import {
 
 export async function getStaticPaths() {
     const allPosts = sortPostsByDateDesc(
-        (await getCollection("blog")).filter(isEnglishPost),
+        (await getCollection("blog")).filter(
+            (post) => isVisiblePost(post) && isEnglishPost(post),
+        ),
     );
     const tagSummaries = buildTagSummaries(allPosts);
     const tagCounts = buildTagCounts(tagSummaries);

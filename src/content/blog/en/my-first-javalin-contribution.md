@@ -1,7 +1,8 @@
 ---
 title: "My First Contribution to the Javalin Community"
 description: "How an API design question became a proposal for nested route scopes"
-pubDate: "Jun 08 2026"
+slug: "my-first-javalin-contribution"
+pubDate: "2026-06-08"
 tags: ["Javalin", "Kotlin", "Notes"]
 lang: "en"
 translationKey: "javalin贡献记"
