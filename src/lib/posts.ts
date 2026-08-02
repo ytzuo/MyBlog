@@ -1,11 +1,50 @@
 import type { CollectionEntry } from "astro:content";
 
+type BlogPost = CollectionEntry<"blog">;
+
+export interface PostNavigation {
+    previousPost?: BlogPost;
+    nextPost?: BlogPost;
+}
+
 /**
  * Drafts remain previewable during local development, but are excluded from
  * every production collection consumer (pages, feeds, tags, and search).
  */
 export const isVisiblePost = (post: CollectionEntry<"blog">): boolean =>
     import.meta.env.DEV || !post.data.draft;
+
+/**
+ * Returns the posts immediately before and after the current post in
+ * chronological order. translationKey keeps same-day ordering stable across
+ * the Chinese and English collections.
+ */
+export const getPostNavigation = (
+    posts: BlogPost[],
+    currentPost: BlogPost,
+): PostNavigation => {
+    const chronologicalPosts = [...posts].sort((a, b) => {
+        const dateDifference =
+            new Date(a.data.pubDate).valueOf() -
+            new Date(b.data.pubDate).valueOf();
+        return (
+            dateDifference ||
+            a.data.translationKey.localeCompare(b.data.translationKey)
+        );
+    });
+    const currentIndex = chronologicalPosts.findIndex(
+        (post) =>
+            post.data.lang === currentPost.data.lang &&
+            post.data.slug === currentPost.data.slug,
+    );
+
+    if (currentIndex === -1) return {};
+
+    return {
+        previousPost: chronologicalPosts[currentIndex - 1],
+        nextPost: chronologicalPosts[currentIndex + 1],
+    };
+};
 
 export const assertUniquePostSlugs = (
     posts: CollectionEntry<"blog">[],

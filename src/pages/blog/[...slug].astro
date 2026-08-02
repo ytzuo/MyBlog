@@ -5,6 +5,7 @@ import { getPostUrl, isEnglishPost } from '../../lib/i18n';
 import {
 	assertUniquePostSlugs,
 	assertValidTranslationPairs,
+	getPostNavigation,
 	isVisiblePost,
 } from '../../lib/posts';
 import { getReadingStats } from '../../lib/readingStats';
@@ -26,11 +27,18 @@ type Props = CollectionEntry<'blog'>;
 const post = Astro.props;
 const { Content, headings } = await render(post);
 const readingStats = getReadingStats(post.body ?? "");
-const englishTranslation = (await getCollection("blog")).find(
+const allPosts = await getCollection("blog");
+const englishTranslation = allPosts.find(
 	(candidate) =>
 		isVisiblePost(candidate) &&
 		isEnglishPost(candidate) &&
 		candidate.data.translationKey === post.data.translationKey,
+);
+const { previousPost, nextPost } = getPostNavigation(
+	allPosts.filter(
+		(candidate) => isVisiblePost(candidate) && !isEnglishPost(candidate),
+	),
+	post,
 );
 const alternateUrl = englishTranslation
 	? getPostUrl(englishTranslation)
@@ -43,6 +51,14 @@ const alternateUrl = englishTranslation
 	readingStats={readingStats}
 	locale="zh"
 	alternateUrl={alternateUrl}
+	previousPost={previousPost && {
+		title: previousPost.data.title,
+		url: getPostUrl(previousPost),
+	}}
+	nextPost={nextPost && {
+		title: nextPost.data.title,
+		url: getPostUrl(nextPost),
+	}}
 >
 	<Content />
 </BlogPost>

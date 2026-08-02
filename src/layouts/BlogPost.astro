@@ -12,12 +12,19 @@ import ReprintCard from "../components/ReprintCard.astro";
 import { getLocaleFromPath, type Locale } from "../lib/i18n";
 import type { ReadingStats } from "../lib/readingStats";
 
+interface PostNavigationItem {
+    title: string;
+    url: string;
+}
+
 type Props = CollectionEntry<"blog">["data"] & {
     headings?: MarkdownHeading[];
     readingStats?: ReadingStats;
     showReadingProgress?: boolean;
     locale?: Locale;
     alternateUrl?: string;
+    previousPost?: PostNavigationItem;
+    nextPost?: PostNavigationItem;
 };
 
 const {
@@ -37,6 +44,8 @@ const {
     reprintTitle,
     locale = getLocaleFromPath(Astro.url.pathname),
     alternateUrl,
+    previousPost,
+    nextPost,
 } = Astro.props;
 
 const isEnglish = locale === "en";
@@ -190,6 +199,72 @@ const hasToc = tocHeadings.length > 0;
 
             .article-content {
                 min-width: 0;
+            }
+
+            .post-navigation {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1rem;
+                margin-top: 3rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid var(--surface-border);
+            }
+
+            .post-navigation-link {
+                display: flex;
+                min-width: 0;
+                min-height: 5.5rem;
+                flex-direction: column;
+                gap: 0.45rem;
+                justify-content: center;
+                padding: 1rem 1.1rem;
+                border: 1px solid var(--surface-border);
+                border-radius: 9px;
+                background: linear-gradient(
+                    180deg,
+                    var(--surface-1),
+                    var(--surface-2)
+                );
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+                    0 6px 16px var(--surface-shadow);
+                color: rgb(var(--black));
+                text-decoration: none;
+                transition:
+                    border-color 0.18s ease,
+                    box-shadow 0.18s ease,
+                    transform 0.18s ease;
+            }
+
+            .post-navigation-link.next {
+                grid-column: 2;
+                text-align: right;
+            }
+
+            .post-navigation-link:hover {
+                border-color: color-mix(
+                    in srgb,
+                    var(--accent) 45%,
+                    var(--surface-border)
+                );
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+                    0 9px 20px var(--surface-shadow);
+                transform: translateY(-2px);
+            }
+
+            .post-navigation-label {
+                color: var(--accent);
+                font-size: 0.82rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+            }
+
+            .post-navigation-title {
+                overflow-wrap: anywhere;
+                font-size: 1rem;
+                font-weight: 700;
+                line-height: 1.45;
             }
 
             .toc-panel {
@@ -802,6 +877,20 @@ const hasToc = tocHeadings.length > 0;
                     overflow-wrap: anywhere;
                 }
 
+                .post-navigation {
+                    grid-template-columns: minmax(0, 1fr);
+                    gap: 0.75rem;
+                    margin-top: 2.25rem;
+                    padding-top: 1.25rem;
+                }
+
+                .post-navigation-link,
+                .post-navigation-link.next {
+                    grid-column: 1;
+                    min-height: auto;
+                    padding: 0.9rem 1rem;
+                }
+
                 .prose :global(p) {
                     margin-bottom: 1.15rem;
                     text-indent: 0;
@@ -946,6 +1035,51 @@ const hasToc = tocHeadings.length > 0;
                         <article class="article-content">
                             <!-- 文章内容插槽 -->
                             <slot />
+                            {
+                                (previousPost || nextPost) && (
+                                    <nav
+                                        class="post-navigation"
+                                        aria-label={
+                                            isEnglish
+                                                ? "Post navigation"
+                                                : "文章导航"
+                                        }
+                                    >
+                                        {previousPost && (
+                                            <a
+                                                class="post-navigation-link previous"
+                                                href={previousPost.url}
+                                                rel="prev"
+                                            >
+                                                <span class="post-navigation-label">
+                                                    {isEnglish
+                                                        ? "← Previous post"
+                                                        : "← 上一篇"}
+                                                </span>
+                                                <span class="post-navigation-title">
+                                                    {previousPost.title}
+                                                </span>
+                                            </a>
+                                        )}
+                                        {nextPost && (
+                                            <a
+                                                class="post-navigation-link next"
+                                                href={nextPost.url}
+                                                rel="next"
+                                            >
+                                                <span class="post-navigation-label">
+                                                    {isEnglish
+                                                        ? "Next post →"
+                                                        : "下一篇 →"}
+                                                </span>
+                                                <span class="post-navigation-title">
+                                                    {nextPost.title}
+                                                </span>
+                                            </a>
+                                        )}
+                                    </nav>
+                                )
+                            }
                         </article>
                         {
                             hasToc && (
