@@ -15,6 +15,28 @@ export const localizePath = (path: string, locale: Locale): string => {
     return normalized.replace(/^\/en(?=\/|$)/, "") || "/";
 };
 
+const normalizeNavigationPath = (path: string): string => {
+    const pathname = path.split(/[?#]/, 1)[0] || "/";
+    const normalized = pathname.startsWith("/")
+        ? pathname
+        : `/${pathname}`;
+    return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
+};
+
+export const isNavigationPathActive = (
+    pathname: string,
+    href: string,
+): boolean => {
+    const currentPath = normalizeNavigationPath(pathname);
+    const targetPath = normalizeNavigationPath(href);
+    const isLocaleRoot = targetPath === "/" || targetPath === "/en";
+
+    return (
+        currentPath === targetPath ||
+        (!isLocaleRoot && currentPath.startsWith(`${targetPath}/`))
+    );
+};
+
 export const isEnglishPost = (
     post: CollectionEntry<"blog">,
 ): boolean => post.data.lang === "en";

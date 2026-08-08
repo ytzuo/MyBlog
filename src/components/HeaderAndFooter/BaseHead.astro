@@ -171,8 +171,20 @@ const structuredDataJson = JSON.stringify({
 		};
 
 		applyTheme();
-		document.addEventListener('astro:page-load', applyTheme);
 	})();
+</script>
+
+<script>
+	import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
+
+	document.addEventListener('astro:before-swap', (event) => {
+		const theme = document.documentElement.dataset.theme;
+		if (theme !== 'light' && theme !== 'dark') return;
+
+		const nextDocument = (event as TransitionBeforeSwapEvent).newDocument;
+		nextDocument.documentElement.dataset.theme = theme;
+		nextDocument.documentElement.style.colorScheme = theme;
+	});
 </script>
 
 <!-- 字体预加载 -->

@@ -7,6 +7,7 @@ import {
     getLocaleLabel,
     getPostUrl,
     isEnglishPost,
+    isNavigationPathActive,
     localizePath,
     translateTag,
 } from "../src/lib/i18n";
@@ -45,6 +46,25 @@ describe("localizePath", () => {
         );
         expect(localizePath("/en", "zh")).toBe("/");
     });
+});
+
+describe("isNavigationPathActive", () => {
+    it.each([
+        ["/", "/", true],
+        ["/blog/", "/blog", true],
+        ["/blog/post/", "/blog", true],
+        ["/about/", "/blog", false],
+        ["/en/", "/en/", true],
+        ["/en/blog/", "/en/blog", true],
+        ["/en/blog/post/", "/en/blog", true],
+        ["/en/about/", "/en/blog", false],
+        ["/en/blog/", "/en/", false],
+    ] as const)(
+        "matches pathname %s against %s as %s",
+        (pathname, href, expected) => {
+            expect(isNavigationPathActive(pathname, href)).toBe(expected);
+        },
+    );
 });
 
 describe("post locale helpers", () => {

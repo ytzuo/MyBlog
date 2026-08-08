@@ -1,16 +1,20 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
+import { isNavigationPathActive } from '../../lib/i18n';
 
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
-const subpath = pathname.match(/[^\/]+/g);
-// 判断当前链接是否激活（匹配当前路径或子路径）
-const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
+const resolvedHref = typeof href === 'string' ? href : '';
+const isActive = isNavigationPathActive(Astro.url.pathname, resolvedHref);
 ---
 
-<a href={href} class:list={[className, { active: isActive }]} {...props}>
+<a
+	href={href}
+	class:list={[className, { active: isActive }]}
+	aria-current={isActive ? 'page' : undefined}
+	{...props}
+>
 	<slot />
 </a>
 <style>

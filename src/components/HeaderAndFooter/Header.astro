@@ -25,7 +25,10 @@ const languageHref =
         : localizePath(Astro.url.pathname, "en"));
 ---
 
-<header>
+<header
+    transition:name="site-header"
+    transition:animate="none"
+>
     <nav>
         <h2>
             <a href={localizePath("/", locale)} class="site-logo">
@@ -57,6 +60,7 @@ const languageHref =
                 aria-label={isEnglish ? "Toggle ghost effects" : "幽灵特效开关"}
                 title={isEnglish ? "Ghost effects" : "幽灵特效"}
                 data-enabled="true"
+                transition:persist="ghost-toggle"
             >
                 <GhostSpriteIcon duration={0.8} size={22} />
             </button>
@@ -67,6 +71,7 @@ const languageHref =
                 title={isEnglish ? "Switch to dark mode" : "切换黑夜模式"}
                 data-light-label={isEnglish ? "Switch to light mode" : "切换到浅色模式"}
                 data-dark-label={isEnglish ? "Switch to dark mode" : "切换到黑夜模式"}
+                transition:persist="theme-toggle"
             >
                 <span class="theme-toggle-track" aria-hidden="true">
                     <span class="theme-toggle-knob">
@@ -120,15 +125,14 @@ const languageHref =
         ) as HTMLButtonElement | null;
         if (!toggle) return;
 
-        if (toggle.dataset.ready === "true") {
-            toggle.setAttribute(
-                "aria-pressed",
-                String(root.dataset.theme === "dark"),
-            );
-            return;
-        }
-
         const storageKey = "theme-preference";
+        const isEnglishPage = document.documentElement.lang === "en";
+        toggle.dataset.lightLabel = isEnglishPage
+            ? "Switch to light mode"
+            : "切换到浅色模式";
+        toggle.dataset.darkLabel = isEnglishPage
+            ? "Switch to dark mode"
+            : "切换到黑夜模式";
         const syncState = () => {
             const isDark = root.dataset.theme === "dark";
             toggle.setAttribute("aria-pressed", String(isDark));
@@ -140,6 +144,11 @@ const languageHref =
                 toggle.setAttribute("aria-label", label);
             }
         };
+
+        if (toggle.dataset.ready === "true") {
+            syncState();
+            return;
+        }
 
         toggle.dataset.ready = "true";
         syncState();
@@ -200,6 +209,16 @@ const languageHref =
         ) as HTMLButtonElement | null;
         if (!btn) return;
 
+        const isEnglishPage = document.documentElement.lang === "en";
+        const ghostLabel = isEnglishPage
+            ? "Toggle ghost effects"
+            : "幽灵特效开关";
+        btn.setAttribute("aria-label", ghostLabel);
+        btn.setAttribute(
+            "title",
+            isEnglishPage ? "Ghost effects" : "幽灵特效",
+        );
+
         // 同步持久化状态到按钮外观
         const enabled = localStorage.getItem(GHOST_KEY) !== "false";
         btn.dataset.enabled = String(enabled);
@@ -208,7 +227,10 @@ const languageHref =
         const container = document.getElementById(
             "ghost-container",
         ) as HTMLElement | null;
-        if (!container) return;
+        if (!container) {
+            btn.style.display = "none";
+            return;
+        }
 
         ghostToggleController = new AbortController();
         const { signal } = ghostToggleController;
