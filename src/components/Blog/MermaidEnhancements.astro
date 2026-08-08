@@ -1,0 +1,551 @@
+<script>
+    import type { Mermaid } from "mermaid";
+
+    let mermaidLoader: Promise<Mermaid> | null = null;
+    let enhancementGeneration = 0;
+    let postEnhancementsRoot: Element | null = null;
+    let postEnhancementsRun: Promise<void> | null = null;
+    const isEnglishPage =
+        document.documentElement.lang.toLowerCase() === "en";
+    const uiText = {
+        cacheReloading: isEnglishPage
+            ? "The Mermaid module cache appears stale. Reloading the page to try again..."
+            : "检测到 Mermaid 动态模块缓存失效，正在自动刷新页面重试...",
+        devCacheHint: isEnglishPage
+            ? "The development module cache may be stale. Try Ctrl+F5 or restart the dev server with pnpm dev -- --force."
+            : "开发环境模块缓存可能失效，请 Ctrl+F5 强刷，或重启 dev（建议：pnpm dev -- --force）。",
+        renderFailed: isEnglishPage
+            ? "The Mermaid diagram could not be rendered. Open the console for details."
+            : "Mermaid 图表渲染失败，请打开控制台查看详细日志。",
+        errorDetails: isEnglishPage ? "Error" : "错误信息",
+        zoomOut: isEnglishPage ? "Zoom out" : "缩小",
+        reset: isEnglishPage ? "Reset" : "重置",
+        zoomIn: isEnglishPage ? "Zoom in" : "放大",
+        close: isEnglishPage ? "Close" : "关闭",
+        openDiagram: isEnglishPage
+            ? "Open enlarged diagram"
+            : "放大查看图表",
+    };
+    const globalWindow = window as Window & {
+        __MERMAID_DEBUG__?: {
+            enabled: boolean;
+            entries: Array<{
+                index: number;
+                lineCount: number;
+                charCount: number;
+                ok: boolean;
+                message?: string;
+            }>;
+        };
+    };
+
+    const MERMAID_DEBUG = (() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (
+                params.get("mermaidDebug") === "1" ||
+                params.has("mermaidDebug")
+            )
+                return true;
+            return localStorage.getItem("mermaid-debug") === "1";
+        } catch {
+            return false;
+        }
+    })();
+
+    if (!globalWindow.__MERMAID_DEBUG__) {
+        globalWindow.__MERMAID_DEBUG__ = {
+            enabled: MERMAID_DEBUG,
+            entries: [],
+        };
+    }
+
+    const debugLog = (...args: unknown[]) => {
+        if (!MERMAID_DEBUG) return;
+        console.log("[Mermaid Debug]", ...args);
+    };
+
+
+    const isDynamicImportFetchError = (message: string): boolean =>
+        /Failed to fetch dynamically imported module/i.test(message);
+
+    const tryDevAutoReload = (): boolean => {
+        if (!import.meta.env.DEV) return false;
+
+        const key = "mermaid-dev-reload-once";
+        if (sessionStorage.getItem(key) === "1") return false;
+
+        sessionStorage.setItem(key, "1");
+        setTimeout(() => {
+            window.location.reload();
+        }, 80);
+        return true;
+    };
+
+    const escapeHtml = (input: string): string =>
+        input
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+
+    const getMermaidTheme = (): "default" => "default";
+
+    const isMermaidCodeBlock = (
+        pre: Element | null,
+        code: Element | null,
+    ): boolean => {
+        if (!pre && !code) return false;
+
+        const preLanguage =
+            pre instanceof HTMLElement ? pre.dataset.language : "";
+        if (preLanguage?.toLowerCase() === "mermaid") return true;
+
+        const preClassName = pre?.className || "";
+        if (/(^|\s)language-mermaid(\s|$)/.test(preClassName))
+            return true;
+
+        const codeClassName = code?.className || "";
+        return /(^|\s)language-mermaid(\s|$)/.test(codeClassName);
+    };
+
+    const loadMermaid = (): Promise<Mermaid> => {
+        mermaidLoader ??= import("mermaid").then(
+            ({ default: mermaid }) => mermaid,
+        );
+        return mermaidLoader;
+    };
+
+    const initializeMermaid = (mermaid: Mermaid) => {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: getMermaidTheme(),
+            securityLevel: "loose",
+        });
+    };
+
+    const extractMermaidSource = (code: HTMLElement): string => {
+        const lines = Array.from(code.querySelectorAll(".line"));
+        const raw =
+            lines.length > 0
+                ? lines.map((line) => line.textContent || "").join("\n")
+                : code.textContent || "";
+
+        return raw
+            .replace(/\u00A0/g, " ")
+            .replace(/[\u200B-\u200D\uFEFF]/g, "")
+            .replace(
+                /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,
+                "",
+            )
+            .replace(/\r\n?/g, "\n")
+            .trim();
+    };
+
+    const validateMermaidSource = async (
+        source: string,
+        mermaid: Mermaid,
+    ): Promise<{ ok: boolean; message?: string }> => {
+        try {
+            await mermaid.parse(source);
+            return { ok: true };
+        } catch (error) {
+            return {
+                ok: false,
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : String(error),
+            };
+        }
+    };
+
+    const renderMermaidChart = async (
+        container: HTMLElement,
+        index: number,
+        mermaid: Mermaid,
+    ): Promise<void> => {
+        const source = container.dataset.mermaidSource;
+        if (!source) return;
+
+        const lines = source.split("\n");
+        const sourceMeta = {
+            lineCount: lines.length,
+            charCount: source.length,
+            preview: lines.slice(0, 8).join("\n"),
+        };
+
+        debugLog(`Start render #${index}`, sourceMeta);
+
+        try {
+            if (MERMAID_DEBUG) {
+                const validation = await validateMermaidSource(
+                    source,
+                    mermaid,
+                );
+                if (!validation.ok) {
+                    throw new Error(
+                        `Pre-parse failed: ${validation.message || "unknown mermaid parse error"}`,
+                    );
+                }
+            }
+
+            const { svg, bindFunctions } = await mermaid.render(
+                `mermaid-${index}-${Date.now()}`,
+                source,
+            );
+            sessionStorage.removeItem("mermaid-dev-reload-once");
+            container.classList.remove("mermaid-error");
+            container.innerHTML = svg;
+            globalWindow.__MERMAID_DEBUG__?.entries.push({
+                index,
+                lineCount: sourceMeta.lineCount,
+                charCount: sourceMeta.charCount,
+                ok: true,
+            });
+            debugLog(`Render success #${index}`);
+            if (bindFunctions) {
+                bindFunctions(container);
+            }
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : String(error);
+
+            if (
+                isDynamicImportFetchError(message) &&
+                tryDevAutoReload()
+            ) {
+                container.classList.add("mermaid-error");
+                container.innerHTML = `<p>${uiText.cacheReloading}</p>`;
+                return;
+            }
+
+            console.groupCollapsed(
+                `[Mermaid Debug] Render failed #${index}`,
+            );
+            console.error("Error:", error);
+            console.info("Theme:", getMermaidTheme());
+            console.info("Source meta:", sourceMeta);
+            console.info("Source full text:\n" + source);
+            console.groupEnd();
+
+            globalWindow.__MERMAID_DEBUG__?.entries.push({
+                index,
+                lineCount: sourceMeta.lineCount,
+                charCount: sourceMeta.charCount,
+                ok: false,
+                message,
+            });
+
+            container.classList.add("mermaid-error");
+            const extraHint = isDynamicImportFetchError(message)
+                ? uiText.devCacheHint
+                : "";
+            container.innerHTML = `
+						<p>${uiText.renderFailed}</p>
+						<p>${uiText.errorDetails}: ${escapeHtml(message)}</p>
+						${extraHint ? `<p>${escapeHtml(extraHint)}</p>` : ""}
+						<pre>${escapeHtml(sourceMeta.preview)}</pre>
+					`;
+        }
+    };
+
+    const renderMermaidDiagrams = async () => {
+        const mermaidCodeBlocks = Array.from(
+            document.querySelectorAll(".prose pre > code"),
+        ).filter((code) =>
+            isMermaidCodeBlock(code.parentElement, code),
+        );
+        if (mermaidCodeBlocks.length === 0) return;
+
+        const mermaid = await loadMermaid();
+        initializeMermaid(mermaid);
+        let index = 0;
+
+        for (const code of mermaidCodeBlocks) {
+            if (!(code instanceof HTMLElement)) continue;
+
+            const pre = code.parentElement;
+            if (!pre) continue;
+
+            if (pre.dataset.mermaidMounted === "true") continue;
+
+            const source = extractMermaidSource(code);
+            if (!source) continue;
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "mermaid-container";
+
+            const chart = document.createElement("div");
+            chart.className = "mermaid-chart";
+            chart.dataset.mermaidSource = source;
+
+            wrapper.appendChild(chart);
+            pre.dataset.mermaidMounted = "true";
+            pre.replaceWith(wrapper);
+
+            await renderMermaidChart(chart, index++, mermaid);
+        }
+    };
+
+    const createMermaidZoomModal = (): HTMLElement => {
+        const existing = document.querySelector(
+            ".mermaid-zoom-modal",
+        );
+        if (existing instanceof HTMLElement) return existing;
+
+        const modal = document.createElement("div");
+        modal.className = "mermaid-zoom-modal";
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = `
+            <div class="mermaid-zoom-toolbar">
+                <button class="mermaid-zoom-action" data-action="zoom-out" aria-label="${uiText.zoomOut}">-</button>
+                <button class="mermaid-zoom-action" data-action="reset" aria-label="${uiText.reset}">1:1</button>
+                <button class="mermaid-zoom-action" data-action="zoom-in" aria-label="${uiText.zoomIn}">+</button>
+                <button class="mermaid-zoom-action" data-action="close" aria-label="${uiText.close}">×</button>
+            </div>
+            <div class="mermaid-zoom-viewport">
+                <div class="mermaid-zoom-content"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        return modal;
+    };
+
+    const openMermaidZoom = (chart: HTMLElement) => {
+        const sourceSvg = chart.querySelector("svg");
+        if (!(sourceSvg instanceof SVGSVGElement)) return;
+
+        const modal = createMermaidZoomModal();
+        const viewport = modal.querySelector(
+            ".mermaid-zoom-viewport",
+        ) as HTMLElement | null;
+        const content = modal.querySelector(
+            ".mermaid-zoom-content",
+        ) as HTMLElement | null;
+        if (!viewport || !content) return;
+
+        content.innerHTML = "";
+        const svg = sourceSvg.cloneNode(true) as SVGSVGElement;
+        svg.removeAttribute("style");
+        svg.style.maxWidth = "none";
+        content.appendChild(svg);
+
+        const sourceRect = sourceSvg.getBoundingClientRect();
+        const viewBox = sourceSvg.viewBox.baseVal;
+        const baseWidth = Math.max(
+            1,
+            viewBox.width || sourceRect.width || 320,
+        );
+        const baseHeight = Math.max(
+            1,
+            viewBox.height || sourceRect.height || 240,
+        );
+
+        const pointers = new Map<number, PointerEvent>();
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let startX = 0;
+        let startY = 0;
+        let baseX = 0;
+        let baseY = 0;
+        let startDistance = 0;
+        let startScale = 1;
+        const gestureAbortController = new AbortController();
+
+        const clampScale = (value: number) =>
+            Math.min(6, Math.max(0.4, value));
+
+        const applyTransform = () => {
+            svg.style.width = `${baseWidth * scale}px`;
+            svg.style.height = `${baseHeight * scale}px`;
+            content.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px))`;
+        };
+
+        const reset = () => {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            applyTransform();
+        };
+
+        const getDistance = () => {
+            const active = [...pointers.values()];
+            if (active.length < 2) return 0;
+            return Math.hypot(
+                active[0].clientX - active[1].clientX,
+                active[0].clientY - active[1].clientY,
+            );
+        };
+
+        const close = () => {
+            modal.dataset.open = "false";
+            modal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = "";
+            pointers.clear();
+            gestureAbortController.abort();
+            viewport.onpointerdown = null;
+            viewport.onpointermove = null;
+            viewport.onpointerup = null;
+            viewport.onpointercancel = null;
+        };
+
+        modal.dataset.open = "true";
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        reset();
+
+        const preventPageGesture = (event: Event) => {
+            event.preventDefault();
+        };
+
+        modal.addEventListener("touchmove", preventPageGesture, {
+            passive: false,
+            signal: gestureAbortController.signal,
+        });
+        modal.addEventListener("gesturestart", preventPageGesture, {
+            passive: false,
+            signal: gestureAbortController.signal,
+        });
+        modal.addEventListener("gesturechange", preventPageGesture, {
+            passive: false,
+            signal: gestureAbortController.signal,
+        });
+        modal.addEventListener("gestureend", preventPageGesture, {
+            passive: false,
+            signal: gestureAbortController.signal,
+        });
+
+        viewport.onpointerdown = (event) => {
+            event.preventDefault();
+            viewport.setPointerCapture(event.pointerId);
+            pointers.set(event.pointerId, event);
+
+            if (pointers.size === 1) {
+                startX = event.clientX;
+                startY = event.clientY;
+                baseX = translateX;
+                baseY = translateY;
+            } else if (pointers.size === 2) {
+                startDistance = getDistance();
+                startScale = scale;
+            }
+        };
+
+        viewport.onpointermove = (event) => {
+            event.preventDefault();
+            if (!pointers.has(event.pointerId)) return;
+            pointers.set(event.pointerId, event);
+
+            if (pointers.size === 1) {
+                translateX = baseX + event.clientX - startX;
+                translateY = baseY + event.clientY - startY;
+            } else if (pointers.size === 2 && startDistance > 0) {
+                scale = clampScale(
+                    startScale * (getDistance() / startDistance),
+                );
+            }
+            applyTransform();
+        };
+
+        const releasePointer = (event: PointerEvent) => {
+            pointers.delete(event.pointerId);
+            if (pointers.size === 1) {
+                const remaining = [...pointers.values()][0];
+                startX = remaining.clientX;
+                startY = remaining.clientY;
+                baseX = translateX;
+                baseY = translateY;
+            }
+        };
+
+        viewport.onpointerup = releasePointer;
+        viewport.onpointercancel = releasePointer;
+
+        modal.onclick = (event) => {
+            const target = event.target as HTMLElement;
+            const action = target.closest<HTMLElement>("[data-action]")
+                ?.dataset.action;
+            if (!action) return;
+
+            if (action === "close") close();
+            if (action === "reset") reset();
+            if (action === "zoom-in") {
+                scale = clampScale(scale * 1.25);
+                applyTransform();
+            }
+            if (action === "zoom-out") {
+                scale = clampScale(scale / 1.25);
+                applyTransform();
+            }
+        };
+    };
+
+    const addMermaidZoomControls = () => {
+        document
+            .querySelectorAll<HTMLElement>(".mermaid-container")
+            .forEach((container) => {
+                if (container.querySelector(".mermaid-zoom-btn"))
+                    return;
+
+                const chart =
+                    container.querySelector<HTMLElement>(
+                        ".mermaid-chart",
+                    );
+                if (!chart || chart.classList.contains("mermaid-error"))
+                    return;
+
+                const button = document.createElement("button");
+                button.className = "mermaid-zoom-btn";
+                button.type = "button";
+                button.setAttribute("aria-label", uiText.openDiagram);
+                button.innerHTML = `
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10.5 4a6.5 6.5 0 0 1 5.15 10.46l4.45 4.44-1.2 1.2-4.44-4.45A6.5 6.5 0 1 1 10.5 4Zm0 1.7a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6Zm.85 2.1v1.85h1.85v1.7h-1.85v1.85h-1.7v-1.85H7.8v-1.7h1.85V7.8h1.7Z" fill="currentColor"/>
+                    </svg>
+                `;
+                button.addEventListener("click", () =>
+                    openMermaidZoom(chart),
+                );
+                container.appendChild(button);
+            });
+    };
+
+    const initPostEnhancements = (): Promise<void> => {
+        const prose = document.querySelector(".prose");
+        if (!prose) return Promise.resolve();
+
+        if (
+            postEnhancementsRoot === prose &&
+            postEnhancementsRun
+        ) {
+            return postEnhancementsRun;
+        }
+
+        const generation = ++enhancementGeneration;
+        postEnhancementsRoot = prose;
+        postEnhancementsRun = (async () => {
+            await renderMermaidDiagrams();
+            if (
+                generation !== enhancementGeneration ||
+                !prose.isConnected
+            ) {
+                return;
+            }
+            addMermaidZoomControls();
+        })();
+
+        return postEnhancementsRun;
+    };
+
+    document.addEventListener("astro:page-load", () => {
+        void initPostEnhancements();
+    });
+    document.addEventListener("astro:before-swap", () => {
+        enhancementGeneration += 1;
+        postEnhancementsRoot = null;
+        postEnhancementsRun = null;
+    });
+</script>

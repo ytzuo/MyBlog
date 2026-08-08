@@ -1,0 +1,81 @@
+<script>
+    let tocObserver: IntersectionObserver | null = null;
+
+    const initArticleToc = () => {
+        tocObserver?.disconnect();
+        const tocDetails =
+            document.querySelector<HTMLDetailsElement>(
+                ".toc-panel details",
+            );
+        if (
+            tocDetails &&
+            tocDetails.dataset.responsiveReady !== "true"
+        ) {
+            tocDetails.open = !window.matchMedia(
+                "(max-width: 980px)",
+            ).matches;
+            tocDetails.dataset.responsiveReady = "true";
+        }
+
+        const links = Array.from(
+            document.querySelectorAll<HTMLAnchorElement>(
+                "[data-toc-link]",
+            ),
+        );
+        if (links.length === 0) return;
+
+        const linkById = new Map(
+            links.map((link) => [link.dataset.headingId, link]),
+        );
+        const headings = links
+            .map((link) =>
+                link.dataset.headingId
+                    ? document.getElementById(link.dataset.headingId)
+                    : null,
+            )
+            .filter((heading): heading is HTMLElement =>
+                Boolean(heading),
+            );
+
+        const setActiveLink = (id: string) => {
+            links.forEach((link) =>
+                link.classList.toggle(
+                    "is-active",
+                    link.dataset.headingId === id,
+                ),
+            );
+        };
+
+        tocObserver = new IntersectionObserver(
+            (entries) => {
+                const visibleEntry = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort(
+                        (a, b) =>
+                            a.boundingClientRect.top -
+                            b.boundingClientRect.top,
+                    )[0];
+
+                if (visibleEntry?.target.id) {
+                    setActiveLink(visibleEntry.target.id);
+                }
+            },
+            {
+                rootMargin: "-20% 0px -68% 0px",
+                threshold: 0,
+            },
+        );
+
+        headings.forEach((heading) => tocObserver?.observe(heading));
+        const firstId = headings[0]?.id;
+        if (firstId && linkById.has(firstId)) {
+            setActiveLink(firstId);
+        }
+    };
+
+    document.addEventListener("astro:page-load", initArticleToc);
+    document.addEventListener("astro:before-swap", () => {
+        tocObserver?.disconnect();
+        tocObserver = null;
+    });
+</script>

@@ -1,0 +1,151 @@
+<script>
+    const isEnglishPage =
+        document.documentElement.lang.toLowerCase() === "en";
+    const uiText = {
+        copy: isEnglishPage ? "Copy" : "复制",
+        copied: isEnglishPage ? "Copied!" : "已复制！",
+        copyError: isEnglishPage ? "Error" : "复制失败",
+    };
+
+    const isMermaidCodeBlock = (
+        pre: Element | null,
+        code: Element | null,
+    ): boolean => {
+        if (!pre && !code) return false;
+
+        const preLanguage =
+            pre instanceof HTMLElement ? pre.dataset.language : "";
+        if (preLanguage?.toLowerCase() === "mermaid") return true;
+
+        const preClassName = pre?.className || "";
+        if (/(^|\s)language-mermaid(\s|$)/.test(preClassName))
+            return true;
+
+        const codeClassName = code?.className || "";
+        return /(^|\s)language-mermaid(\s|$)/.test(codeClassName);
+    };
+
+    // 从 pre/code 元素提取语言标识
+    const extractLanguage = (
+        pre: HTMLElement,
+        code: HTMLElement,
+    ): string => {
+        const fromData = pre.dataset.language || "";
+        if (fromData) return fromData;
+        const match = code.className.match(/(?:^|\s)language-(\S+)/);
+        return match ? match[1] : "";
+    };
+
+    // 语言标识 → 友好显示名
+    const formatLangLabel = (lang: string): string => {
+        const map: Record<string, string> = {
+            js: "JavaScript",
+            javascript: "JavaScript",
+            ts: "TypeScript",
+            typescript: "TypeScript",
+            jsx: "JSX",
+            tsx: "TSX",
+            java: "Java",
+            kotlin: "Kotlin",
+            kt: "Kotlin",
+            py: "Python",
+            python: "Python",
+            go: "Go",
+            rs: "Rust",
+            rust: "Rust",
+            rb: "Ruby",
+            php: "PHP",
+            swift: "Swift",
+            cs: "C#",
+            cpp: "C++",
+            c: "C",
+            sh: "Shell",
+            bash: "Bash",
+            zsh: "Zsh",
+            css: "CSS",
+            scss: "SCSS",
+            less: "Less",
+            html: "HTML",
+            xml: "XML",
+            svg: "SVG",
+            json: "JSON",
+            yaml: "YAML",
+            yml: "YAML",
+            toml: "TOML",
+            md: "Markdown",
+            mdx: "MDX",
+            sql: "SQL",
+            astro: "Astro",
+            vue: "Vue",
+            svelte: "Svelte",
+            text: "",
+            txt: "",
+            plaintext: "",
+        };
+        const key = lang.toLowerCase();
+        return key in map ? map[key] : lang;
+    };
+
+    // 为代码块添加顶部 header（语言标签 + 复制按钮）
+    const addCopyButtons = () => {
+        const preBlocks = document.querySelectorAll(".prose pre");
+
+        preBlocks.forEach((pre) => {
+            if (!(pre instanceof HTMLElement)) return;
+            const code = pre.querySelector("code");
+            if (!code || isMermaidCodeBlock(pre, code)) return;
+
+            // 避免重复添加
+            if (pre.parentElement?.classList.contains("code-container"))
+                return;
+
+            // 创建 wrapper
+            const wrapper = document.createElement("div");
+            wrapper.className = "code-container";
+
+            // 插入 wrapper
+            pre.parentNode?.insertBefore(wrapper, pre);
+            wrapper.appendChild(pre);
+
+            // 创建 header 栏
+            const header = document.createElement("div");
+            header.className = "code-header";
+
+            // 语言标签（左侧）
+            const rawLang = extractLanguage(pre, code as HTMLElement);
+            const langLabel = formatLangLabel(rawLang);
+            const langSpan = document.createElement("span");
+            langSpan.className = "code-lang";
+            langSpan.textContent = langLabel;
+            header.appendChild(langSpan);
+
+            // 复制按钮（右侧）
+            const button = document.createElement("button");
+            button.className = "copy-code-btn";
+            button.textContent = uiText.copy;
+            button.addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(
+                        code.textContent || "",
+                    );
+                    const orig = button.textContent;
+                    button.textContent = uiText.copied;
+                    button.classList.add("copied");
+                    setTimeout(() => {
+                        button.textContent = orig;
+                        button.classList.remove("copied");
+                    }, 2000);
+                } catch (err) {
+                    console.error("Failed to copy:", err);
+                    button.textContent = uiText.copyError;
+                }
+            });
+            header.appendChild(button);
+
+            // header 插在 pre 之前
+            wrapper.insertBefore(header, pre);
+        });
+    };
+
+    document.addEventListener("astro:page-load", addCopyButtons);
+</script>
