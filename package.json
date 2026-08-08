@@ -7,7 +7,10 @@
     "check": "astro check",
     "check:content": "node scripts/check-content.mjs",
     "check:links": "node scripts/check-markdown-links.mjs",
-    "test": "node --test",
+    "test": "vitest run",
+    "test:dom": "vitest run tests/MermaidEnhancements.spec.ts",
+    "test:content": "vitest run tests/content-metadata.spec.ts",
+    "test:coverage": "vitest run --coverage",
     "build": "astro build",
     "quality": "pnpm run check && pnpm run check:content && pnpm run test && pnpm run build && pnpm run check:links",
     "preview": "astro preview",
@@ -24,6 +27,9 @@
   "packageManager": "pnpm@11.1.0",
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "typescript": "^6.0.3"
+    "@vitest/coverage-v8": "^4.1.10",
+    "jsdom": "^30.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
   }
 }
