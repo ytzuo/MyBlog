@@ -7,6 +7,8 @@ export const SITE_DESCRIPTION =
 export const SITE_TITLE_EN = "Saten's Base";
 export const SITE_DESCRIPTION_EN =
     "Saten's personal base for notes on software engineering, learning, games, and everyday discoveries.";
+export const SITE_AUTHOR = "Saten Yang";
+export const SITE_AUTHOR_URL = "https://github.com/ytzuo";
 
 // 图标配置
 export const SITE_LOGO = '/ghost-cat-code.svg';

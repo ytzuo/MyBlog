@@ -11,6 +11,7 @@ interface Props {
     image?: ImageMetadata;
     locale?: Locale;
     alternateUrl?: string;
+    noindex?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
     image,
     locale = getLocaleFromPath(Astro.url.pathname),
     alternateUrl,
+    noindex = false,
 } = Astro.props;
 ---
 
@@ -31,6 +33,7 @@ const {
             image={image}
             locale={locale}
             alternateUrl={alternateUrl}
+            noindex={noindex}
         />
         <slot name="head" />
     </head>
