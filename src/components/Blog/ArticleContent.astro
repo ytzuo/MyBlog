@@ -741,6 +741,14 @@ const hasToc = tocHeadings.length > 0;
         touch-action: manipulation;
     }
 
+    :global(.mermaid-zoom-title) {
+        margin: 0 auto 0 0;
+        color: inherit;
+        font-size: 1rem;
+        font-weight: 650;
+        line-height: 1.3;
+    }
+
     :global(.mermaid-zoom-action) {
         width: 2.25rem;
         height: 2.25rem;
@@ -753,6 +761,11 @@ const hasToc = tocHeadings.length > 0;
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
+    }
+
+    :global(.mermaid-zoom-action:focus-visible) {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
     }
 
     :global(.mermaid-zoom-viewport) {

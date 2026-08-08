@@ -5,6 +5,7 @@
     let enhancementGeneration = 0;
     let postEnhancementsRoot: Element | null = null;
     let postEnhancementsRun: Promise<void> | null = null;
+    let closeActiveMermaidZoom: (() => void) | null = null;
     const isEnglishPage =
         document.documentElement.lang.toLowerCase() === "en";
     const uiText = {
@@ -22,6 +23,9 @@
         reset: isEnglishPage ? "Reset" : "重置",
         zoomIn: isEnglishPage ? "Zoom in" : "放大",
         close: isEnglishPage ? "Close" : "关闭",
+        dialogTitle: isEnglishPage
+            ? "Enlarged Mermaid diagram"
+            : "放大的 Mermaid 图表",
         openDiagram: isEnglishPage
             ? "Open enlarged diagram"
             : "放大查看图表",
@@ -296,14 +300,20 @@
         if (existing instanceof HTMLElement) return existing;
 
         const modal = document.createElement("div");
+        modal.id = "mermaid-zoom-dialog";
         modal.className = "mermaid-zoom-modal";
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+        modal.setAttribute("aria-labelledby", "mermaid-zoom-title");
         modal.setAttribute("aria-hidden", "true");
+        modal.tabIndex = -1;
         modal.innerHTML = `
             <div class="mermaid-zoom-toolbar">
-                <button class="mermaid-zoom-action" data-action="zoom-out" aria-label="${uiText.zoomOut}">-</button>
-                <button class="mermaid-zoom-action" data-action="reset" aria-label="${uiText.reset}">1:1</button>
-                <button class="mermaid-zoom-action" data-action="zoom-in" aria-label="${uiText.zoomIn}">+</button>
-                <button class="mermaid-zoom-action" data-action="close" aria-label="${uiText.close}">×</button>
+                <h2 class="mermaid-zoom-title" id="mermaid-zoom-title">${uiText.dialogTitle}</h2>
+                <button type="button" class="mermaid-zoom-action" data-action="zoom-out" aria-label="${uiText.zoomOut}">-</button>
+                <button type="button" class="mermaid-zoom-action" data-action="reset" aria-label="${uiText.reset}">1:1</button>
+                <button type="button" class="mermaid-zoom-action" data-action="zoom-in" aria-label="${uiText.zoomIn}">+</button>
+                <button type="button" class="mermaid-zoom-action" data-action="close" aria-label="${uiText.close}">×</button>
             </div>
             <div class="mermaid-zoom-viewport">
                 <div class="mermaid-zoom-content"></div>
@@ -313,9 +323,14 @@
         return modal;
     };
 
-    const openMermaidZoom = (chart: HTMLElement) => {
+    const openMermaidZoom = (
+        chart: HTMLElement,
+        trigger: HTMLButtonElement,
+    ) => {
         const sourceSvg = chart.querySelector("svg");
         if (!(sourceSvg instanceof SVGSVGElement)) return;
+
+        closeActiveMermaidZoom?.();
 
         const modal = createMermaidZoomModal();
         const viewport = modal.querySelector(
@@ -324,7 +339,10 @@
         const content = modal.querySelector(
             ".mermaid-zoom-content",
         ) as HTMLElement | null;
-        if (!viewport || !content) return;
+        const closeButton = modal.querySelector<HTMLButtonElement>(
+            '[data-action="close"]',
+        );
+        if (!viewport || !content || !closeButton) return;
 
         content.innerHTML = "";
         const svg = sourceSvg.cloneNode(true) as SVGSVGElement;
@@ -354,6 +372,12 @@
         let startDistance = 0;
         let startScale = 1;
         const gestureAbortController = new AbortController();
+        const previousBodyOverflow = document.body.style.overflow;
+        const backgroundState = new Map<
+            HTMLElement,
+            { inert: boolean; ariaHidden: string | null }
+        >();
+        let isClosed = false;
 
         const clampScale = (value: number) =>
             Math.min(6, Math.max(0.4, value));
@@ -380,22 +404,116 @@
             );
         };
 
+        const restoreBackground = () => {
+            backgroundState.forEach((state, element) => {
+                element.inert = state.inert;
+                if (state.ariaHidden === null) {
+                    element.removeAttribute("aria-hidden");
+                } else {
+                    element.setAttribute("aria-hidden", state.ariaHidden);
+                }
+            });
+            backgroundState.clear();
+        };
+
         const close = () => {
+            if (isClosed) return;
+            isClosed = true;
+            gestureAbortController.abort();
             modal.dataset.open = "false";
             modal.setAttribute("aria-hidden", "true");
-            document.body.style.overflow = "";
+            trigger.setAttribute("aria-expanded", "false");
+            document.body.style.overflow = previousBodyOverflow;
+            restoreBackground();
             pointers.clear();
-            gestureAbortController.abort();
             viewport.onpointerdown = null;
             viewport.onpointermove = null;
             viewport.onpointerup = null;
             viewport.onpointercancel = null;
+            if (closeActiveMermaidZoom === close) {
+                closeActiveMermaidZoom = null;
+            }
+            if (trigger.isConnected) {
+                trigger.focus({ preventScroll: true });
+            }
         };
 
         modal.dataset.open = "true";
         modal.setAttribute("aria-hidden", "false");
+        trigger.setAttribute("aria-expanded", "true");
+        Array.from(document.body.children).forEach((element) => {
+            if (!(element instanceof HTMLElement) || element === modal)
+                return;
+            backgroundState.set(element, {
+                inert: element.inert,
+                ariaHidden: element.getAttribute("aria-hidden"),
+            });
+            element.inert = true;
+            element.setAttribute("aria-hidden", "true");
+        });
         document.body.style.overflow = "hidden";
+        closeActiveMermaidZoom = close;
         reset();
+
+        const getFocusableElements = (): HTMLElement[] =>
+            Array.from(
+                modal.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                ),
+            ).filter(
+                (element) =>
+                    element.getAttribute("aria-hidden") !== "true" &&
+                    !element.closest("[inert]"),
+            );
+
+        const handleDialogKeydown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                event.stopPropagation();
+                close();
+                return;
+            }
+            if (event.key !== "Tab") return;
+
+            const focusableElements = getFocusableElements();
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements.at(-1);
+            if (!firstElement || !lastElement) {
+                event.preventDefault();
+                modal.focus({ preventScroll: true });
+                return;
+            }
+
+            const activeElement = document.activeElement;
+            if (
+                event.shiftKey &&
+                (activeElement === firstElement ||
+                    !modal.contains(activeElement))
+            ) {
+                event.preventDefault();
+                lastElement.focus({ preventScroll: true });
+            } else if (
+                !event.shiftKey &&
+                (activeElement === lastElement ||
+                    !modal.contains(activeElement))
+            ) {
+                event.preventDefault();
+                firstElement.focus({ preventScroll: true });
+            }
+        };
+
+        const keepFocusInsideDialog = (event: FocusEvent) => {
+            if (isClosed || modal.contains(event.target as Node)) return;
+            closeButton.focus({ preventScroll: true });
+        };
+
+        document.addEventListener("keydown", handleDialogKeydown, {
+            signal: gestureAbortController.signal,
+        });
+        document.addEventListener("focusin", keepFocusInsideDialog, {
+            signal: gestureAbortController.signal,
+        });
+        closeButton.focus({ preventScroll: true });
 
         const preventPageGesture = (event: Event) => {
             event.preventDefault();
@@ -464,13 +582,16 @@
         viewport.onpointerup = releasePointer;
         viewport.onpointercancel = releasePointer;
 
-        modal.onclick = (event) => {
+        modal.addEventListener("click", (event) => {
             const target = event.target as HTMLElement;
             const action = target.closest<HTMLElement>("[data-action]")
                 ?.dataset.action;
             if (!action) return;
 
-            if (action === "close") close();
+            if (action === "close") {
+                close();
+                return;
+            }
             if (action === "reset") reset();
             if (action === "zoom-in") {
                 scale = clampScale(scale * 1.25);
@@ -480,7 +601,7 @@
                 scale = clampScale(scale / 1.25);
                 applyTransform();
             }
-        };
+        }, { signal: gestureAbortController.signal });
     };
 
     const addMermaidZoomControls = () => {
@@ -501,13 +622,16 @@
                 button.className = "mermaid-zoom-btn";
                 button.type = "button";
                 button.setAttribute("aria-label", uiText.openDiagram);
+                button.setAttribute("aria-haspopup", "dialog");
+                button.setAttribute("aria-controls", "mermaid-zoom-dialog");
+                button.setAttribute("aria-expanded", "false");
                 button.innerHTML = `
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M10.5 4a6.5 6.5 0 0 1 5.15 10.46l4.45 4.44-1.2 1.2-4.44-4.45A6.5 6.5 0 1 1 10.5 4Zm0 1.7a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6Zm.85 2.1v1.85h1.85v1.7h-1.85v1.85h-1.7v-1.85H7.8v-1.7h1.85V7.8h1.7Z" fill="currentColor"/>
                     </svg>
                 `;
                 button.addEventListener("click", () =>
-                    openMermaidZoom(chart),
+                    openMermaidZoom(chart, button),
                 );
                 container.appendChild(button);
             });
@@ -544,6 +668,7 @@
         void initPostEnhancements();
     });
     document.addEventListener("astro:before-swap", () => {
+        closeActiveMermaidZoom?.();
         enhancementGeneration += 1;
         postEnhancementsRoot = null;
         postEnhancementsRun = null;
