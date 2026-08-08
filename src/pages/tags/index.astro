@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import GhostSprites from "../../components/GhostSprites.astro";
@@ -10,26 +9,16 @@ import {
     SITE_DESCRIPTION_EN,
     SITE_TITLE_EN,
 } from "../../consts";
-import { isEnglishPost, type Locale } from "../../lib/i18n";
-import { isVisiblePost } from "../../lib/posts";
-import {
-    buildTagCounts,
-    buildTagSummaries,
-    sortPostsByDateDesc,
-} from "../../lib/tags";
+import type { Locale } from "../../lib/i18n";
+import { getVisiblePosts } from "../../lib/posts";
+import { buildTagCounts, buildTagSummaries } from "../../lib/tags";
 
 interface Props {
     locale?: Locale;
 }
 const { locale = "zh" } = Astro.props;
 const isEnglish = locale === "en";
-const posts = sortPostsByDateDesc(
-    (await getCollection("blog")).filter(
-        (post) =>
-            isVisiblePost(post) &&
-            isEnglishPost(post) === isEnglish,
-    ),
-);
+const posts = await getVisiblePosts(locale);
 const tagSummaries = buildTagSummaries(posts);
 const tagCounts = buildTagCounts(tagSummaries);
 const totalTagUses = tagSummaries.reduce(

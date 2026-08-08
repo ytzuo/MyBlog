@@ -6,36 +6,27 @@ import {
     SITE_TITLE,
     SITE_TITLE_EN,
 } from "../../consts";
-import { getCollection, type CollectionEntry } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import GhostSprites from "../../components/GhostSprites.astro";
 import PostList from "../../components/Cards/PostList.astro";
 import Tag from "../../components/Tag.astro";
-import {
-    isEnglishPost,
-    translateTag,
-    type Locale,
-} from "../../lib/i18n";
-import { isVisiblePost } from "../../lib/posts";
+import { translateTag, type Locale } from "../../lib/i18n";
+import { getVisiblePosts } from "../../lib/posts";
 import {
     buildTagCounts,
     buildTagSummaries,
     getRelatedTagSummaries,
-    sortPostsByDateDesc,
 } from "../../lib/tags";
 
 export async function getStaticPaths() {
-    const allPosts = sortPostsByDateDesc(
-        (await getCollection("blog")).filter(
-            (post) => isVisiblePost(post) && !isEnglishPost(post),
-        ),
-    );
+    const allPosts = await getVisiblePosts("zh");
     const tagSummaries = buildTagSummaries(allPosts);
     const tagCounts = buildTagCounts(tagSummaries);
 
     return tagSummaries.map((summary) => {
         const tag = summary.name;
-        const filteredPosts = sortPostsByDateDesc(
-            allPosts.filter((post) => post.data.tags?.includes(tag)),
+        const filteredPosts = allPosts.filter((post) =>
+            post.data.tags?.includes(tag),
         );
         const relatedTagSummaries = getRelatedTagSummaries(
             filteredPosts,

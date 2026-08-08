@@ -1,22 +1,15 @@
-import { getCollection } from 'astro:content';
 import rss from '@astrojs/rss';
 import type { APIRoute } from 'astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import { getPostUrl, isEnglishPost } from '../lib/i18n';
-import { isVisiblePost } from '../lib/posts';
+import { getPostUrl } from '../lib/i18n';
+import { getVisiblePosts } from '../lib/posts';
 
 // 生成 RSS feed，包含所有博客文章
 export const GET: APIRoute = async (context) => {
 	if (!context.site) {
 		throw new Error('Astro site URL is required to generate the RSS feed.');
 	}
-	const posts = (await getCollection('blog'))
-		.filter((post) => isVisiblePost(post) && !isEnglishPost(post))
-		.sort(
-			(a, b) =>
-				new Date(b.data.pubDate).valueOf() -
-				new Date(a.data.pubDate).valueOf(),
-		);
+	const posts = await getVisiblePosts('zh');
 	return rss({
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,

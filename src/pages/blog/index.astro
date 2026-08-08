@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostList from "../../components/Cards/PostList.astro";
 import {
@@ -9,24 +8,15 @@ import {
     SITE_TITLE_EN,
 } from "../../consts";
 import GhostSprites from "../../components/GhostSprites.astro";
-import { isEnglishPost, type Locale } from "../../lib/i18n";
-import { isVisiblePost } from "../../lib/posts";
+import type { Locale } from "../../lib/i18n";
+import { getVisiblePosts } from "../../lib/posts";
 
 interface Props {
     locale?: Locale;
 }
 const { locale = "zh" } = Astro.props;
 const isEnglish = locale === "en";
-const posts = (await getCollection("blog"))
-    .filter(
-        (post) =>
-            isVisiblePost(post) &&
-            isEnglishPost(post) === isEnglish,
-    )
-    .sort(
-    (a, b) =>
-        new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf(),
-    );
+const posts = await getVisiblePosts(locale);
 
 ---
 

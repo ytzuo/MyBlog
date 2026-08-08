@@ -1,28 +1,21 @@
 ---
-import { getCollection } from "astro:content";
 import TagPage from "../../tags/[tag].astro";
-import { isEnglishPost } from "../../../lib/i18n";
-import { isVisiblePost } from "../../../lib/posts";
+import { getVisiblePosts } from "../../../lib/posts";
 import {
     buildTagCounts,
     buildTagSummaries,
     getRelatedTagSummaries,
-    sortPostsByDateDesc,
 } from "../../../lib/tags";
 
 export async function getStaticPaths() {
-    const allPosts = sortPostsByDateDesc(
-        (await getCollection("blog")).filter(
-            (post) => isVisiblePost(post) && isEnglishPost(post),
-        ),
-    );
+    const allPosts = await getVisiblePosts("en");
     const tagSummaries = buildTagSummaries(allPosts);
     const tagCounts = buildTagCounts(tagSummaries);
 
     return tagSummaries.map((summary) => {
         const tag = summary.name;
-        const posts = sortPostsByDateDesc(
-            allPosts.filter((post) => post.data.tags?.includes(tag)),
+        const posts = allPosts.filter((post) =>
+            post.data.tags?.includes(tag),
         );
 
         return {

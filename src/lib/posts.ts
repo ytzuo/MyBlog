@@ -1,4 +1,5 @@
-import type { CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
+import type { Locale } from "./i18n";
 
 type BlogPost = CollectionEntry<"blog">;
 
@@ -13,6 +14,20 @@ export interface PostNavigation {
  */
 export const isVisiblePost = (post: CollectionEntry<"blog">): boolean =>
     import.meta.env.DEV || !post.data.draft;
+
+/**
+ * Returns posts visible in the current environment for one locale, newest first.
+ * Keep collection-wide visibility and ordering rules centralized here so every
+ * public entry point handles drafts consistently.
+ */
+export const getVisiblePosts = async (locale: Locale): Promise<BlogPost[]> =>
+    (await getCollection("blog"))
+        .filter((post) => isVisiblePost(post) && post.data.lang === locale)
+        .sort(
+            (a, b) =>
+                new Date(b.data.pubDate).valueOf() -
+                new Date(a.data.pubDate).valueOf(),
+        );
 
 /**
  * Returns the posts immediately before and after the current post in
