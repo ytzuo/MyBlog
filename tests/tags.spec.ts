@@ -112,26 +112,96 @@ describe("buildTagSummaries", () => {
             "Beta",
         ]);
     });
+
+    it("counts an identical tag only once per post without changing the input tags", () => {
+        const repeatedTags = ["Astro", "Astro", "astro", "Astro "];
+        const repeatedPost = post({
+            title: "Repeated tags",
+            slug: "repeated-tags",
+            pubDate: "2026-04-01",
+            tags: repeatedTags,
+        });
+        const laterPost = post({
+            title: "Later Astro",
+            slug: "later-astro",
+            pubDate: "2026-05-01",
+            tags: ["Astro"],
+        });
+
+        const summaries = buildTagSummaries([repeatedPost, laterPost]);
+        const summariesByName = Object.fromEntries(
+            summaries.map((summary) => [summary.name, summary]),
+        );
+
+        expect(repeatedTags).toEqual(["Astro", "Astro", "astro", "Astro "]);
+        expect(summariesByName.Astro).toEqual({
+            name: "Astro",
+            count: 2,
+            latestPostTitle: "Later Astro",
+            latestPostUrl: "/blog/later-astro/",
+            latestPubDate: "2026-05-01",
+        });
+        expect(summariesByName.astro).toEqual({
+            name: "astro",
+            count: 1,
+            latestPostTitle: "Repeated tags",
+            latestPostUrl: "/blog/repeated-tags/",
+            latestPubDate: "2026-04-01",
+        });
+        expect(summariesByName["Astro "]).toEqual({
+            name: "Astro ",
+            count: 1,
+            latestPostTitle: "Repeated tags",
+            latestPostUrl: "/blog/repeated-tags/",
+            latestPubDate: "2026-04-01",
+        });
+    });
 });
 
 describe("buildTagCounts", () => {
     it("converts summaries into a tag lookup", () => {
         expect(
-            buildTagCounts(buildTagSummaries([olderPost, newestPost])),
-        ).toEqual({ Databases: 2, Astro: 1, TypeScript: 1 });
+            buildTagCounts(
+                buildTagSummaries([
+                    olderPost,
+                    newestPost,
+                    post({
+                        title: "Repeated database post",
+                        slug: "repeated-database",
+                        pubDate: "2026-04-01",
+                        tags: ["Databases", "Databases", "Astro"],
+                    }),
+                ]),
+            ),
+        ).toEqual({ Databases: 3, Astro: 2, TypeScript: 1 });
     });
 });
 
 describe("getRelatedTagSummaries", () => {
     it("aggregates co-occurring tags and excludes the current tag", () => {
         const related = getRelatedTagSummaries(
-            [olderPost, newestPost],
+            [
+                olderPost,
+                newestPost,
+                post({
+                    title: "Repeated related tags",
+                    slug: "repeated-related-tags",
+                    pubDate: "2026-04-01",
+                    tags: [
+                        "Databases",
+                        "Databases",
+                        "Astro",
+                        "Astro",
+                        "TypeScript",
+                    ],
+                }),
+            ],
             "Databases",
         );
 
         expect(related.map(({ name, count }) => ({ name, count }))).toEqual([
-            { name: "TypeScript", count: 1 },
-            { name: "Astro", count: 1 },
+            { name: "Astro", count: 2 },
+            { name: "TypeScript", count: 2 },
         ]);
     });
 });

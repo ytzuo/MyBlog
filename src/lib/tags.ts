@@ -22,7 +22,10 @@ export const buildTagSummaries = (posts: BlogPost[]): TagSummary[] => {
     const summaryByTag = new Map<string, TagSummary>();
 
     sortedPosts.forEach((post) => {
-        (post.data.tags || []).forEach((tag) => {
+        // 标签数量按文章计数，同一篇文章里的重复标签只累计一次。
+        const uniquePostTags = new Set(post.data.tags || []);
+
+        uniquePostTags.forEach((tag) => {
             const summary = summaryByTag.get(tag);
             if (summary) {
                 summary.count += 1;
