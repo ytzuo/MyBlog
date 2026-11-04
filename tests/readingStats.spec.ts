@@ -33,6 +33,27 @@ const ignored = true;
         });
     });
 
+    it("excludes tilde fenced, unclosed, and long backtick fenced code from word counts", () => {
+        const content = [
+            "正文 inline `code-word` visible-word",
+            "~~~ts",
+            "const hiddenTilde = true;",
+            "~~~",
+            "````md",
+            "```",
+            "hidden short fence example",
+            "````",
+            "tail",
+            "```",
+            "hidden unclosed block",
+        ].join("\n");
+
+        expect(getReadingStats(content, "en")).toMatchObject({
+            wordCount: 6,
+            wordCountText: "6 words",
+        });
+    });
+
     it("uses the English reading speed and rounds minutes up", () => {
         const content = Array.from(
             { length: 226 },

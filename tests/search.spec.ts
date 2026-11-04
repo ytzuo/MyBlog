@@ -39,6 +39,24 @@ const ignored = true;
             "first second third",
         );
     });
+
+    it("excludes tilde fences, unclosed fences, and short fences inside longer fences", () => {
+        const markdown = [
+            "visible `inline` text",
+            "~~~ts",
+            "const hiddenTilde = true;",
+            "~~~",
+            "````md",
+            "```",
+            "hidden short fence example",
+            "````",
+            "after",
+            "```",
+            "hidden unclosed block",
+        ].join("\n");
+
+        expect(stripMarkdown(markdown)).toBe("visible inline text after");
+    });
 });
 
 describe("buildSearchIndexItem", () => {

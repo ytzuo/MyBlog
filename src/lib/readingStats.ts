@@ -1,3 +1,6 @@
+import type { Locale } from "./i18n";
+import { stripMarkdownFencedCodeBlocks } from "./markdown";
+
 export interface ReadingStats {
     wordCount: number;
     readingMinutes: number;
@@ -6,9 +9,8 @@ export interface ReadingStats {
 }
 
 const stripMarkdownForReading = (value: string): string =>
-    value
+    stripMarkdownFencedCodeBlocks(value)
         .replace(/^---[\s\S]*?---/, " ")
-        .replace(/```[\s\S]*?```/g, " ")
         .replace(/`([^`]+)`/g, "$1")
         .replace(/!\[[^\]]*]\([^)]+\)/g, " ")
         .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
@@ -56,4 +58,3 @@ export const getReadingStats = (
                 : `约 ${readingMinutes} 分钟`,
     };
 };
-import type { Locale } from "./i18n";

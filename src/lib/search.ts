@@ -1,5 +1,6 @@
 import type { CollectionEntry } from "astro:content";
 import { getPostUrl } from "./i18n";
+import { stripMarkdownFencedCodeBlocks } from "./markdown";
 
 export interface SearchIndexItem {
     title: string;
@@ -19,9 +20,8 @@ const compactWhitespace = (value: string): string =>
 
 export const stripMarkdown = (value: string): string =>
     compactWhitespace(
-        value
+        stripMarkdownFencedCodeBlocks(value)
             .replace(/^---[\s\S]*?---/, " ")
-            .replace(/```[\s\S]*?```/g, " ")
             .replace(/`([^`]+)`/g, "$1")
             .replace(/!\[[^\]]*]\([^)]+\)/g, " ")
             .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
