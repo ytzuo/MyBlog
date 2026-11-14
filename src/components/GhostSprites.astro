@@ -62,7 +62,7 @@ const { count = 6 } = Astro.props;
             ),
         );
 
-    const initGhosts = () => {
+    const initGhosts = (preserveExisting = false) => {
         const container = document.getElementById("ghost-container");
         const template = document.getElementById(
             "ghost-template",
@@ -78,9 +78,6 @@ const { count = 6 } = Astro.props;
         }
 
         if (container && template) {
-            // Clear existing ghosts to prevent duplicates if function runs multiple times
-            container.innerHTML = "";
-
             const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
             const preferredCount = Number(
                 container.dataset.count || (isMobile ? "3" : "6"),
@@ -105,7 +102,37 @@ const { count = 6 } = Astro.props;
             const minY = Math.min(100, verticalSpace);
             const minGhostDistance = isMobile ? 130 : 150;
             const maxPositionAttempts = 48;
-            const placedPositions: GhostPosition[] = [];
+            const existingWrappers = preserveExisting
+                ? Array.from(
+                      container.querySelectorAll<HTMLElement>(
+                          ".ghost-wrapper",
+                      ),
+                  )
+                : [];
+            const placedPositions: GhostPosition[] = existingWrappers
+                .map((wrapper) => ({
+                    x: Number.parseFloat(wrapper.style.left),
+                    y: Number.parseFloat(wrapper.style.top),
+                }))
+                .filter(
+                    (position) =>
+                        Number.isFinite(position.x) &&
+                        Number.isFinite(position.y),
+                );
+
+            if (!preserveExisting) {
+                // Clear existing ghosts to prevent duplicates if function runs multiple times.
+                container.innerHTML = "";
+            } else if (existingWrappers.length > ghostCount) {
+                // Keep the first wrappers so their positions and animation state survive.
+                existingWrappers.slice(ghostCount).forEach((wrapper) => {
+                    wrapper.remove();
+                });
+                placedPositions.length = Math.min(
+                    placedPositions.length,
+                    ghostCount,
+                );
+            }
 
             const getRandomX = (): number => {
                 if (windowWidth <= mainContentWidth + 100) {
@@ -172,7 +199,11 @@ const { count = 6 } = Astro.props;
             container.dataset.renderedCount = String(ghostCount);
             container.dataset.pageHeight = String(getFullPageHeight());
 
-            for (let i = 0; i < ghostCount; i++) {
+            const wrappersToCreate = preserveExisting
+                ? Math.max(0, ghostCount - existingWrappers.length)
+                : ghostCount;
+
+            for (let i = 0; i < wrappersToCreate; i++) {
                 const clone = template.content.cloneNode(
                     true,
                 ) as DocumentFragment;
@@ -237,8 +268,12 @@ const { count = 6 } = Astro.props;
                 Number(container.dataset.renderedCount) !==
                     getMobileGhostCount();
 
-            if (modeChanged || countChanged) {
+            if (modeChanged) {
                 initGhosts();
+            } else if (countChanged) {
+                // A translated page can have a different height. Reconcile the
+                // mobile count without clearing or moving existing ghosts.
+                initGhosts(true);
             }
         }, 180);
     };
