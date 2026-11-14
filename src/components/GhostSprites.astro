@@ -8,7 +8,11 @@ interface Props {
 const { count = 6 } = Astro.props;
 ---
 
-<div id="ghost-container" data-count={count}>
+<div
+    id="ghost-container"
+    data-count={count}
+    transition:persist="ghost-container"
+>
     <!-- 幽灵将由客户端脚本注入以实现随机性 -->
 </div>
 
@@ -212,6 +216,8 @@ const { count = 6 } = Astro.props;
                     container.appendChild(wrapper);
                 }
             }
+
+            container.dataset.initialized = "true";
         }
     };
 
@@ -263,6 +269,18 @@ const { count = 6 } = Astro.props;
             return;
         }
         container.style.display = "";
+
+        // The home pages share this persisted container during language
+        // transitions. Keep its existing children and positions instead of
+        // generating a new random layout on every astro:page-load event.
+        if (
+            container.dataset.initialized === "true" &&
+            container.childElementCount > 0
+        ) {
+            observeGhostLayout();
+            return;
+        }
+
         initGhosts();
         observeGhostLayout();
     };
